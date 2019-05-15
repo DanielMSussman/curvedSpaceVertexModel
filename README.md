@@ -1,4 +1,8 @@
-# dDimensionalSimulation
+# spherical voro
+
+
+
+
 
 Lorem ipsum... a repository that implements simulations in dimension d, where d is specified
 at compilation time. Alter the dimension by setting the number in the root CMakeLists.txt
