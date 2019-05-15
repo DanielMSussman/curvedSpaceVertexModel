@@ -32,7 +32,7 @@ public:
 
     vector<scalar3> lines;
     vector<scalar3> defects;
-    int zoom=4;
+    int zoom=25;
     vector<int3> walls;
     vector<scalar3> boundarySites;
     vector<scalar3> baseSpherePositions;

@@ -33,13 +33,14 @@ void OGLWidget::initializeGL()
 
 void OGLWidget::setLines(vector<scalar3> &lineSegments, int3 sizes)
 {
+    float zm = 0.1*zoom;
     Sizes=sizes;
     lines =lineSegments;
     for (int ii = 0; ii < lines.size(); ++ii)
     {
-        lines[ii].x = zoom*((lines[ii].x-0.5*sizes.x)/sizes.z);
-        lines[ii].y = zoom*((lines[ii].y-0.5*sizes.y)/sizes.z);
-        lines[ii].z = zoom*((lines[ii].z-0.5*sizes.z)/sizes.z);
+        lines[ii].x = zm*((lines[ii].x-0.*sizes.x)/sizes.z);
+        lines[ii].y = zm*((lines[ii].y-0.*sizes.y)/sizes.z);
+        lines[ii].z = zm*((lines[ii].z-0.*sizes.z)/sizes.z);
     }
 }
 
@@ -47,11 +48,12 @@ void OGLWidget::setDefects(vector<scalar3> &def, int3 sizes)
 {
     Sizes=sizes;
     defects =def;
+    float zm = 0.1*zoom;
     for (int ii = 0; ii < defects.size(); ++ii)
     {
-        defects[ii].x = zoom*((defects[ii].x-0.5*sizes.x)/sizes.z);
-        defects[ii].y = zoom*((defects[ii].y-0.5*sizes.y)/sizes.z);
-        defects[ii].z = zoom*((defects[ii].z-0.5*sizes.z)/sizes.z);
+        defects[ii].x = zm*((defects[ii].x-0.5*sizes.x)/sizes.z);
+        defects[ii].y = zm*((defects[ii].y-0.5*sizes.y)/sizes.z);
+        defects[ii].z = zm*((defects[ii].z-0.5*sizes.z)/sizes.z);
     }
 }
 
@@ -59,13 +61,14 @@ void OGLWidget::setSpheres(int3 sizes)
 {
     spherePositions.resize(baseSpherePositions.size());
     sphereRadii.resize(baseSpherePositions.size());
+    float zm = 0.1*zoom;
 
     for (int ii = 0; ii < baseSpherePositions.size(); ++ii)
     {
-        spherePositions[ii].x = zoom*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.z);
-        spherePositions[ii].y = zoom*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.z);
-        spherePositions[ii].z = zoom*((baseSpherePositions[ii].z-0.5*sizes.z)/sizes.z);
-        sphereRadii[ii] = zoom*baseSphereRadii[ii]/sizes.z;
+        spherePositions[ii].x = zm*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.z);
+        spherePositions[ii].y = zm*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.z);
+        spherePositions[ii].z = zm*((baseSpherePositions[ii].z-0.5*sizes.z)/sizes.z);
+        sphereRadii[ii] = zm*baseSphereRadii[ii]/sizes.z;
     }
 }
 
@@ -89,7 +92,8 @@ void OGLWidget::draw()
     }
 
     glEnd();
-    float empiricallyNiceRadius = 0.25/(pow(zoom,0.25));
+    float zm = 0.1*zoom;
+    float empiricallyNiceRadius = 1./(pow(zm,0.25));
     for (int ii = 0; ii < defects.size(); ++ii)
     {
         glColor3f(0.0, 0.0, 1.0);
@@ -139,48 +143,7 @@ void OGLWidget::drawSpheres()
 
 void OGLWidget::drawWalls()
 {
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    float zTop = zoom*(0.5);
-    float yTop = zoom*Sizes.y/Sizes.z;
-    float xTop = zoom*Sizes.x/Sizes.z;
-    glBegin(GL_QUADS);
-    for(int ww = 0; ww < walls.size(); ++ww)
-    {
-        int3 wall = walls[ww];
-        int plane = wall.x;
-        float xPlane = zoom*((plane-0.5*Sizes.x)/Sizes.z);
-        float yPlane = zoom*((plane-0.5*Sizes.y)/Sizes.z);
-        float zPlane = zoom*((plane-0.5*Sizes.z)/Sizes.z);
-        int type = wall.z;
-        if (type == 0)
-            glColor4f(0.4, 0.4, 0.0,0.5);
-        else
-            glColor4f(.5,0.0,.5,0.5);
-        if(wall.y==0)//x-normal
-        {
-            glVertex3f(xPlane,yTop,-zTop);
-            glVertex3f(xPlane,yTop,zTop);
-            glVertex3f(xPlane,-yTop,zTop);
-            glVertex3f(xPlane,-yTop,-zTop);
-        }
-        if(wall.y==1)//y-normal
-        {
-            glVertex3f(xTop,yPlane,-zTop);
-            glVertex3f(xTop,yPlane,zTop);
-            glVertex3f(-xTop,yPlane,zTop);
-            glVertex3f(-xTop,yPlane,-zTop);
-        }
-        if(wall.y==2)//z-normal
-        {
-            glVertex3f(xTop,-yTop,zPlane);
-            glVertex3f(xTop,yTop,zPlane);
-            glVertex3f(-xTop,yTop,zPlane);
-            glVertex3f(-xTop,-yTop,zPlane);
-        }
-    }
-    glEnd();
-    glDisable (GL_BLEND);
+
 }
 
 void OGLWidget::resizeGL(int w, int h)
@@ -210,7 +173,6 @@ void OGLWidget::paintGL()
         {
         draw();
         drawSpheres();
-        drawWalls();
         }
     else
         {
@@ -222,11 +184,12 @@ void OGLWidget::paintGL()
 void OGLWidget::setAllBoundarySites(vector<int3> &sites)
 {
     boundarySites.resize(sites.size());
+    float zm = ((float)zoom)*0.1;
     for(int ii = 0; ii < sites.size();++ii)
         {
-        boundarySites[ii].x = zoom*((sites[ii].x-0.5*Sizes.x)/Sizes.z);
-        boundarySites[ii].y = zoom*((sites[ii].y-0.5*Sizes.y)/Sizes.z);
-        boundarySites[ii].z = zoom*((sites[ii].z-0.5*Sizes.z)/Sizes.z);
+        boundarySites[ii].x = zm*((sites[ii].x-0.5*Sizes.x)/Sizes.z);
+        boundarySites[ii].y = zm*((sites[ii].y-0.5*Sizes.y)/Sizes.z);
+        boundarySites[ii].z = zm*((sites[ii].z-0.5*Sizes.z)/Sizes.z);
         };
 }
 

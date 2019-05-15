@@ -345,6 +345,7 @@ void MainWindow::on_drawStuffButton_released()
     scalar3 director;
     QString printable1 = QStringLiteral("finding vectors ");
     ui->testingBox->setText(printable1);
+    double factor = sqrt(1./N);
     for (int ii = 0; ii < N; ++ii)
         {
         scalar3 pos;
@@ -356,20 +357,22 @@ void MainWindow::on_drawStuffButton_released()
         director.y=v.data[ii].x[1];
         director.z=v.data[ii].x[2];
 
+        director = pos;
+
         scalar3 lineSegment1;
         scalar3 lineSegment2;
 
         lineSegment1.x = pos.x;
-        lineSegment2.x = pos.x+0.5*scale*director.x;
+        lineSegment2.x = pos.x+factor*scale*director.x;
         lineSegment1.y = pos.y;
-        lineSegment2.y = pos.y+0.5*scale*director.y;
+        lineSegment2.y = pos.y+factor*scale*director.y;
         lineSegment1.z = pos.z;
-        lineSegment2.z = pos.z+0.5*scale*director.z;
+        lineSegment2.z = pos.z+factor*scale*director.z;
 
         lineSegments.push_back(lineSegment1);
         lineSegments.push_back(lineSegment2);
     }
-    int3 zero; zero.x=0;zero.y=0;zero.z=0;
+    int3 zero; zero.x=1;zero.y=1;zero.z=1;
     ui->displayZone->setLines(lineSegments,zero);
     ui->displayZone->update();
     /*
