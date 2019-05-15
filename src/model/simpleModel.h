@@ -106,6 +106,7 @@ class simpleModel
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 
+    public:
         bool neverGPU;
 
     };

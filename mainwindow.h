@@ -5,6 +5,7 @@
 #include "noiseSource.h"
 #include "indexer.h"
 #include "sphericalVoronoi.h"
+#include "voronoiVicsek.h"
 #include "simulation.h"
 
 namespace Ui {
@@ -39,9 +40,6 @@ private slots:
     void on_zRotSlider_valueChanged(int value);
 
     void on_zoomSlider_valueChanged(int value);
-
-
-
 
     void on_actionReset_the_system_triggered();
 
@@ -78,6 +76,7 @@ public:
 
     shared_ptr<sphericalVoronoi> Configuration;
     shared_ptr<Simulation> sim;
+    shared_ptr<voronoiVicsek> vicsek;
 //    shared_ptr<landauDeGennesLC> landauLCForce;
  //   shared_ptr<energyMinimizerFIRE> fire;
 

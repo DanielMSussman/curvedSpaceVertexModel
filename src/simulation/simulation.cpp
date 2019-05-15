@@ -122,6 +122,11 @@ void Simulation::moveParticles(GPUArray<dVec> &displacements)
     auto Conf = configuration.lock();
     Conf->moveParticles(displacements);
     };
+void Simulation::moveParticles(GPUArray<dVec> &displacements, scalar magnitude)
+    {
+    auto Conf = configuration.lock();
+    Conf->moveParticles(displacements,magnitude);
+    };
 
 scalar Simulation::computeKineticEnergy()
     {

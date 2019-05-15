@@ -25,7 +25,7 @@ void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n)
     Polyhedron_3 poly;
     CGAL::convex_hull_3(p.begin(),p.end(),poly);
 
-    std::cout << "the ch contains " << poly.size_of_vertices() << " vertices" << std::endl;
+//    std::cout << "the ch contains " << poly.size_of_vertices() << " vertices" << std::endl;
 
     for(Polyhedron_3::Vertex_iterator v = poly.vertices_begin(); v!= poly.vertices_end(); ++v)
         {

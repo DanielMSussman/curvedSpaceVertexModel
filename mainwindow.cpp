@@ -159,8 +159,14 @@ void MainWindow::on_initializeButton_released()
 void MainWindow::simulationInitialize()
 {
     Configuration = make_shared<sphericalVoronoi>(N,noise);
+    vicsek = make_shared<voronoiVicsek>();
+    printf("%f %f %f\n",eta,v0,dt);
+    vicsek->setEta(eta);
+    vicsek->setV0(v0);
+    vicsek->setDeltaT(dt);
     sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
+    sim->addUpdater(vicsek,Configuration);
     /*
 
      landauLCForce = make_shared<landauDeGennesLC>();
@@ -240,6 +246,26 @@ void MainWindow::on_resetQTensorsButton_released()
 
 void MainWindow::on_addIterationsButton_released()
 {
+    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
+    ui->progressBar->setValue(0);
+
+    int additionalIterations = ui->addIterationsBox->text().toInt();
+
+    int stepsPerSubdivision = 1 / dt;
+    int subdivisions = additionalIterations/stepsPerSubdivision;
+    for (int ii = 0; ii < subdivisions; ++ii)
+        {
+        for (int jj = 0; jj < stepsPerSubdivision; ++jj)
+            sim->performTimestep();
+        if(graphicalProgress) on_drawStuffButton_released();
+        int progress = ((1.0*ii/(1.0*subdivisions))*100);
+        QString printable2 = QStringLiteral("evolving... %1 percent done").arg(progress);
+        ui->testingBox->setText(printable2);
+        ui->progressBar->setValue(progress);
+        }
+
+    QString printable3 = QStringLiteral("system evolved...");
+    ui->testingBox->setText(printable3);
     /*
     bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
     ui->progressBar->setValue(0);
@@ -261,62 +287,7 @@ void MainWindow::on_addIterationsButton_released()
         upd->setMaximumIterations(curIterations+stepsPerSubdivision);
         }
         sim->performTimestep();
-        if(iterationsPerColloidalEvolution > 0)
-            {
-            for (int bb = 0; bb < Configuration->boundaryState.size();++bb)
-                {
-                if(Configuration->boundaryState[bb]==1)
-                    landauLCForce->computeObjectForces(bb);
-                }
-            for (int bb = 0; bb < Configuration->boundaryState.size();++bb)
-                {
-                if(Configuration->boundaryState[bb]==1)
-                    {
-                    scalar3 currentForce = Configuration->boundaryForce[bb];
-                    int dirx = -10;int diry = -10;int dirz = -10;
-                    bool moved = false;
-                    if(colloidalEvolutionPrefactor*currentForce.x > 1 || colloidalEvolutionPrefactor*currentForce.x < -1)
-                        {
-                        dirx = (currentForce.x > 0) ? 1 : 0;
-                        currentForce.x = 1;moved = true;
-                        Configuration->boundaryForce[bb].x = 0;
-                        };
-                    if(colloidalEvolutionPrefactor*currentForce.y > 1|| colloidalEvolutionPrefactor*currentForce.y < -1)
-                        {
-                        diry = (currentForce.y > 0) ? 3 : 2;
-                        currentForce.y = 1;moved = true;
-                        Configuration->boundaryForce[bb].y = 0;
-                        };
-                    if(colloidalEvolutionPrefactor*currentForce.z > 1|| colloidalEvolutionPrefactor*currentForce.z < -1)
-                        {
-                        dirz = (currentForce.z > 0) ? 5 : 4;
-                        currentForce.z = 1;moved = true;
-                        Configuration->boundaryForce[bb].z = 0;
-                        };
-                    if(moved)
-                        {
-                        int xm=0; int ym = 0; int zm = 0;
-                        if(dirx >= 0)
-                            {
-                            Configuration->displaceBoundaryObject(bb, dirx,1);
-                            xm = (dirx ==0 ) ? -1 : 1;
-                            }
-                        if(diry >= 0)
-                            {
-                            Configuration->displaceBoundaryObject(bb, diry,1);
-                            ym = (diry ==2) ? -1 : 1;
-                            }
-                        if(dirz >= 0)
-                            {
-                            Configuration->displaceBoundaryObject(bb, dirz,1);
-                            zm = (dirz ==4) ? -1 : 1;
-                            }
-                        int3 thisMove; thisMove.x = xm; thisMove.y=ym;thisMove.z=zm;
-                        moveChain.push_back(thisMove);
-                        }
-                    }
-                }
-            }//end check of colloidal moves
+
 
         if(graphicalProgress) on_drawStuffButton_released();
         int progress = ((1.0*ii/(1.0*subdivisions))*100);

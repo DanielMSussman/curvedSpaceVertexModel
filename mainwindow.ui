@@ -134,7 +134,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>0.01</string>
+      <string>0.1</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="initialEta">
@@ -150,7 +150,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: red 1px solid</string>
      </property>
      <property name="text">
-      <string>0.1</string>
+      <string>0.5</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="initialDt">
@@ -166,7 +166,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>0.001</string>
+      <string>0.1</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_27">
@@ -301,7 +301,7 @@ color: black
       <string notr="true">border: 1px red solid</string>
      </property>
      <property name="text">
-      <string>50</string>
+      <string>200</string>
      </property>
     </widget>
    </widget>

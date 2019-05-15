@@ -74,9 +74,9 @@ class updater
         //!number of threads to use
         int nThreads=1;
         //!The period of the updater... the updater will work every Period timesteps
-        int Period;
+        int Period = -1;
         //!The phase of the updater... the updater will work every Period timesteps offset by a phase
-        int Phase;
+        int Phase = 0;
         //!whether the updater does its work on the GPU or not
         bool useGPU;
         //!some measure of the number of degrees of freedom the equations of motion might need to know about

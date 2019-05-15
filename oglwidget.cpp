@@ -7,6 +7,11 @@ OGLWidget::OGLWidget(QWidget *parent)
 {
     xRot = 45;
     zRot = 135;
+    scalar3 zero; zero.x = zero.y= zero.z=0;
+    baseSpherePositions.push_back(zero);
+    baseSphereRadii.push_back(1.);
+    int3 one; one.x = one.y=one.z=1;
+    setSpheres(one);
 }
 
 OGLWidget::~OGLWidget()
@@ -16,11 +21,11 @@ OGLWidget::~OGLWidget()
 
 void OGLWidget::clearObjects()
 {
-    baseSpherePositions.clear();
-    baseSphereRadii.clear();
-    spherePositions.clear();
-    sphereRadii.clear();
-    walls.clear();
+//    baseSpherePositions.clear();
+//    baseSphereRadii.clear();
+//    spherePositions.clear();
+//    sphereRadii.clear();
+//    walls.clear();
 }
 void OGLWidget::initializeGL()
 {
@@ -65,9 +70,9 @@ void OGLWidget::setSpheres(int3 sizes)
 
     for (int ii = 0; ii < baseSpherePositions.size(); ++ii)
     {
-        spherePositions[ii].x = zm*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.z);
-        spherePositions[ii].y = zm*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.z);
-        spherePositions[ii].z = zm*((baseSpherePositions[ii].z-0.5*sizes.z)/sizes.z);
+        spherePositions[ii].x = zm*((baseSpherePositions[ii].x-0.*sizes.x)/sizes.z);
+        spherePositions[ii].y = zm*((baseSpherePositions[ii].y-0.*sizes.y)/sizes.z);
+        spherePositions[ii].z = zm*((baseSpherePositions[ii].z-0.*sizes.z)/sizes.z);
         sphereRadii[ii] = zm*baseSphereRadii[ii]/sizes.z;
     }
 }
@@ -114,7 +119,7 @@ void OGLWidget::drawBoundarySites()
     float empiricallyNiceRadius = 0.2/(pow(zoom,0.15));
     for (int ii = 0; ii < boundarySites.size(); ++ii)
         {
-            glColor4f(0.8,0.8,0.8,0.2);
+            glColor4f(0.,0.,0.8,0.2);
             GLUquadric *quad;
             quad = gluNewQuadric();
             glTranslatef(boundarySites[ii].x,boundarySites[ii].y,boundarySites[ii].z);
@@ -131,7 +136,7 @@ void OGLWidget::drawSpheres()
     glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     for (int ii = 0; ii < spherePositions.size(); ++ii)
     {
-        glColor4f(0.4,0.4,0,0.9);
+        glColor4f(0.,0.,0.7,0.5);
         GLUquadric *quad;
         quad = gluNewQuadric();
         glTranslatef(spherePositions[ii].x,spherePositions[ii].y,spherePositions[ii].z);

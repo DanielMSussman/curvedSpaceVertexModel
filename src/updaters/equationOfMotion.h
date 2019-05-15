@@ -24,7 +24,10 @@ class equationOfMotion : public updater
 
         virtual void initializeFromModel()
             {
+            printf("setting model size for updater\n");
             Ndof = model->getNumberOfParticles();
+            if(model->neverGPU)
+                displacement.noGPU = true;
             displacement.resize(Ndof);
             };
         //!an array of displacements

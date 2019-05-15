@@ -9,6 +9,7 @@
 #include "periodicBoundaryConditions.h"
 #include "simulation.h"
 #include "simpleModel.h"
+#include "voronoiVicsek.h"
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
 #include "velocityVerlet.h"
@@ -102,11 +103,14 @@ int main(int argc, char*argv[])
     cout << "density = " << rho << "\tvolume fracation = "<<phi<<endl;
     noiseSource noise(true);
     shared_ptr<simpleModel> Configuration = make_shared<sphericalVoronoi>(N,noise);
-    shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
+    shared_ptr<voronoiVicsek> vicsek = make_shared<voronoiVicsek>();
+    vicsek->setEta(0.2);
+    vicsek->setV0(0.5);
+    vicsek->setDeltaT(.1);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    sim->setBox(PBC);
+    sim->addUpdater(vicsek,Configuration);
 
     /*
     //after the simulation box has been set, we can set particle positions...do so via poisson disk sampling?
