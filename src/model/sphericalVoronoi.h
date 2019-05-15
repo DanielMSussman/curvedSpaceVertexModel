@@ -6,6 +6,7 @@
 #include "simpleModel.h"
 #include "noiseSource.h"
 #include "indexer.h"
+#include "sphericalDomain.h"
 
 
 class sphericalVoronoi : public simpleModel
@@ -25,6 +26,8 @@ class sphericalVoronoi : public simpleModel
 
         noiseSource noise;
         convexHullCGALInterface convexHuller;
+
+        sphericalDomain sphere;
     };
 
 #endif

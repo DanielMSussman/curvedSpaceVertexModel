@@ -357,8 +357,6 @@ void MainWindow::on_drawStuffButton_released()
         director.y=v.data[ii].x[1];
         director.z=v.data[ii].x[2];
 
-        director = pos;
-
         scalar3 lineSegment1;
         scalar3 lineSegment2;
 

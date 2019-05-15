@@ -121,6 +121,15 @@ HOSTDEVICE dVec operator*(const dVec &b, const double &a)
     return ans;
     }
 
+//!division of dVec by double
+HOSTDEVICE dVec operator/(const dVec &b, const double &a)
+    {
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a/b.x[dd];
+    return ans;
+    }
+
 //!iVec is an array of ints whose length matches the dimension of the system
 class iVec
     {
