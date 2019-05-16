@@ -11,7 +11,7 @@ typedef CGAL::Polyhedron_3<K> Polyhedron_3;
 typedef K::Point_3 Point_3;
 typedef CGAL::Surface_mesh<Point_3> Surface_mesh;
 
-void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n)
+void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n, std::vector< std::vector<int> > &allNeighs, std::vector<int> &numNeighs)
     {
     allNeighs.resize(n);
     numNeighs.resize(n);

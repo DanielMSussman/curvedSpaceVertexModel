@@ -14,26 +14,32 @@ class sphericalDomain
     public:
         sphericalDomain(scalar _radius=1.0){radius = _radius;};
 
+        HOSTDEVICE void putInBoxVirtual(dVec &p);
         HOSTDEVICE void putInBoxReal(dVec &p);
         //returns euclidean distance, not geodesic
         HOSTDEVICE void minDist(dVec &p1, dVec &p2, dVec &pans);
         HOSTDEVICE void move(dVec &p1, dVec &velocityDirection, scalar magnitude);
-        HOSTDEVICE void projectToTangentPlane(dVec &vec, dVec &normal);
+        HOSTDEVICE void projectToTangentPlane(dVec &vec, const dVec &normal);
 
         scalar radius=1.0;
         dVec tangentPlaneProjection;
         dVec pt;
     };
 
-void sphericalDomain::projectToTangentPlane(dVec &vec, dVec &normal)
+void sphericalDomain::projectToTangentPlane(dVec &vec, const dVec &normal)
     {
-    vec = vec - dot(vec,normal)*normal;
+    pt = normal*(1.0/norm(normal));
+    vec = vec - dot(vec,pt)*pt;
     }
 
+void sphericalDomain::putInBoxVirtual(dVec &p)
+    {
+    p = p*(1.0/norm(p));
+    };
 void sphericalDomain::putInBoxReal(dVec &p)
     {
-    pt = p*(1.0/norm(p));
-    p = radius*pt;
+    pt = p*(1.0/norm(p))*radius;
+    p = pt;
     };
 
 void sphericalDomain::minDist(dVec &p1, dVec &p2, dVec &pans)

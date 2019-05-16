@@ -133,6 +133,8 @@ void MainWindow::on_initializeButton_released()
     v0 =ui->initialSpeed->text().toDouble();
     eta =ui->initialEta->text().toDouble();
     dt =ui->initialDt->text().toDouble();
+    radius = ui->boxRadius->text().toDouble();
+    density = ui->boxDensity->text().toDouble();
     noise.Reproducible= ui->reproducibleButton->isChecked();
     ui->initializationFrame->hide();
     if(noise.Reproducible)
@@ -156,9 +158,40 @@ void MainWindow::on_initializeButton_released()
     on_drawStuffButton_released();
 }
 
+void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
+{
+    N = ui->boxNTotalSize->text().toInt();
+    radius = ui->boxRadius->text().toDouble();
+    density = ((double) N) / (4.0*PI*radius*radius) ;
+    QString valueAsString = QString::number(density);
+    ui->boxDensity->setText(valueAsString);
+};
+
+
+void MainWindow::on_boxRadius_textEdited(const QString &arg1)
+{
+    N = ui->boxNTotalSize->text().toInt();
+    radius = ui->boxRadius->text().toDouble();
+    density = ((double) N) / (4.0*PI*radius*radius) ;
+    QString valueAsString = QString::number(density);
+    ui->boxDensity->setText(valueAsString);
+}
+
+void MainWindow::on_boxDensity_textEdited(const QString &arg1)
+{
+    N = ui->boxNTotalSize->text().toInt();
+    density = ui->boxDensity->text().toDouble();
+    radius = 0.5*sqrt((double)N/(density*PI));
+    QString valueAsString = QString::number(radius);
+    ui->boxRadius->setText(valueAsString);
+}
+
+
 void MainWindow::simulationInitialize()
 {
     Configuration = make_shared<sphericalVoronoi>(N,noise);
+    Configuration->setRadius(radius);
+    Configuration->getNeighbors();
     vicsek = make_shared<voronoiVicsek>();
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
@@ -220,28 +253,12 @@ void MainWindow::on_minimizeButton_released()
 
 }
   */
-void MainWindow::on_resetQTensorsButton_released()
-{
-    /*
-    ui->progressBar->setValue(0);
-    QString printable1 = QStringLiteral("resetting q tensors ");
-    ui->progressBar->setValue(20);
-    ui->testingBox->setText(printable1);
-    ui->progressBar->setValue(40);
-    scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
-    ui->progressBar->setValue(60);
-    if(noise.Reproducible)
-        noise.setReproducibleSeed(13377);
-    bool globalAlignment = ui->globalAlignmentCheckBox->isChecked();
-    Configuration->setNematicQTensorRandomly(noise,S0,globalAlignment);
 
-    ui->progressBar->setValue(80);
-    QString printable = QStringLiteral("Qtensor values reset at S0=%1...").arg(S0);
-    ui->testingBox->setText(printable);
-    ui->progressBar->setValue(100);
-    if(ui->visualProgressCheckBox->isChecked())
-        on_drawStuffButton_released();
-    */
+void MainWindow::on_resetSystemButton_released()
+{
+    Configuration->setParticlePositionsRandomly(noise);
+    Configuration->getNeighbors();
+    on_drawStuffButton_released();
 }
 
 void MainWindow::on_addIterationsButton_released()
@@ -311,18 +328,18 @@ void MainWindow::on_drawStuffButton_released()
     ArrayHandle<dVec> p(Configuration->returnPositions(),access_location::host,access_mode::read);
     ArrayHandle<dVec> v(Configuration->returnVelocities(),access_location::host,access_mode::read);
     scalar scale = ui->directorScaleBox->text().toDouble();
-    vector<scalar3> lineSegments(2*N);
+    vector<scalar3> lineSegments;
     vector<scalar3> defects;
     scalar3 director;
     QString printable1 = QStringLiteral("finding vectors ");
     ui->testingBox->setText(printable1);
-    double factor = sqrt(1./N);
+    double factor = sqrt(2./N)/sqrt(radius);
     for (int ii = 0; ii < N; ++ii)
         {
         scalar3 pos;
-        pos.x = p.data[ii].x[0];
-        pos.y = p.data[ii].x[1];
-        pos.z = p.data[ii].x[2];
+        pos.x = p.data[ii].x[0]/radius;
+        pos.y = p.data[ii].x[1]/radius;
+        pos.z = p.data[ii].x[2]/radius;
 
         director.x=v.data[ii].x[0];
         director.y=v.data[ii].x[1];
@@ -343,6 +360,33 @@ void MainWindow::on_drawStuffButton_released()
     }
     int3 zero; zero.x=1;zero.y=1;zero.z=1;
     ui->displayZone->setLines(lineSegments,zero);
+
+    vector<scalar3> connections;
+    if(ui->showNeighborsCheckbox->isChecked())
+        {
+        for (int ii = 0; ii < Configuration->numNeighs.size(); ++ii)
+            {
+            for (int jj = 0; jj < Configuration->numNeighs[ii];++jj)
+                {
+                int neighbor = Configuration->allNeighs[ii][jj];
+                if(neighbor > ii)
+                    {
+                    scalar3 start,end;
+                    start.x = p.data[ii][0]/radius;
+                    start.y = p.data[ii][1]/radius;
+                    start.z = p.data[ii][2]/radius;
+                    end.x = p.data[neighbor][0]/radius;
+                    end.y = p.data[neighbor][1]/radius;
+                    end.z = p.data[neighbor][2]/radius;
+                    connections.push_back(start);
+                    connections.push_back(end);
+                    }
+                }
+            }
+
+        }
+    ui->displayZone->setConnections(connections,zero);
+
     ui->displayZone->update();
     /*
 
@@ -482,3 +526,6 @@ void MainWindow::on_computeEnergyButton_released()
     ui->progressBar->setValue(100);
     */
 }
+
+
+

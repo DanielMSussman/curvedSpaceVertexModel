@@ -645,19 +645,6 @@ color: black
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QCheckBox" name="globalAlignmentCheckBox">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>280</y>
-      <width>181</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Global alignment on reset</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_42">
     <property name="geometry">
      <rect>
@@ -872,7 +859,6 @@ color: black
    <zorder>zoomSlider</zorder>
    <zorder>visualProgressCheckBox</zorder>
    <zorder>reprodicbleRNGBox</zorder>
-   <zorder>globalAlignmentCheckBox</zorder>
    <zorder>label_42</zorder>
    <zorder>label_12</zorder>
    <zorder>label_13</zorder>
@@ -967,7 +953,6 @@ color: black
   <tabstop>addIterationsBox</tabstop>
   <tabstop>addIterationsButton</tabstop>
   <tabstop>reprodicbleRNGBox</tabstop>
-  <tabstop>globalAlignmentCheckBox</tabstop>
   <tabstop>saveFileNowButton</tabstop>
   <tabstop>saveFileNameBox</tabstop>
   <tabstop>cancelFileISave</tabstop>

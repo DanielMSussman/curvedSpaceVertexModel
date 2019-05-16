@@ -22,6 +22,7 @@ public:
     void setAllBoundarySites(vector<int3> &sites);
     void clearObjects();
     void setLines(vector<scalar3> &lineSegments, int3 sizes);
+    void setConnections(vector<scalar3> &lineSegments, int3 sizes);
     void setDefects(vector<scalar3> &def, int3 sizes);
     void setSpheres(int3 sizes);
 
@@ -31,6 +32,7 @@ public:
     void setZRotation(int angle);
 
     vector<scalar3> lines;
+    vector<scalar3> connections;
     vector<scalar3> defects;
     int zoom=25;
     vector<int3> walls;

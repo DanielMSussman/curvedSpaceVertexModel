@@ -49,6 +49,19 @@ void OGLWidget::setLines(vector<scalar3> &lineSegments, int3 sizes)
     }
 }
 
+void OGLWidget::setConnections(vector<scalar3> &lineSegments, int3 sizes)
+{
+    float zm = 0.1*zoom;
+    Sizes=sizes;
+    connections =lineSegments;
+    for (int ii = 0; ii < connections.size(); ++ii)
+    {
+        connections[ii].x = zm*((connections[ii].x-0.*sizes.x)/sizes.z);
+        connections[ii].y = zm*((connections[ii].y-0.*sizes.y)/sizes.z);
+        connections[ii].z = zm*((connections[ii].z-0.*sizes.z)/sizes.z);
+    }
+}
+
 void OGLWidget::setDefects(vector<scalar3> &def, int3 sizes)
 {
     Sizes=sizes;
@@ -94,6 +107,11 @@ void OGLWidget::draw()
     {
         glColor3f(1.0, 0.0, 0.0);
         glVertex3f(lines[ii].x,lines[ii].y,lines[ii].z);
+    }
+    for (int ii = 0; ii < connections.size(); ++ii)
+    {
+        glColor4f(.0, 0.0, .9,.2);
+        glVertex3f(connections[ii].x,connections[ii].y,connections[ii].z);
     }
 
     glEnd();

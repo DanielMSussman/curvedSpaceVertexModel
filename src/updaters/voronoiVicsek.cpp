@@ -25,11 +25,11 @@ void voronoiVicsek::integrateEOMCPU()
         voronoiModel->sphere.projectToTangentPlane(spherePoint,p.data[ii]);
         spherePoint = spherePoint*(1.0/norm(spherePoint));
         //average direction of neighbors?
-        int m = voronoiModel->convexHuller.numNeighs[ii];
+        int m = voronoiModel->numNeighs[ii];
         newVelocityDirector[ii] = make_dVec(0.0);
         for (int jj = 0; jj < m; ++jj)
             {
-            newVelocityDirector[ii] += v.data[voronoiModel->convexHuller.allNeighs[ii][jj]];
+            newVelocityDirector[ii] += v.data[voronoiModel->allNeighs[ii][jj]];
             }
         newVelocityDirector[ii] = newVelocityDirector[ii] * (1.0/m) + spherePoint*Eta;
         newVelocityDirector[ii] = newVelocityDirector[ii]*(1.0/norm(newVelocityDirector[ii]));

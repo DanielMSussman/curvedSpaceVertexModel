@@ -29,8 +29,6 @@ private slots:
 
     void on_initializeButton_released();
     //simulation controls
-    void on_resetQTensorsButton_released();
-
     void on_addIterationsButton_released();
 
     void on_drawStuffButton_released();
@@ -55,6 +53,14 @@ private slots:
     void on_computeEnergyButton_released();
 
 
+    void on_boxNTotalSize_textChanged(const QString &arg1);
+
+    void on_boxRadius_textEdited(const QString &arg1);
+
+    void on_boxDensity_textEdited(const QString &arg1);
+
+    void on_resetSystemButton_released();
+
 private:
     Ui::MainWindow *ui;
 
@@ -67,6 +73,9 @@ public:
     scalar v0 = 0.1;
     scalar eta = 0.1;
     scalar dt = 0.001;
+
+    scalar radius = 1.0;
+    scalar density = 0.0623;
 
     int zoom = 1;
     vector<scalar3> spherePositions;

@@ -2,7 +2,7 @@
 #define voronoiVicsek_H
 
 #include "equationOfMotion.h"
-#include "sphericalVoronoi.h"
+#include "sphericalModel.h"
 #include "noiseSource.h"
 /*! \file voronoiVicsek.h */
 
@@ -17,11 +17,11 @@ class voronoiVicsek : public equationOfMotion
         virtual void setModel(shared_ptr<simpleModel> _model)
             {
             model=_model;
-            voronoiModel = dynamic_pointer_cast<sphericalVoronoi>(model);
+            voronoiModel = dynamic_pointer_cast<sphericalModel>(model);
             initializeFromModel();
             newVelocityDirector.resize(Ndof);
             };
-        shared_ptr<sphericalVoronoi> voronoiModel;
+        shared_ptr<sphericalModel> voronoiModel;
         //!Set the number of degrees of freedom of the equation of motion
         void setMu(scalar _mu){mu=_mu;};
         void setEta(scalar _Eta){Eta=_Eta;};

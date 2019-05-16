@@ -26,8 +26,6 @@
 class convexHullCGALInterface
     {
     public:
-        std::vector< std::vector<int> > allNeighs; //!<The list of neighbors of every point in the convex hull
-        std::vector<int> numNeighs;
-        void sphericalConvexHull(dVec *points, int n);
+        void sphericalConvexHull(dVec *points, int n, std::vector<std::vector<int> > &allNeighs, std::vector<int> &numNeighs);
     };
 #endif
