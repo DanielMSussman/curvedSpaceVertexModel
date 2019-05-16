@@ -9,6 +9,9 @@ void sphericalVoronoi::convexHull()
     {
     ArrayHandle<dVec> pos(positions);
     convexHuller.sphericalConvexHull(pos.data,N,allNeighs,numNeighs);
+    int nn = 0;
+    for (int ii = 0; ii < N; ++ii)
+        nn+=numNeighs[ii];
     /*
     for (int ii = 0; ii < N; ++ii)
         {

@@ -61,6 +61,12 @@ private slots:
 
     void on_resetSystemButton_released();
 
+    void on_computeEnergyButton_2_released();
+
+    void on_cancelEvolutionParametersButton_pressed();
+
+    void on_setParametersButton_released();
+
 private:
     Ui::MainWindow *ui;
 

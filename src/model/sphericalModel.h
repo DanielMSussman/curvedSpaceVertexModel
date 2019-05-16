@@ -21,10 +21,13 @@ class sphericalModel : public simpleModel
         virtual void getNeighbors(){};
         //!update the lists of neighbors
         void convexHull();
+        //!return a reference to the GPUArray of positions
+        virtual GPUArray<dVec> & returnDirectors(){return directors;};
 
         Index2D neighborIndex;
         GPUArray<int> numberOfNeighbors;
         GPUArray<int> neighbors;
+        GPUArray<dVec> directors;
         std::vector< std::vector<int> > allNeighs; //!<The list of neighbors of every point in the convex hull
         std::vector<int> numNeighs;
 

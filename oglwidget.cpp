@@ -154,7 +154,7 @@ void OGLWidget::drawSpheres()
     glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     for (int ii = 0; ii < spherePositions.size(); ++ii)
     {
-        glColor4f(0.,0.,0.7,0.5);
+        glColor4f(0.,0.,0.7,0.3);
         GLUquadric *quad;
         quad = gluNewQuadric();
         glTranslatef(spherePositions[ii].x,spherePositions[ii].y,spherePositions[ii].z);

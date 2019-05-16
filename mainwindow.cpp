@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::hideControls()
 {
+    ui->evolutionParametersWidget->hide();
     /*
     ui->label_41->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide(); ui->label_40->hide(); ui->label_42->hide();
     ui->label_12->hide();ui->label_13->hide();ui->label_56->hide();ui->label_57->hide(); ui->label_7->hide(); ui->label_39->hide();
@@ -133,6 +134,11 @@ void MainWindow::on_initializeButton_released()
     v0 =ui->initialSpeed->text().toDouble();
     eta =ui->initialEta->text().toDouble();
     dt =ui->initialDt->text().toDouble();
+
+    ui->initialSpeedSet->setText(ui->initialSpeed->text());
+    ui->initialEtaSet->setText(ui->initialEta->text());
+    ui->initialDtSet->setText(ui->initialDt->text());
+
     radius = ui->boxRadius->text().toDouble();
     density = ui->boxDensity->text().toDouble();
     noise.Reproducible= ui->reproducibleButton->isChecked();
@@ -187,6 +193,21 @@ void MainWindow::on_boxDensity_textEdited(const QString &arg1)
 }
 
 
+void MainWindow::on_setParametersButton_released()
+{
+    v0 =ui->initialSpeedSet->text().toDouble();
+    eta =ui->initialEtaSet->text().toDouble();
+    dt =ui->initialDtSet->text().toDouble();
+    vicsek->setEta(eta);
+    vicsek->setV0(v0);
+    vicsek->setDeltaT(dt);
+    ui->evolutionParametersWidget->hide();
+    ui->initialSpeed->setText(ui->initialSpeedSet->text());
+    ui->initialEta->setText(ui->initialEtaSet->text());
+    ui->initialDt->setText(ui->initialDtSet->text());
+
+}
+
 void MainWindow::simulationInitialize()
 {
     Configuration = make_shared<sphericalVoronoi>(N,noise);
@@ -211,48 +232,6 @@ void MainWindow::simulationInitialize()
      ui->reproducibleButton->setEnabled(true);
      */
 }
-   /*
-void MainWindow::on_minimizeButton_released()
-{
-
-    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
-    auto upd = sim->updaters[0].lock();
-
-    ui->progressBar->setValue(0);
-    QString printable1 = QStringLiteral("minimizing");
-    ui->testingBox->setText(printable1);
-    auto t1 = chrono::system_clock::now();
-    int initialIterations = upd->getCurrentIterations();
-    if(!graphicalProgress)
-        sim->performTimestep();
-    else
-    {
-        int stepsToTake = upd->getMaxIterations();
-        for (int ii = 1; ii <= 10; ++ii)
-        {
-            upd->setMaximumIterations(upd->getCurrentIterations()+stepsToTake/10);
-            sim->performTimestep();
-            on_drawStuffButton_released();
-            ui->progressBar->setValue(10*ii);
-            QString printable2 = QStringLiteral("minimizing");
-            ui->testingBox->setText(printable2);
-        };
-    };
-    int iterationsTaken = upd->getCurrentIterations() - initialIterations;
-    ui->progressBar->setValue(50);
-    auto t2 = chrono::system_clock::now();
-    chrono::duration<scalar> diff = t2-t1;
-    ui->progressBar->setValue(75);
-
-    ui->progressBar->setValue(80);
-    scalar maxForce = sim->getMaxForce();
-    QString printable = QStringLiteral("minimization iterations took %2 total time for %3 steps...<f> = %4 ")
-                .arg(diff.count()).arg(iterationsTaken).arg(maxForce);
-    ui->testingBox->setText(printable);
-    ui->progressBar->setValue(100);
-
-}
-  */
 
 void MainWindow::on_resetSystemButton_released()
 {
@@ -326,14 +305,14 @@ void MainWindow::on_addIterationsButton_released()
 void MainWindow::on_drawStuffButton_released()
 {
     ArrayHandle<dVec> p(Configuration->returnPositions(),access_location::host,access_mode::read);
-    ArrayHandle<dVec> v(Configuration->returnVelocities(),access_location::host,access_mode::read);
+    ArrayHandle<dVec> v(Configuration->returnDirectors(),access_location::host,access_mode::read);
     scalar scale = ui->directorScaleBox->text().toDouble();
     vector<scalar3> lineSegments;
     vector<scalar3> defects;
     scalar3 director;
     QString printable1 = QStringLiteral("finding vectors ");
     ui->testingBox->setText(printable1);
-    double factor = sqrt(2./N)/sqrt(radius);
+    double factor = sqrt(2./N)/pow(radius,.25);
     for (int ii = 0; ii < N; ++ii)
         {
         scalar3 pos;
@@ -528,4 +507,15 @@ void MainWindow::on_computeEnergyButton_released()
 }
 
 
+
+
+void MainWindow::on_computeEnergyButton_2_released()
+{
+    ui->evolutionParametersWidget->show();
+}
+
+void MainWindow::on_cancelEvolutionParametersButton_pressed()
+{
+    ui->evolutionParametersWidget->hide();
+}
 

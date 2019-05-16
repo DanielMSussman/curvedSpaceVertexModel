@@ -369,19 +369,6 @@ color: black
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="addObjectButton">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>420</y>
-      <width>151</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Add a simple object</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="resetSystemButton">
     <property name="geometry">
      <rect>
@@ -645,19 +632,6 @@ color: black
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QCheckBox" name="globalAlignmentCheckBox">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>280</y>
-      <width>181</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Global alignment on reset</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_42">
     <property name="geometry">
      <rect>
@@ -726,8 +700,8 @@ color: black
    <widget class="QWidget" name="fileSaveWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>290</y>
+      <x>200</x>
+      <y>130</y>
       <width>471</width>
       <height>121</height>
      </rect>
@@ -814,7 +788,7 @@ color: black
      </rect>
     </property>
     <property name="text">
-     <string>1000</string>
+     <string>5000</string>
     </property>
    </widget>
    <widget class="QPushButton" name="addIterationsButton">
@@ -849,12 +823,178 @@ color: black
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="computeEnergyButton_2">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>420</y>
+      <width>211</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Change evolution parameters</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="evolutionParametersWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>270</y>
+      <width>471</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid black</string>
+    </property>
+    <widget class="QPushButton" name="setParametersButton">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>120</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgb(148, 148, 148)</string>
+     </property>
+     <property name="text">
+      <string>Set</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelEvolutionParametersButton">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>120</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_59">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>10</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Evolution parameters</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_28">
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>70</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: red</string>
+     </property>
+     <property name="text">
+      <string>eta</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_29">
+     <property name="geometry">
+      <rect>
+       <x>19</x>
+       <y>40</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: red</string>
+     </property>
+     <property name="text">
+      <string>v0:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="initialDtSet">
+     <property name="geometry">
+      <rect>
+       <x>48</x>
+       <y>100</y>
+       <width>123</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>0.1</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="initialEtaSet">
+     <property name="geometry">
+      <rect>
+       <x>48</x>
+       <y>70</y>
+       <width>123</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: red 1px solid</string>
+     </property>
+     <property name="text">
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="initialSpeedSet">
+     <property name="geometry">
+      <rect>
+       <x>48</x>
+       <y>40</y>
+       <width>123</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>0.1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_30">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>100</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: red</string>
+     </property>
+     <property name="text">
+      <string>dt</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>initializationFrame</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
-   <zorder>addObjectButton</zorder>
    <zorder>resetSystemButton</zorder>
    <zorder>progressBar</zorder>
    <zorder>label_7</zorder>
@@ -872,7 +1012,6 @@ color: black
    <zorder>zoomSlider</zorder>
    <zorder>visualProgressCheckBox</zorder>
    <zorder>reprodicbleRNGBox</zorder>
-   <zorder>globalAlignmentCheckBox</zorder>
    <zorder>label_42</zorder>
    <zorder>label_12</zorder>
    <zorder>label_13</zorder>
@@ -880,6 +1019,8 @@ color: black
    <zorder>label_57</zorder>
    <zorder>computeEnergyButton</zorder>
    <zorder>showNeighborsCheckbox</zorder>
+   <zorder>computeEnergyButton_2</zorder>
+   <zorder>evolutionParametersWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -955,7 +1096,6 @@ color: black
   <tabstop>initialSpeed</tabstop>
   <tabstop>initializeButton</tabstop>
   <tabstop>detectedGPUBox</tabstop>
-  <tabstop>addObjectButton</tabstop>
   <tabstop>resetSystemButton</tabstop>
   <tabstop>drawStuffButton</tabstop>
   <tabstop>directorScaleBox</tabstop>
@@ -967,7 +1107,6 @@ color: black
   <tabstop>addIterationsBox</tabstop>
   <tabstop>addIterationsButton</tabstop>
   <tabstop>reprodicbleRNGBox</tabstop>
-  <tabstop>globalAlignmentCheckBox</tabstop>
   <tabstop>saveFileNowButton</tabstop>
   <tabstop>saveFileNameBox</tabstop>
   <tabstop>cancelFileISave</tabstop>

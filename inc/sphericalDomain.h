@@ -19,17 +19,26 @@ class sphericalDomain
         //returns euclidean distance, not geodesic
         HOSTDEVICE void minDist(dVec &p1, dVec &p2, dVec &pans);
         HOSTDEVICE void move(dVec &p1, dVec &velocityDirection, scalar magnitude);
+        HOSTDEVICE void move(dVec &p1, const dVec &velocityDirection);
         HOSTDEVICE void projectToTangentPlane(dVec &vec, const dVec &normal);
+        HOSTDEVICE void projectToTangentPlaneAndNormalize(dVec &vec, const dVec &normal);
 
         scalar radius=1.0;
         dVec tangentPlaneProjection;
         dVec pt;
+        dVec disp;
     };
 
 void sphericalDomain::projectToTangentPlane(dVec &vec, const dVec &normal)
     {
     pt = normal*(1.0/norm(normal));
     vec = vec - dot(vec,pt)*pt;
+    }
+void sphericalDomain::projectToTangentPlaneAndNormalize(dVec &vec, const dVec &normal)
+    {
+    pt = normal*(1.0/norm(normal));
+    vec = vec - dot(vec,pt)*pt;
+    vec = vec*(1.0/norm(vec));
     }
 
 void sphericalDomain::putInBoxVirtual(dVec &p)
@@ -53,8 +62,14 @@ void sphericalDomain::move(dVec &p1, dVec &velocityDirection, scalar magnitude)
     velocityDirection = velocityDirection*(1.0/ norm(velocityDirection));
     p1 = p1+magnitude*velocityDirection;
     putInBoxReal(p1);
-    projectToTangentPlane(velocityDirection,p1);
-    velocityDirection = velocityDirection*(1.0/ norm(velocityDirection));
+    }
+
+void sphericalDomain::move(dVec &p1, const dVec &velocityDirection)
+    {
+    disp = velocityDirection;
+    projectToTangentPlane(disp,p1);
+    p1 = p1+disp;
+    putInBoxReal(p1);
     }
 
 #undef HOSTDEVICE

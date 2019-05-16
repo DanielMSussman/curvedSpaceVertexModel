@@ -6,10 +6,22 @@ void voronoiVicsek::integrateEOMCPU()
     {
     sim->computeForces();
 
-    sim->moveParticles(voronoiModel->returnVelocities(),deltaT*v0);
+    {
+    ArrayHandle<dVec> n(voronoiModel->returnDirectors());
+    ArrayHandle<dVec> f(voronoiModel->returnForces());
+    ArrayHandle<dVec> disp(displacement);
+    for(int ii = 0; ii < Ndof; ++ii)
+        {
+        disp.data[ii] = deltaT*(v0*n.data[ii]);//plus force terms
+        }
+
+    }
+
+    sim->moveParticles(displacement);
+    //update directors
     {//ArrayHandle scope
     ArrayHandle<dVec> p(voronoiModel->returnPositions());
-    ArrayHandle<dVec> v(voronoiModel->returnVelocities());
+    ArrayHandle<dVec> n(voronoiModel->returnDirectors());
     dVec spherePoint;
     for(int ii = 0; ii < Ndof; ++ii)
         {
@@ -29,13 +41,15 @@ void voronoiVicsek::integrateEOMCPU()
         newVelocityDirector[ii] = make_dVec(0.0);
         for (int jj = 0; jj < m; ++jj)
             {
-            newVelocityDirector[ii] += v.data[voronoiModel->allNeighs[ii][jj]];
+            newVelocityDirector[ii] += n.data[voronoiModel->allNeighs[ii][jj]];
             }
         newVelocityDirector[ii] = newVelocityDirector[ii] * (1.0/m) + spherePoint*Eta;
-        newVelocityDirector[ii] = newVelocityDirector[ii]*(1.0/norm(newVelocityDirector[ii]));
+
+        voronoiModel->sphere.projectToTangentPlaneAndNormalize(newVelocityDirector[ii],p.data[ii]);
+
         }
     for (int ii = 0; ii < Ndof; ++ii)
-        v.data[ii] = newVelocityDirector[ii];
+        n.data[ii] = newVelocityDirector[ii];
 
     }//arrayhandle scope
     };

@@ -12,7 +12,7 @@ class neighborList
         neighborList(scalar range, BoxPtr _box, int subGridReduction = 1);
 
         //!computethe neighborlist of the set of points passed in
-        void computeNeighborLists(GPUArray<dVec> &points)
+        virtual void computeNeighborLists(GPUArray<dVec> &points)
             {
             if(useGPU)
                 {

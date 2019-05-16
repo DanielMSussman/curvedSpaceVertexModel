@@ -54,7 +54,7 @@ class force
         //!on the gpu, this is per particle and then a reduction can be called
         GPUArray<scalar> energyPerParticle;
         //!does the force get an assist from a neighbor list?
-        bool useNeighborList;
+        bool useNeighborList=false;
 
         //!a pointer to a neighbor list the force might use
         shared_ptr<neighborList> neighbors;
