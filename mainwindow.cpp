@@ -23,7 +23,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include "profiler.h"
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -249,16 +249,29 @@ void MainWindow::on_addIterationsButton_released()
 
     int stepsPerSubdivision = 1 / dt;
     int subdivisions = additionalIterations/stepsPerSubdivision;
+    profiler prof1("drawing");
+    profiler prof2("evolving");
     for (int ii = 0; ii < subdivisions; ++ii)
         {
         for (int jj = 0; jj < stepsPerSubdivision; ++jj)
+            {
+            prof2.start();
             sim->performTimestep();
-        if(graphicalProgress) on_drawStuffButton_released();
+            prof2.end();
+            }
+        if(graphicalProgress)
+            {
+            prof1.start();
+            on_drawStuffButton_released();
+            prof1.end();
+            }
         int progress = ((1.0*ii/(1.0*subdivisions))*100);
         QString printable2 = QStringLiteral("evolving... %1 percent done").arg(progress);
         ui->testingBox->setText(printable2);
         ui->progressBar->setValue(progress);
         }
+    prof2.print();
+    prof1.print();
 
     QString printable3 = QStringLiteral("system evolved...");
     ui->testingBox->setText(printable3);
