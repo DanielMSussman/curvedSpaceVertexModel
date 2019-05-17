@@ -91,7 +91,7 @@ public:
 
     noiseSource noise;
 
-    shared_ptr<sphericalVoronoi> Configuration;
+    shared_ptr<sphericalModel> Configuration;
     shared_ptr<Simulation> sim;
     shared_ptr<voronoiVicsek> vicsek;
 //    shared_ptr<landauDeGennesLC> landauLCForce;

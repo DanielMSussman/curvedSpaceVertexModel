@@ -167,10 +167,10 @@ void MainWindow::on_initializeButton_released()
 void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
 {
     N = ui->boxNTotalSize->text().toInt();
-    radius = ui->boxRadius->text().toDouble();
-    density = ((double) N) / (4.0*PI*radius*radius) ;
-    QString valueAsString = QString::number(density);
-    ui->boxDensity->setText(valueAsString);
+    density = ui->boxDensity->text().toDouble();
+    radius = 0.5*sqrt((double)N/(density*PI));
+    QString valueAsString = QString::number(radius);
+    ui->boxRadius->setText(valueAsString);
 };
 
 
@@ -210,10 +210,14 @@ void MainWindow::on_setParametersButton_released()
 
 void MainWindow::simulationInitialize()
 {
-    Configuration = make_shared<sphericalVoronoi>(N,noise);
+    if(ui->topologicalModel->isChecked())
+        Configuration = make_shared<sphericalVoronoi>(N,noise);
+    else
+        Configuration = make_shared<sphericalModel>(N,noise);
     Configuration->setRadius(radius);
     Configuration->getNeighbors();
-    Configuration->setSoftRepulsion();
+    if(ui->softRepulsion->isChecked())
+        Configuration->setSoftRepulsion();
     vicsek = make_shared<voronoiVicsek>();
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
@@ -243,7 +247,9 @@ void MainWindow::on_resetSystemButton_released()
 
 void MainWindow::on_resetSystemBandButton_released()
 {
-    Configuration->setParticlePositionsBandedRandomly(noise);
+    int angularExtent = ui->angularExtent->value();
+    scalar ae = angularExtent*0.01*0.5;
+    Configuration->setParticlePositionsBandedRandomly(noise,ae);
     Configuration->getNeighbors();
     on_drawStuffButton_released();
 }

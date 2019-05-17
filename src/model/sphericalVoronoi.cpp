@@ -3,8 +3,6 @@
 
 sphericalVoronoi::sphericalVoronoi(int n, noiseSource &_noise, bool _useGPU, bool _neverGPU) : sphericalModel(n,_noise,_useGPU,_neverGPU)
     {
-    allNeighs.resize(N);
-    numNeighs.resize(N);
     };
 
 void sphericalVoronoi::convexHull()

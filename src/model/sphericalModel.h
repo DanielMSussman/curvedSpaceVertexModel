@@ -17,17 +17,15 @@ class sphericalModel : public simpleModel
         void setRadius(scalar _r);
 
         virtual void setParticlePositionsRandomly(noiseSource &noise);
-        virtual void setParticlePositionsBandedRandomly(noiseSource &noise);
+        virtual void setParticlePositionsBandedRandomly(noiseSource &noise,scalar angularExtent);
 
-        virtual void getNeighbors(){};
-        //!update the lists of neighbors
-        void convexHull();
+        virtual void getNeighbors();
         //!return a reference to the GPUArray of positions
         virtual GPUArray<dVec> & returnDirectors(){return directors;};
 
         virtual void computeForces(bool zeroOutForces=false);
 
-        virtual void setSoftRepulsion(scalar range = 1.0, scalar stiffness = 1.0);
+        virtual void setSoftRepulsion(scalar range = 0.25, scalar stiffness = 1.0);
 
         Index2D neighborIndex;
         GPUArray<int> numberOfNeighbors;

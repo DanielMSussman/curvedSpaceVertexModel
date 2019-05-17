@@ -38,17 +38,14 @@ void voronoiVicsek::integrateEOMCPU()
         spherePoint = spherePoint*(1.0/norm(spherePoint));
         //average direction of neighbors?
         int m = voronoiModel->numNeighs[ii];
-        scalar mi;
-        if(m ==0)
-            mi=0.;
-        else
-            mi=1.0/m;
 
-        newVelocityDirector[ii] = make_dVec(0.0);
+        newVelocityDirector[ii] = n.data[ii];
         for (int jj = 0; jj < m; ++jj)
             {
             newVelocityDirector[ii] += n.data[voronoiModel->allNeighs[ii][jj]];
             }
+        m +=1;//account for self-alignment
+        scalar mi = 1.0/m;
         newVelocityDirector[ii] = newVelocityDirector[ii] * mi + spherePoint*Eta;
 
         voronoiModel->sphere.projectToTangentPlaneAndNormalize(newVelocityDirector[ii],p.data[ii]);

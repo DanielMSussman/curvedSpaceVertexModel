@@ -11,11 +11,12 @@ sphericalModel::sphericalModel(int n, noiseSource &_noise, bool _useGPU, bool _n
         }
     numberOfNeighbors.resize(N);
     directors.resize(N);
+    allNeighs.resize(N);
+    numNeighs.resize(N);
 
     //set random positions on the sphere of radius 1
     setParticlePositionsRandomly(_noise);
 
-    getNeighbors();
     }
 
 void sphericalModel::setRadius(scalar _r)
@@ -29,6 +30,7 @@ void sphericalModel::setRadius(scalar _r)
         sphere.putInBoxVirtual(V.data[ii]);
         }
     metricNeighbors.setBasics(1.0,sphere.radius);
+    getNeighbors();
     };
 
 
@@ -61,14 +63,14 @@ void sphericalModel::setParticlePositionsRandomly(noiseSource &noise)
         }
     //printf("%f %f %f\n", n.data[0][0],n.data[0][1],n.data[0][2]);
     }
-void sphericalModel::setParticlePositionsBandedRandomly(noiseSource &noise)
+void sphericalModel::setParticlePositionsBandedRandomly(noiseSource &noise, scalar angularExtent)
     {
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> n(directors);
     for (int ii = 0; ii < N; ++ii)
         {
         scalar u = noise.getRealUniform();
-        scalar v = noise.getRealUniform(0.3,0.7);
+        scalar v = noise.getRealUniform(0.5-angularExtent,0.5+angularExtent);
         scalar phi = 2.0*PI*u;
         scalar theta = acos(2.0*v-1);
         p.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
@@ -165,4 +167,24 @@ void sphericalModel::computeForces(bool zeroOutForces)
             };
 
         }
+    };
+
+void sphericalModel::getNeighbors()
+    {
+    metricNeighbors.computeNeighborLists(positions);
+    ArrayHandle<unsigned int> nNeighs(metricNeighbors.neighborsPerParticle);
+    ArrayHandle<int> neighs(metricNeighbors.particleIndices);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        int num = nNeighs.data[ii];
+        numNeighs[ii]=num;
+        if(allNeighs[ii].size() < num)
+            allNeighs[ii].resize(num);
+        for (int jj = 0; jj < num; ++jj)
+            {
+            int nIdx = metricNeighbors.neighborIndexer(jj,ii);
+            int otherIdx = neighs.data[nIdx];
+            allNeighs[ii][jj] = otherIdx;
+            }
+        };
     };
