@@ -373,7 +373,7 @@ color: black
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>240</y>
+      <y>230</y>
       <width>151</width>
       <height>32</height>
      </rect>
@@ -990,6 +990,19 @@ color: black
      </property>
     </widget>
    </widget>
+   <widget class="QPushButton" name="resetSystemBandButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>270</y>
+      <width>151</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reset system in band</string>
+    </property>
+   </widget>
    <zorder>initializationFrame</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>addIterationsBox</zorder>
@@ -1021,6 +1034,7 @@ color: black
    <zorder>showNeighborsCheckbox</zorder>
    <zorder>computeEnergyButton_2</zorder>
    <zorder>evolutionParametersWidget</zorder>
+   <zorder>resetSystemBandButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

@@ -61,6 +61,35 @@ void sphericalModel::setParticlePositionsRandomly(noiseSource &noise)
         }
     //printf("%f %f %f\n", n.data[0][0],n.data[0][1],n.data[0][2]);
     }
+void sphericalModel::setParticlePositionsBandedRandomly(noiseSource &noise)
+    {
+    ArrayHandle<dVec> p(positions);
+    ArrayHandle<dVec> n(directors);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        scalar u = noise.getRealUniform();
+        scalar v = noise.getRealUniform(0.3,0.7);
+        scalar phi = 2.0*PI*u;
+        scalar theta = acos(2.0*v-1);
+        p.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
+        p.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
+        p.data[ii].x[2] = 1.0*cos(theta);
+        sphere.putInBoxReal(p.data[ii]);
+        }
+    for (int ii = 0; ii < N; ++ii)
+        {
+        scalar u2 = noise.getRealUniform();
+        scalar v2 = noise.getRealUniform();
+        scalar phi = 2.0*PI*u2;
+        scalar theta = acos(2.0*v2-1);
+        n.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
+        n.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
+        n.data[ii].x[2] = 1.0*cos(theta);
+        //project the velocity onto the tangent plane
+        sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+        }
+    //printf("%f %f %f\n", n.data[0][0],n.data[0][1],n.data[0][2]);
+    }
 
 void sphericalModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
     {

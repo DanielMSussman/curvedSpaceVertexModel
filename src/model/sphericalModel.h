@@ -17,6 +17,7 @@ class sphericalModel : public simpleModel
         void setRadius(scalar _r);
 
         virtual void setParticlePositionsRandomly(noiseSource &noise);
+        virtual void setParticlePositionsBandedRandomly(noiseSource &noise);
 
         virtual void getNeighbors(){};
         //!update the lists of neighbors

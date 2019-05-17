@@ -241,6 +241,13 @@ void MainWindow::on_resetSystemButton_released()
     on_drawStuffButton_released();
 }
 
+void MainWindow::on_resetSystemBandButton_released()
+{
+    Configuration->setParticlePositionsBandedRandomly(noise);
+    Configuration->getNeighbors();
+    on_drawStuffButton_released();
+}
+
 void MainWindow::on_addIterationsButton_released()
 {
     bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
@@ -532,4 +539,6 @@ void MainWindow::on_cancelEvolutionParametersButton_pressed()
 {
     ui->evolutionParametersWidget->hide();
 }
+
+
 

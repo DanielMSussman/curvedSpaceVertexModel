@@ -67,6 +67,8 @@ private slots:
 
     void on_setParametersButton_released();
 
+    void on_resetSystemBandButton_released();
+
 private:
     Ui::MainWindow *ui;
 
