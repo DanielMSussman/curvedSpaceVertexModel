@@ -81,7 +81,7 @@ void sphericalModel::setParticlePositionsBandedRandomly(noiseSource &noise, scal
     for (int ii = 0; ii < N; ++ii)
         {
         scalar u2 = noise.getRealUniform();
-        scalar v2 = noise.getRealUniform();
+        scalar v2 = noise.getRealUniform(0.5-angularExtent,0.5+angularExtent);
         scalar phi = 2.0*PI*u2;
         scalar theta = acos(2.0*v2-1);
         n.data[ii].x[0] = 1.0*sin(theta)*cos(phi);

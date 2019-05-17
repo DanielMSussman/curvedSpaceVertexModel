@@ -25,7 +25,7 @@ class sphericalModel : public simpleModel
 
         virtual void computeForces(bool zeroOutForces=false);
 
-        virtual void setSoftRepulsion(scalar range = 0.25, scalar stiffness = 1.0);
+        virtual void setSoftRepulsion(scalar range = 1.0, scalar stiffness = 1.0);
 
         Index2D neighborIndex;
         GPUArray<int> numberOfNeighbors;
