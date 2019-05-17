@@ -12,7 +12,7 @@ void voronoiVicsek::integrateEOMCPU()
     ArrayHandle<dVec> disp(displacement);
     for(int ii = 0; ii < Ndof; ++ii)
         {
-        disp.data[ii] = deltaT*(v0*n.data[ii]);//plus force terms
+        disp.data[ii] = deltaT*(v0*n.data[ii]+mu*f.data[ii]);//plus force terms
         }
 
     }
@@ -38,12 +38,18 @@ void voronoiVicsek::integrateEOMCPU()
         spherePoint = spherePoint*(1.0/norm(spherePoint));
         //average direction of neighbors?
         int m = voronoiModel->numNeighs[ii];
+        scalar mi;
+        if(m ==0)
+            mi=0.;
+        else
+            mi=1.0/m;
+
         newVelocityDirector[ii] = make_dVec(0.0);
         for (int jj = 0; jj < m; ++jj)
             {
             newVelocityDirector[ii] += n.data[voronoiModel->allNeighs[ii][jj]];
             }
-        newVelocityDirector[ii] = newVelocityDirector[ii] * (1.0/m) + spherePoint*Eta;
+        newVelocityDirector[ii] = newVelocityDirector[ii] * mi + spherePoint*Eta;
 
         voronoiModel->sphere.projectToTangentPlaneAndNormalize(newVelocityDirector[ii],p.data[ii]);
 

@@ -10,22 +10,25 @@
 \param points the positions of points to populate the cell list with
 \param bx the period box for the system
  */
-hyperrectangularCellList::hyperrectangularCellList(scalar a, BoxPtr _box)
+hyperrectangularCellList::hyperrectangularCellList(scalar a,scalar sphereRadius)
     {
     useGPU = false;
     Nmax = 2;
-    Box = _box;
-    setGridSize(a);
+    radius = sphereRadius;
+    setGridSize(a,radius);
     }
 
 /*!
 \param a the approximate side length of all of the cells.
 This routine currently picks an even integer of cells in each dimension, close to the desired size, that fit in the box.
  */
-void hyperrectangularCellList::setGridSize(scalar a)
+void hyperrectangularCellList::setGridSize(scalar a, scalar sphereRadius)
     {
+    radius = sphereRadius;
     dVec bDims;
-    Box->getBoxDims(bDims);
+    bDims.x[0] = 2.*radius;
+    bDims.x[1] = 2.*radius;
+    bDims.x[2] = 2.*radius;
 
     totalCells = 1;
     for (int dd = 0; dd < DIMENSION; ++dd)
@@ -117,7 +120,7 @@ int hyperrectangularCellList::positionToCellIndex(const dVec &pos)
     {
     iVec cellIndexVec;
     for (int dd = 0; dd < DIMENSION;++dd)
-        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor(pos.x[dd]/gridCellSizes.x[dd])));
+        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor((pos.x[dd]+radius)/gridCellSizes.x[dd])));
     return cellIndexer(cellIndexVec);
     };
 
@@ -138,8 +141,16 @@ void hyperrectangularCellList::getCellNeighbors(int cellIndex, int width, std::v
     iVec it(-w);it.x[0]-=1;
     while(iVecIterate(it,min,max))
         {
-
-        cellNeighbors.push_back(cellIndexer(modularAddition(cellIndexVec,it,gridCellsPerSide)));
+        iVec test;
+        bool include = true;
+        for (int dd = 0; dd < DIMENSION; ++dd)
+            {
+            test.x[dd] = (cellIndexVec.x[dd]+it.x[dd]);
+            if(test.x[dd] <0) include = false; 
+            if(test.x[dd] >= gridCellsPerSide.x[dd]) include = false;
+            };
+        if (include)
+            cellNeighbors.push_back(cellIndexer(test));
         };
     };
 
@@ -172,7 +183,7 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
             {
             //get the correct cell of the current particle
             for (int dd = 0; dd < DIMENSION; ++dd)
-                bin.x[dd] = floor(h_pt.data[nn].x[dd] / gridCellSizes.x[dd]);
+                bin.x[dd] = floor((h_pt.data[nn].x[dd]+radius) / gridCellSizes.x[dd]);
 
             int binIndex = cellIndexer(bin);
             int offset = h_elementsPerCell.data[binIndex];
@@ -198,8 +209,8 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
     };
 
 /*!
- *width*gridsize should be a cutoff scale in the problem... this will evaluate all cells that might
- containt a neighbor within gridsize*width; *not* all cells in a hypercube of sidelength width
+ width*gridsize should be a cutoff scale in the problem... this will evaluate all cells that might
+ contain a neighbor within gridsize*width; *not* all cells in a hypercube of sidelength width
  */
 void hyperrectangularCellList::computeAdjacentCells(int width)
     {
@@ -286,7 +297,6 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
                           Nmax,             //maximum particles per cell
                           gridCellsPerSide, //number of cells in each direction
                           gridCellSizes,    //size of cells in each direction
-                          Box,
                           cellIndexer,
                           cellListIndexer,
                           d_assist.data

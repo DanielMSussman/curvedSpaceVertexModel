@@ -3,14 +3,14 @@
 #include "neighborList.cuh"
 /*! \file neighborList.cpp */
 
-neighborList::neighborList(scalar range, BoxPtr _box, int subGridReduction)
+void neighborList::setBasics(scalar range, scalar sphereRadius,int subGridReduction)
     {
     useGPU = false;
     saveDistanceData = true;
-    Box = _box;
+    radius = sphereRadius;
     scalar gridScale = 1./(scalar)subGridReduction;
     int width = subGridReduction;
-    cellList = make_shared<hyperrectangularCellList>(range*gridScale,Box);
+    cellList = make_shared<hyperrectangularCellList>(range*gridScale,radius);
     cellList->computeAdjacentCells(width);
     Nmax = 4;
     maxRange = range;
@@ -127,8 +127,8 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
                     {
                     int neighborIndex = indices.data[cellList->cellListIndexer(p1,currentCell)];
                     if (neighborIndex == pp) continue;
-                    dVec disp;
-                    Box->minDist(target,h_pt.data[neighborIndex],disp);
+                    dVec disp=target - h_pt.data[neighborIndex];
+//                    Box->minDist(target,h_pt.data[neighborIndex],disp);
                     scalar dist = norm(disp);
                     if(dist>=maxRange) continue;
                     int offset = h_npp.data[pp];
@@ -193,7 +193,6 @@ NVTXPUSH("primary neighborlist computation");
                                   d_pt.data,
                                   d_assist.data,
                                   d_adj.data,
-                                  *(Box),
                                   neighborIndexer,
                                   cellList->cellListIndexer,
                                   cellList->cellIndexer,

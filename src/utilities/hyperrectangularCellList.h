@@ -8,7 +8,8 @@
 
 
 /*! \file orthorhombicCellList.h */
-//! Construct simple cell/bucket structures on the CPU or GPU given a hyper-rectangular domain with PBCs
+//! Construct simple cell/bucket structures on the CPU or GPU given a hyper-rectangular domain withOUT periodic boundary conditions, specialized to spheres
+//
 //
 /*!
  * A class that can sort points into a grid of buckets. This enables local searches for particle neighbors, etc.
@@ -18,14 +19,13 @@ class hyperrectangularCellList
     {
     public:
         //!Blank constructor
-        hyperrectangularCellList(){Nmax=0;Box = make_shared<periodicBoundaryConditions>();};
+        hyperrectangularCellList(){Nmax=0;};
         //! a box, and a size for the underlying grid
-        hyperrectangularCellList(scalar a, BoxPtr _box);
+        hyperrectangularCellList(scalar a, scalar sphereRadius);
 
-        //!Set the BoxPtr to point to an existing one
-        void setBox(BoxPtr bx){Box=bx;};
+        scalar radius;
         //!call setGridSize if the particles and box already set, as this doubles as a general initialization of data structures
-        void setGridSize(scalar a);
+        void setGridSize(scalar a,scalar sphereRadius);
         //!Get an upper bound on the maximum number of particles in a given bucket
         int getNmax() {return Nmax;};
         //!The number of cells in each direction
@@ -115,8 +115,6 @@ class hyperrectangularCellList
         int totalCells;
         //! the maximum number of particles found in any bin
         int Nmax;
-        //!The Box used to compute periodic distances
-        BoxPtr Box;
         //!whether the updater does its work on the GPU or not
         bool useGPU;
 

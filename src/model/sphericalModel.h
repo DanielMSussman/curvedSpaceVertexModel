@@ -5,7 +5,7 @@
 #include "noiseSource.h"
 #include "indexer.h"
 #include "sphericalDomain.h"
-
+#include "neighborList.h"
 
 class sphericalModel : public simpleModel
     {
@@ -24,6 +24,10 @@ class sphericalModel : public simpleModel
         //!return a reference to the GPUArray of positions
         virtual GPUArray<dVec> & returnDirectors(){return directors;};
 
+        virtual void computeForces(bool zeroOutForces=false);
+
+        virtual void setSoftRepulsion(scalar range = 1.0, scalar stiffness = 1.0);
+
         Index2D neighborIndex;
         GPUArray<int> numberOfNeighbors;
         GPUArray<int> neighbors;
@@ -33,6 +37,11 @@ class sphericalModel : public simpleModel
 
         noiseSource noise;
         sphericalDomain sphere;
+
+        neighborList metricNeighbors;
+
+        scalar repulsionRange;
+        scalar repulsionStiffness;
     };
 
 #endif

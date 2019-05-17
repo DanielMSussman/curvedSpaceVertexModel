@@ -8,8 +8,10 @@
 class neighborList
     {
     public:
+        neighborList(){};
+        void setBasics(scalar range, scalar sphereRadius, int subGridReduction=1);
         //!basic constructor has a box and a range
-        neighborList(scalar range, BoxPtr _box, int subGridReduction = 1);
+        neighborList(scalar range, scalar sphereRadius, int subGridReduction = 1){setBasics(range,sphereRadius,subGridReduction);};
 
         //!computethe neighborlist of the set of points passed in
         virtual void computeNeighborLists(GPUArray<dVec> &points)
@@ -31,11 +33,8 @@ class neighborList
             };
         //!whether the updater does its work on the GPU or not
         bool useGPU;
-        //!The Box used to compute periodic distances
-        BoxPtr Box;
 
-        void setBox(BoxPtr _bx){Box=_bx;};
-
+        scalar radius;
         //!indexes the neighbors of each particle
         Index2D neighborIndexer;
 

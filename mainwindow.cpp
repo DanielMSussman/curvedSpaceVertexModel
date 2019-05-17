@@ -213,6 +213,7 @@ void MainWindow::simulationInitialize()
     Configuration = make_shared<sphericalVoronoi>(N,noise);
     Configuration->setRadius(radius);
     Configuration->getNeighbors();
+    Configuration->setSoftRepulsion();
     vicsek = make_shared<voronoiVicsek>();
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
