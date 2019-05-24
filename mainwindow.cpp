@@ -181,6 +181,8 @@ void MainWindow::on_boxRadius_textEdited(const QString &arg1)
     density = ((double) N) / (4.0*PI*radius*radius) ;
     QString valueAsString = QString::number(density);
     ui->boxDensity->setText(valueAsString);
+    QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
+    ui->boxPackingFraction->setText(valueAsString2);
 }
 
 void MainWindow::on_boxDensity_textEdited(const QString &arg1)
@@ -190,6 +192,19 @@ void MainWindow::on_boxDensity_textEdited(const QString &arg1)
     radius = 0.5*sqrt((double)N/(density*PI));
     QString valueAsString = QString::number(radius);
     ui->boxRadius->setText(valueAsString);
+    QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
+    ui->boxPackingFraction->setText(valueAsString2);
+}
+
+void MainWindow::on_boxPackingFraction_textEdited(const QString &arg1)
+{
+     N = ui->boxNTotalSize->text().toInt();
+     scalar phi =  ui->boxPackingFraction->text().toDouble();
+     radius = sqrt(0.0625*N/phi);
+     QString valueAsString = QString::number(radius);
+     ui->boxRadius->setText(valueAsString);
+     QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
+     ui->boxDensity->setText(valueAsString2);
 }
 
 
@@ -518,6 +533,9 @@ void MainWindow::on_saveFileNowButton_released()
 
 void MainWindow::on_computeEnergyButton_released()
 {
+    QString energyString = QStringLiteral("This button doesn't do anything at the moment. But thanks for checking");
+    ui->testingBox->setText(energyString);
+    ui->progressBar->setValue(100);
     /*
      ui->progressBar->setValue(0);
     landauLCForce->computeEnergy();
@@ -545,6 +563,7 @@ void MainWindow::on_cancelEvolutionParametersButton_pressed()
 {
     ui->evolutionParametersWidget->hide();
 }
+
 
 
 

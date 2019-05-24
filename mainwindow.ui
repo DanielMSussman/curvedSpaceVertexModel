@@ -72,7 +72,7 @@ border: 1px solid red</string>
      </property>
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>230</x>
        <y>170</y>
        <width>151</width>
        <height>20</height>
@@ -92,7 +92,7 @@ border: 1px solid red</string>
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>200</y>
+       <y>220</y>
        <width>161</width>
        <height>51</height>
       </rect>
@@ -275,7 +275,7 @@ color: black
     <widget class="QLabel" name="label_60">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>50</x>
        <y>60</y>
        <width>41</width>
        <height>16</height>
@@ -291,7 +291,7 @@ color: black
     <widget class="QLineEdit" name="boxNTotalSize">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>100</x>
        <y>60</y>
        <width>111</width>
        <height>18</height>
@@ -307,7 +307,7 @@ color: black
     <widget class="QLabel" name="label_61">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>50</x>
        <y>80</y>
        <width>41</width>
        <height>16</height>
@@ -323,7 +323,7 @@ color: black
     <widget class="QLabel" name="label_62">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>50</x>
        <y>100</y>
        <width>41</width>
        <height>16</height>
@@ -339,7 +339,7 @@ color: black
     <widget class="QLineEdit" name="boxRadius">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>100</x>
        <y>80</y>
        <width>121</width>
        <height>18</height>
@@ -355,7 +355,7 @@ color: black
     <widget class="QLineEdit" name="boxDensity">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>100</x>
        <y>100</y>
        <width>121</width>
        <height>18</height>
@@ -374,7 +374,7 @@ color: black
      </property>
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>230</x>
        <y>140</y>
        <width>151</width>
        <height>20</height>
@@ -396,7 +396,7 @@ color: black
      </property>
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>230</x>
        <y>110</y>
        <width>151</width>
        <height>20</height>
@@ -412,13 +412,84 @@ color: black
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QLabel" name="label_63">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>120</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: red</string>
+     </property>
+     <property name="text">
+      <string>phi</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="boxPackingFraction">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>120</y>
+       <width>91</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px red solid</string>
+     </property>
+     <property name="text">
+      <string>0.785398</string>
+     </property>
+    </widget>
+    <widget class="Line" name="line">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>110</y>
+       <width>2</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>110</y>
+       <width>10</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line_3">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>130</y>
+       <width>10</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="resetSystemButton">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>120</y>
-      <width>151</width>
+      <x>10</x>
+      <y>130</y>
+      <width>171</width>
       <height>32</height>
      </rect>
     </property>
@@ -1039,7 +1110,7 @@ color: black
      <rect>
       <x>20</x>
       <y>180</y>
-      <width>151</width>
+      <width>161</width>
       <height>32</height>
      </rect>
     </property>

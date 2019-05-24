@@ -69,6 +69,8 @@ private slots:
 
     void on_resetSystemBandButton_released();
 
+    void on_boxPackingFraction_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 
