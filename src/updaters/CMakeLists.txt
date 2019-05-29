@@ -6,7 +6,7 @@ include_directories(${CMAKE_SOURCE_DIR}/inc ${CUDA_INCLUDE_DIRS} ../simulation)
 add_library(updater
     baseUpdater.cpp
     velocityVerlet.cpp
-    voronoiVicsek.cpp
+    vectorialVicsek.cpp
     noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
     energyMinimizerAdam.cpp

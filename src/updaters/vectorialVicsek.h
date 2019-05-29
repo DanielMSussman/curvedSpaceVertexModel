@@ -1,15 +1,15 @@
-#ifndef voronoiVicsek_H
-#define voronoiVicsek_H
+#ifndef vectorialVicsek_H
+#define vectorialVicsek_H
 
 #include "equationOfMotion.h"
 #include "sphericalModel.h"
 #include "noiseSource.h"
-/*! \file voronoiVicsek.h */
+/*! \file vectorialVicsek.h */
 
-class voronoiVicsek : public equationOfMotion
+class vectorialVicsek : public equationOfMotion
     {
     public:
-        voronoiVicsek(){useGPU = false; mu = 1.0; Eta = 1.0; tau = 1.0;v0=0.01;};
+        vectorialVicsek(){useGPU = false; mu = 1.0; Eta = 1.0; tau = 1.0;v0=0.01;};
         virtual void integrateEOMGPU(){};
         virtual void integrateEOMCPU();
 
@@ -27,7 +27,7 @@ class voronoiVicsek : public equationOfMotion
         void setEta(scalar _Eta){Eta=_Eta;};
         void setTau(scalar _tau){tau=_tau;};
         void setV0(scalar _v0){v0=_v0;};
-        //!The value of the alignment coupling
+        //!The value of the alignment coupling -- tau = J^-1
         scalar tau;
         //!The value of the inverse friction constant
         scalar mu;

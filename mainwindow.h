@@ -5,7 +5,7 @@
 #include "noiseSource.h"
 #include "indexer.h"
 #include "sphericalVoronoi.h"
-#include "voronoiVicsek.h"
+#include "vectorialVicsek.h"
 #include "simulation.h"
 
 namespace Ui {
@@ -95,7 +95,7 @@ public:
 
     shared_ptr<sphericalModel> Configuration;
     shared_ptr<Simulation> sim;
-    shared_ptr<voronoiVicsek> vicsek;
+    shared_ptr<vectorialVicsek> vicsek;
 //    shared_ptr<landauDeGennesLC> landauLCForce;
  //   shared_ptr<energyMinimizerFIRE> fire;
 

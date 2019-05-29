@@ -1,8 +1,8 @@
-#include "voronoiVicsek.h"
+#include "vectorialVicsek.h"
 
-/*! \file voronoiVicsek.cpp */
+/*! \file vectorialVicsek.cpp */
 
-void voronoiVicsek::integrateEOMCPU()
+void vectorialVicsek::integrateEOMCPU()
     {
     sim->computeForces();
 
@@ -12,7 +12,7 @@ void voronoiVicsek::integrateEOMCPU()
     ArrayHandle<dVec> disp(displacement);
     for(int ii = 0; ii < Ndof; ++ii)
         {
-        disp.data[ii] = deltaT*(v0*n.data[ii]+mu*f.data[ii]);//plus force terms
+        disp.data[ii] = deltaT*(v0*n.data[ii]+mu*f.data[ii]);
         }
 
     }
@@ -52,7 +52,12 @@ void voronoiVicsek::integrateEOMCPU()
 
         }
     for (int ii = 0; ii < Ndof; ++ii)
-        n.data[ii] = newVelocityDirector[ii];
+        {
+        n.data[ii] += (deltaT/tau)*(newVelocityDirector[ii] - n.data[ii]);
+        voronoiModel->sphere.projectToTangentPlane(n.data[ii],p.data[ii]);
+        n.data[ii] = n.data[ii]*(1.0/norm(n.data[ii]));
+//        n.data[ii] = newVelocityDirector[ii];
+        };
 
     }//arrayhandle scope
     };
