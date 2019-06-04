@@ -1,4 +1,5 @@
 #include "neighborList.cuh"
+#include "functions.h"
 /*! \file neighborList.cu */
 
 /*!

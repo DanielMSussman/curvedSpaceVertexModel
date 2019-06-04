@@ -11,10 +11,12 @@ typedef CGAL::Polyhedron_3<K> Polyhedron_3;
 typedef K::Point_3 Point_3;
 typedef CGAL::Surface_mesh<Point_3> Surface_mesh;
 
-void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n, std::vector< std::vector<int> > &allNeighs, std::vector<int> &numNeighs)
+void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx)
     {
-    allNeighs.resize(n);
-    numNeighs.resize(n);
+    if(numNeighs.getNumElements() < n)
+        numNeighs.resize(n);
+
+    //convex hull part
     std::vector<Point_3 > p(n);
     std::map<Point_3,int> pointToIndex;
     for(int ii = 0; ii < p.size();++ii)
@@ -24,9 +26,25 @@ void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n, std::vect
         }
     Polyhedron_3 poly;
     CGAL::convex_hull_3(p.begin(),p.end(),poly);
+    int maximumDegree = 0;
 
-//    std::cout << "the ch contains " << poly.size_of_vertices() << " vertices" << std::endl;
+    ArrayHandle<unsigned int> nNeigh(numNeighs);
+    for(Polyhedron_3::Vertex_iterator v = poly.vertices_begin(); v!= poly.vertices_end(); ++v)
+        {
+        int idx = pointToIndex[v->point()];
+        int curDegree = v->vertex_degree();
+        if(curDegree > maximumDegree)
+            maximumDegree = curDegree;
+        nNeigh.data[idx]= curDegree;
+        }
 
+    if(allNeighs.getNumElements() < n*maximumDegree)
+        {
+        allNeighs.resize(n*maximumDegree);
+        nidx = Index2D(maximumDegree,n);
+        }
+
+    ArrayHandle<int> neighs(allNeighs);
     for(Polyhedron_3::Vertex_iterator v = poly.vertices_begin(); v!= poly.vertices_end(); ++v)
         {
   //      std::cout << v->point() << std::endl;
@@ -35,13 +53,12 @@ void convexHullCGALInterface::sphericalConvexHull(dVec *points, int n, std::vect
 
         std::vector<int> nbs;nbs.reserve(6);
         Polyhedron_3::Halfedge_around_vertex_circulator h = v->vertex_begin();
+        int ii = 0;
         do
             {
-            nbs.push_back(pointToIndex[h->opposite()->vertex()->point()]);
+            neighs.data[nidx(ii,idx)] = pointToIndex[h->opposite()->vertex()->point()];
+            ++ii;
             ++h;
             }while (h!= v->vertex_begin());
-        allNeighs[idx] = nbs;
-        numNeighs[idx] = nbs.size();
-        }
+        };
     };
-

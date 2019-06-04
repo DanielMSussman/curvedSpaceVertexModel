@@ -23,6 +23,8 @@ void vectorialVicsek::integrateEOMCPU()
     ArrayHandle<dVec> p(model->returnPositions());
     ArrayHandle<dVec> n(model->returnDirectors());
     ArrayHandle<dVec> nDisp(newVelocityDirector);
+    ArrayHandle<unsigned int> nNeighs(model->numberOfNeighbors);
+    ArrayHandle<int> neighs(model->neighbors);
     dVec spherePoint;
     for(int ii = 0; ii < Ndof; ++ii)
         {
@@ -42,12 +44,12 @@ void vectorialVicsek::integrateEOMCPU()
         spherePoint.x[1] = sin(phi);
 #endif
         //average direction of neighbors?
-        int m = model->numNeighs[ii];
+        int m = nNeighs.data[ii];
 
         nDisp.data[ii] = n.data[ii];
         for (int jj = 0; jj < m; ++jj)
             {
-            nDisp.data[ii] += n.data[model->allNeighs[ii][jj]];
+            nDisp.data[ii] += n.data[neighs.data[model->neighborIndex(jj,ii)]];
             }
         m +=1;//account for self-alignment
         scalar mi = 1.0/m;

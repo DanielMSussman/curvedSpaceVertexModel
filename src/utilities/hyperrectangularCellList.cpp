@@ -2,6 +2,7 @@
 #include "hyperrectangularCellList.cuh"
 #include "utilities.cuh"
 #include "cuda_runtime.h"
+#include "functions.h"
 
 /*! \file hyperrectangularCellList.cpp */
 

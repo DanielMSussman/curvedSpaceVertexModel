@@ -5,6 +5,7 @@
 #include "simpleModel.h"
 #include "basicSimulation.h"
 #include "neighborList.h"
+#include "functions.h"
 
 /*! \file baseForce.h */
 //!A base class for implementing force calculations

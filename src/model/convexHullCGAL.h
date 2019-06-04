@@ -21,11 +21,13 @@
 
 #include "vector_types.h"
 #include <vector>
+#include "gpuarray.h"
+#include "indexer.h"
 
 #include "dDimensionalVectorTypes.h"
 class convexHullCGALInterface
     {
     public:
-        void sphericalConvexHull(dVec *points, int n, std::vector<std::vector<int> > &allNeighs, std::vector<int> &numNeighs);
+        void sphericalConvexHull(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx);
     };
 #endif

@@ -3,6 +3,7 @@
 \addtogroup forceKernels
 @{
 */
+#include "functions.h"
 
 __global__ void gpu_lennardJones6_12_energy_kernel(scalar *d_energy,
                                    unsigned int *d_neighborsPerParticle,

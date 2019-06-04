@@ -1,6 +1,7 @@
 #include "neighborList.h"
 #include "utilities.cuh"
 #include "neighborList.cuh"
+#include "functions.h"
 /*! \file neighborList.cpp */
 
 void neighborList::setBasics(scalar range, scalar sphereRadius,int subGridReduction)

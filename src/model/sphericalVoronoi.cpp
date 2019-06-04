@@ -8,19 +8,6 @@ sphericalVoronoi::sphericalVoronoi(int n, noiseSource &_noise, bool _useGPU, boo
 void sphericalVoronoi::convexHull()
     {
     ArrayHandle<dVec> pos(positions);
-    convexHuller.sphericalConvexHull(pos.data,N,allNeighs,numNeighs);
-
-    /*
-    int nn = 0;
-    for (int ii = 0; ii < N; ++ii)
-        nn+=numNeighs[ii];
-    for (int ii = 0; ii < N; ++ii)
-        {
-        printf("particle %i (%f,%f,%f) neighbors: ",ii, pos.data[ii][0],pos.data[ii][1],pos.data[ii][2]);
-        for (int jj = 0; jj < convexHuller.numNeighs[ii]; ++jj)
-            printf("%i ",convexHuller.allNeighs[ii][jj]);
-        printf("\n");
-        }
-    */
+    convexHuller.sphericalConvexHull(pos.data,N,neighbors,numberOfNeighbors,neighborIndex);
     };
 

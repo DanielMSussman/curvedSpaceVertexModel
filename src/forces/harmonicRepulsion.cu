@@ -4,6 +4,7 @@
 \addtogroup forceKernels
 @{
 */
+#include "functions.h"
 
 /*!
 calculate the force per particle given harmonic repulsions

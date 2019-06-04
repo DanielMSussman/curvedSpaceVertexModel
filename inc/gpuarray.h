@@ -34,8 +34,11 @@ for (int c = 0; c < numberOfCells;++c)
     h_ci.data[c] = .....
 */
 // for vector types
-#include "std_include.h"
+//#include "std_include.h"
 #include <cuda_runtime.h>
+#include <stdexcept>
+#include <cstdlib>
+#include <string.h>
 
 
 //!A structure for declaring where we want to access data

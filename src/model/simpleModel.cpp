@@ -36,8 +36,6 @@ void simpleModel::initializeSimpleModel(int n)
         }
     numberOfNeighbors.resize(N);
     directors.resize(N);
-    allNeighs.resize(N);
-    numNeighs.resize(N);
 
     positions.resize(n);
     velocities.resize(n);
@@ -192,20 +190,8 @@ void simpleModel::computeForces(bool zeroOutForces)
 void simpleModel::getNeighbors()
     {
     metricNeighbors.computeNeighborLists(positions);
-    ArrayHandle<unsigned int> nNeighs(metricNeighbors.neighborsPerParticle);
-    ArrayHandle<int> neighs(metricNeighbors.particleIndices);
-    for (int ii = 0; ii < N; ++ii)
-        {
-        int num = nNeighs.data[ii];
-        numNeighs[ii]=num;
-        if(allNeighs[ii].size() < num)
-            allNeighs[ii].resize(num);
-        for (int jj = 0; jj < num; ++jj)
-            {
-            int nIdx = metricNeighbors.neighborIndexer(jj,ii);
-            int otherIdx = neighs.data[nIdx];
-            allNeighs[ii][jj] = otherIdx;
-            }
-        };
+    numberOfNeighbors = metricNeighbors.neighborsPerParticle;
+    neighbors = metricNeighbors.particleIndices;
+    neighborIndex=metricNeighbors.neighborIndexer;
     };
 

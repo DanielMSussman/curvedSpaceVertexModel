@@ -17,7 +17,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS ``AS IS'' AND
 //As you might suspect from the above, the classes and structures in this file are modifications of the Index1D.h file from the HOOMD-Blue package.
 //Credit to Joshua A. Anderson
 
-#include "functions.h"
+//#include "functions.h"
+#include "dDimensionalIVec.h"
+
 #ifdef NVCC
 #define HOSTDEVICE __host__ __device__ inline
 #else
@@ -167,7 +169,10 @@ class IndexDD
 
         HOSTDEVICE unsigned int operator()(const iVec &i) const
             {
-            return dot(i,intermediateSizes);
+            int ans = 0;
+            for (int dd = 0; dd < DIMENSION;++dd)
+                ans += i.x[dd]*intermediateSizes.x[dd];
+            return ans;
             };
 
         //!What iVec would correspond to a given unsigned int IndexDD(iVec)

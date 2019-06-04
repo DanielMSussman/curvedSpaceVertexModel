@@ -1,26 +1,7 @@
-
 #include <QMainWindow>
 #include <QGuiApplication>
-
-//#include <Qt3DCore/QEntity>
-//#include <Qt3DRender/QCamera>
-//#include <Qt3DRender/QCameraLens>
-//#include <Qt3DCore/QTransform>
-//#include <Qt3DCore/QAspectEngine>
-
-//#include <Qt3DInput/QInputAspect>
-
-//#include <Qt3DRender/QRenderAspect>
-//#include <Qt3DExtras/Qt3DWindow>
-//#include <Qt3DExtras/QForwardRenderer>
-//#include <Qt3DExtras/QPhongMaterial>
-//#include <Qt3DExtras/QCylinderMesh>
-//#include <Qt3DExtras/QSphereMesh>
-//#include <Qt3DExtras/QTorusMesh>
-
 #include <QPropertyAnimation>
 #include <chrono>
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "profiler.h"
@@ -382,14 +363,16 @@ void MainWindow::on_drawStuffButton_released()
     int3 zero; zero.x=1;zero.y=1;zero.z=1;
     ui->displayZone->setLines(lineSegments,zero);
 
+    ArrayHandle<unsigned int> nNeighs(Configuration->numberOfNeighbors);
+    ArrayHandle<int> neighs(Configuration->neighbors);
     vector<scalar3> connections;
     if(ui->showNeighborsCheckbox->isChecked())
         {
-        for (int ii = 0; ii < Configuration->numNeighs.size(); ++ii)
+        for (int ii = 0; ii < N; ++ii)
             {
-            for (int jj = 0; jj < Configuration->numNeighs[ii];++jj)
+            for (int jj = 0; jj < nNeighs.data[ii]; ++jj)
                 {
-                int neighbor = Configuration->allNeighs[ii][jj];
+                int neighbor = neighs.data[Configuration->neighborIndex(jj,ii)]; 
                 if(neighbor > ii)
                     {
                     scalar3 start,end;

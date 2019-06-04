@@ -94,11 +94,9 @@ class simpleModel
         neighborList metricNeighbors;
 
         Index2D neighborIndex;
-        GPUArray<int> numberOfNeighbors;
+        GPUArray<unsigned int> numberOfNeighbors;
         GPUArray<int> neighbors;
         GPUArray<dVec> directors;
-        std::vector< std::vector<int> > allNeighs; //!<The list of neighbors of every point in the convex hull
-        std::vector<int> numNeighs;
 
     protected:
         //!The number of particles

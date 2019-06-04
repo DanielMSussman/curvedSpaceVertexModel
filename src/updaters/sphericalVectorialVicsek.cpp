@@ -23,6 +23,8 @@ void sphericalVectorialVicsek::integrateEOMCPU()
     ArrayHandle<dVec> p(voronoiModel->returnPositions());
     ArrayHandle<dVec> n(voronoiModel->returnDirectors());
     ArrayHandle<dVec> nDisp(newVelocityDirector);
+    ArrayHandle<unsigned int> nNeighs(voronoiModel->numberOfNeighbors);
+    ArrayHandle<int> neighs(voronoiModel->neighbors);
     dVec spherePoint;
     for(int ii = 0; ii < Ndof; ++ii)
         {
@@ -38,12 +40,12 @@ void sphericalVectorialVicsek::integrateEOMCPU()
         voronoiModel->sphere.projectToTangentPlane(spherePoint,p.data[ii]);
         spherePoint = spherePoint*(1.0/norm(spherePoint));
         //average direction of neighbors?
-        int m = voronoiModel->numNeighs[ii];
+        int m = nNeighs.data[ii];
 
         nDisp.data[ii] = n.data[ii];
         for (int jj = 0; jj < m; ++jj)
             {
-            nDisp.data[ii] += n.data[voronoiModel->allNeighs[ii][jj]];
+            nDisp.data[ii] += n.data[neighs.data[voronoiModel->neighborIndex(jj,ii)]];
             }
         m +=1;//account for self-alignment
         scalar mi = 1.0/m;
