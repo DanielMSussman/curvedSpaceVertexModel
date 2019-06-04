@@ -3,9 +3,7 @@
 
 #include "simpleModel.h"
 #include "noiseSource.h"
-#include "indexer.h"
 #include "sphericalDomain.h"
-#include "neighborList.h"
 
 class sphericalModel : public simpleModel
     {
@@ -19,25 +17,14 @@ class sphericalModel : public simpleModel
         virtual void setParticlePositionsRandomly(noiseSource &noise);
         virtual void setParticlePositionsBandedRandomly(noiseSource &noise,scalar angularExtent);
 
-        virtual void getNeighbors();
-        //!return a reference to the GPUArray of positions
-        virtual GPUArray<dVec> & returnDirectors(){return directors;};
 
         virtual void computeForces(bool zeroOutForces=false);
 
         virtual void setSoftRepulsion(scalar range = 1.0, scalar stiffness = 1.0);
 
-        Index2D neighborIndex;
-        GPUArray<int> numberOfNeighbors;
-        GPUArray<int> neighbors;
-        GPUArray<dVec> directors;
-        std::vector< std::vector<int> > allNeighs; //!<The list of neighbors of every point in the convex hull
-        std::vector<int> numNeighs;
 
         noiseSource noise;
         sphericalDomain sphere;
-
-        neighborList metricNeighbors;
 
         scalar repulsionRange;
         scalar repulsionStiffness;

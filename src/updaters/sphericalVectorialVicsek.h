@@ -1,15 +1,15 @@
-#ifndef vectorialVicsek_H
-#define vectorialVicsek_H
+#ifndef sphericalVectorialVicsek_H
+#define sphericalVectorialVicsek_H
 
 #include "equationOfMotion.h"
-#include "simpleModel.h"
+#include "sphericalModel.h"
 #include "noiseSource.h"
-/*! \file vectorialVicsek.h */
+/*! \file sphericalVectorialVicsek.h */
 
-class vectorialVicsek : public equationOfMotion
+class sphericalVectorialVicsek : public equationOfMotion
     {
     public:
-        vectorialVicsek(){useGPU = false; mu = 1.0; Eta = 1.0; tau = 1.0;v0=0.01;};
+        sphericalVectorialVicsek(){useGPU = false; mu = 1.0; Eta = 1.0; tau = 1.0;v0=0.01;};
         virtual void integrateEOMGPU(){};
         virtual void integrateEOMCPU();
 
@@ -17,11 +17,13 @@ class vectorialVicsek : public equationOfMotion
         virtual void setModel(shared_ptr<simpleModel> _model)
             {
             model=_model;
+            voronoiModel = dynamic_pointer_cast<sphericalModel>(model);
             initializeFromModel();
             if(model->neverGPU)
                 newVelocityDirector.noGPU = true;
             newVelocityDirector.resize(Ndof);
             };
+        shared_ptr<sphericalModel> voronoiModel;
         //!Set the number of degrees of freedom of the equation of motion
         void setMu(scalar _mu){mu=_mu;};
         void setEta(scalar _Eta){Eta=_Eta;};

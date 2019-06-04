@@ -3,20 +3,8 @@
 
 sphericalModel::sphericalModel(int n, noiseSource &_noise, bool _useGPU, bool _neverGPU) : simpleModel(n,_useGPU, _neverGPU)
     {
-    if(neverGPU)
-        {
-        numberOfNeighbors.noGPU = true;
-        neighbors.noGPU = true;
-        directors.noGPU=true;
-        }
-    numberOfNeighbors.resize(N);
-    directors.resize(N);
-    allNeighs.resize(N);
-    numNeighs.resize(N);
-
     //set random positions on the sphere of radius 1
     setParticlePositionsRandomly(_noise);
-
     }
 
 void sphericalModel::setRadius(scalar _r)
@@ -169,22 +157,3 @@ void sphericalModel::computeForces(bool zeroOutForces)
         }
     };
 
-void sphericalModel::getNeighbors()
-    {
-    metricNeighbors.computeNeighborLists(positions);
-    ArrayHandle<unsigned int> nNeighs(metricNeighbors.neighborsPerParticle);
-    ArrayHandle<int> neighs(metricNeighbors.particleIndices);
-    for (int ii = 0; ii < N; ++ii)
-        {
-        int num = nNeighs.data[ii];
-        numNeighs[ii]=num;
-        if(allNeighs[ii].size() < num)
-            allNeighs[ii].resize(num);
-        for (int jj = 0; jj < num; ++jj)
-            {
-            int nIdx = metricNeighbors.neighborIndexer(jj,ii);
-            int otherIdx = neighs.data[nIdx];
-            allNeighs[ii][jj] = otherIdx;
-            }
-        };
-    };

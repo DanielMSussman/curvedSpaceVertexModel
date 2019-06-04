@@ -7,6 +7,7 @@ add_library(updater
     baseUpdater.cpp
     velocityVerlet.cpp
     vectorialVicsek.cpp
+    sphericalVectorialVicsek.cpp
     noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
     energyMinimizerAdam.cpp

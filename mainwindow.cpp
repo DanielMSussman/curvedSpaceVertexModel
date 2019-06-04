@@ -233,7 +233,7 @@ void MainWindow::simulationInitialize()
     Configuration->getNeighbors();
     if(ui->softRepulsion->isChecked())
         Configuration->setSoftRepulsion();
-    vicsek = make_shared<vectorialVicsek>();
+    vicsek = make_shared<sphericalVectorialVicsek>();
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
     vicsek->setV0(v0);

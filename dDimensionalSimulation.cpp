@@ -9,7 +9,7 @@
 #include "periodicBoundaryConditions.h"
 #include "simulation.h"
 #include "simpleModel.h"
-#include "vectorialVicsek.h"
+#include "sphericalVectorialVicsek.h"
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
 #include "velocityVerlet.h"
@@ -103,7 +103,7 @@ int main(int argc, char*argv[])
     cout << "density = " << rho << "\tvolume fracation = "<<phi<<endl;
     noiseSource noise(true);
     shared_ptr<simpleModel> Configuration = make_shared<sphericalVoronoi>(N,noise);
-    shared_ptr<vectorialVicsek> vicsek = make_shared<vectorialVicsek>();
+    shared_ptr<sphericalVectorialVicsek> vicsek = make_shared<sphericalVectorialVicsek>();
     vicsek->setEta(0.2);
     vicsek->setV0(0.5);
     vicsek->setDeltaT(.1);

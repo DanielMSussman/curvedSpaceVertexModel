@@ -6,6 +6,8 @@
 #include "periodicBoundaryConditions.h"
 #include "functions.h"
 #include "noiseSource.h"
+#include "indexer.h"
+#include "neighborList.h"
 
 /*! \file simpleModel.h
  * \brief defines an interface for models that compute forces
@@ -20,6 +22,7 @@ S.computeForces();
 S.moveParticles();
 S.returnForces();
 S.returnPositions();
+S.returnDirectors();
 S.returnVelocities();
 S.returnRadii();
 S.returnMasses();
@@ -84,6 +87,18 @@ class simpleModel
 
         //!allow for setting multiple threads
         virtual void setNThreads(int n){nThreads = n;};
+
+        virtual void getNeighbors();
+        //!return a reference to the GPUArray of positions
+        virtual GPUArray<dVec> & returnDirectors(){return directors;};
+        neighborList metricNeighbors;
+
+        Index2D neighborIndex;
+        GPUArray<int> numberOfNeighbors;
+        GPUArray<int> neighbors;
+        GPUArray<dVec> directors;
+        std::vector< std::vector<int> > allNeighs; //!<The list of neighbors of every point in the convex hull
+        std::vector<int> numNeighs;
 
     protected:
         //!The number of particles
