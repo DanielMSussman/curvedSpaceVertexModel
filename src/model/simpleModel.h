@@ -35,10 +35,14 @@ class simpleModel
     public:
         //!The base constructor requires the number of particles
         simpleModel(int n, bool _useGPU = false, bool _neverGPU=true);
+        //!The base constructor requires the number of particles
+        simpleModel(int n, noiseSource &_noise,bool _useGPU = false, bool _neverGPU=true);
         //!a blank default constructor
         simpleModel(){};
         //!initialize the size of the basic data structure arrays
         void initializeSimpleModel(int n);
+
+        virtual void setRadius(scalar _r);
 
         //!Enforce GPU operation
         virtual void setGPU(bool _useGPU=true){useGPU = _useGPU;};
@@ -49,9 +53,12 @@ class simpleModel
         //!do everything unusual to compute additional forces... by default, sets forces to zero
         virtual void computeForces(bool zeroOutForces=false);
 
+        virtual void computeHarmonicRepulsions(bool zeroOutForces);
+
         void setParticlePositions(GPUArray<dVec> &newPositions);
         void setParticlePositions(vector<dVec> &newPositions);
         virtual void setParticlePositionsRandomly(noiseSource &noise);
+        virtual void setParticlePositionsBandedRandomly(noiseSource &noise,scalar angularExtent){setParticlePositionsRandomly(noise);};
 
         //!Set velocities via a temperature. The return value is the total kinetic energy
         scalar setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise);
@@ -85,6 +92,8 @@ class simpleModel
         //!Are the forces current? set to false after every call to moveParticles. set to true after the SIMULATION calls computeForces
         bool forcesComputed;
 
+        virtual void setSoftRepulsion(scalar range = 1.0, scalar stiffness = 1.0);
+
         //!allow for setting multiple threads
         virtual void setNThreads(int n){nThreads = n;};
 
@@ -98,6 +107,9 @@ class simpleModel
         GPUArray<int> neighbors;
         GPUArray<dVec> directors;
 
+        noiseSource noise;
+        scalar repulsionRange;
+        scalar repulsionStiffness;
     protected:
         //!The number of particles
         int N;

@@ -12,22 +12,11 @@ class sphericalModel : public simpleModel
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
 
-        void setRadius(scalar _r);
+        virtual void setRadius(scalar _r);
 
         virtual void setParticlePositionsRandomly(noiseSource &noise);
         virtual void setParticlePositionsBandedRandomly(noiseSource &noise,scalar angularExtent);
 
-
-        virtual void computeForces(bool zeroOutForces=false);
-
-        virtual void setSoftRepulsion(scalar range = 1.0, scalar stiffness = 1.0);
-
-
-        noiseSource noise;
         sphericalDomain sphere;
-
-        scalar repulsionRange;
-        scalar repulsionStiffness;
     };
-
 #endif

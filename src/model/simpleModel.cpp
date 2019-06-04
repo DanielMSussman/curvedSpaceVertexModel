@@ -14,6 +14,11 @@ simpleModel::simpleModel(int n, bool _useGPU, bool _neverGPU) :
     Box = make_shared<periodicBoundaryConditions>(pow(N,1.0/DIMENSION));
     };
 
+simpleModel::simpleModel(int n, noiseSource &_noise, bool _useGPU, bool _neverGPU) : simpleModel(n,_useGPU, _neverGPU)
+    {
+    //set random positions on the sphere of radius 1
+    setParticlePositionsRandomly(_noise);
+    }
 /*!
  * actually set the array sizes. positions, velocities, forces are zero
  * masses are set to unity
@@ -111,10 +116,29 @@ void simpleModel::setParticlePositionsRandomly(noiseSource &noise)
     {
     dVec bDims;
     Box->getBoxDims(bDims);
+    ArrayHandle<dVec> n(directors);
     ArrayHandle<dVec> pos(positions);
     for(int pp = 0; pp < N; ++pp)
         for (int dd = 0; dd <DIMENSION; ++dd)
-            pos.data[pp].x[dd] = noise.getRealUniform(0.0,bDims.x[dd]);
+            pos.data[pp].x[dd] = noise.getRealUniform(-0.5*bDims.x[dd],0.5*bDims.x[dd]);
+    for (int ii = 0; ii < N; ++ii)
+        {
+#if DIMENSION == 3
+        scalar u = noise.getRealUniform();
+        scalar w = noise.getRealUniform();
+        scalar phi = 2.0*PI*u;
+        scalar theta = acos(2.0*w-1);
+        n.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
+        n.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
+        n.data[ii].x[2] = 1.0*cos(theta);
+#else
+        scalar u = noise.getRealUniform();
+        scalar phi = 2.0*PI*u;
+        n.data[ii].x[0] = cos(phi);
+        n.data[ii].x[1] = sin(phi);
+#endif
+        //project the velocity onto the tangent plane
+        }
     };
 
 scalar simpleModel::setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise)
@@ -165,12 +189,67 @@ void simpleModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
     forcesComputed = false;
     };
 
+void simpleModel::setRadius(scalar _r)
+    {
+    Box = make_shared<periodicBoundaryConditions>(2.0*_r);
+    ArrayHandle<dVec> p(positions);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        Box->putInBoxReal(p.data[ii]);
+        }
+    metricNeighbors.setBasics(1.0,2.0*_r);
+    getNeighbors();
+    };
 /*!
  *
 */
+
+void simpleModel::computeHarmonicRepulsions(bool zeroOutForces)
+    {
+    if(!useGPU)
+        {
+        metricNeighbors.computeNeighborLists(positions);
+        ArrayHandle<unsigned int> nNeighs(metricNeighbors.neighborsPerParticle);
+        ArrayHandle<int> neighs(metricNeighbors.particleIndices);
+        ArrayHandle<dVec> h_nv(metricNeighbors.neighborVectors);
+        ArrayHandle<scalar> h_nd(metricNeighbors.neighborDistances);
+        ArrayHandle<dVec> h_f(forces);
+        ArrayHandle<dVec> p(positions);
+        dVec dArrayZero(0.0);
+        dVec disp;
+        scalar dist;
+        dVec newForce;
+        for(int ii = 0; ii <N;++ii)
+            {
+            if(zeroOutForces)
+                h_f.data[ii] = dArrayZero;
+            int num = nNeighs.data[ii];
+            for (int jj = 0; jj < num; ++jj)
+                {
+                int nIdx = metricNeighbors.neighborIndexer(jj,ii);
+                int otherIdx = neighs.data[nIdx];
+                if(otherIdx < ii)//newton force summation etc.
+                    continue;
+                disp = h_nv.data[nIdx];
+                dist = h_nd.data[nIdx];
+                if(dist < repulsionRange)
+                    {
+                    scalar delta = (1.0-dist/repulsionRange);
+                    newForce = repulsionStiffness*(1.0/repulsionRange)*delta*(1.0/dist)*disp;
+                    h_f.data[ii] = h_f.data[ii]+newForce;
+                    h_f.data[otherIdx] = h_f.data[otherIdx]-newForce;
+                    };
+                }
+            };
+
+        }
+    };
+
 void simpleModel::computeForces(bool zeroOutForces)
     {
-    if(zeroOutForces)
+    if(selfForceCompute)
+        computeHarmonicRepulsions(zeroOutForces);
+    if(zeroOutForces && !selfForceCompute)
         {
         if(!useGPU)
             {//cpu branch
@@ -186,6 +265,16 @@ void simpleModel::computeForces(bool zeroOutForces)
             };
         };
     };
+
+void simpleModel::setSoftRepulsion(scalar range, scalar stiffness)
+    {
+    cout << "soft repulsion set" << endl;
+    selfForceCompute = true;
+    repulsionRange = range;
+    repulsionStiffness = stiffness;
+    }
+
+
 
 void simpleModel::getNeighbors()
     {

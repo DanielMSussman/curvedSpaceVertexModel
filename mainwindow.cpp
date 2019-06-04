@@ -206,15 +206,27 @@ void MainWindow::on_setParametersButton_released()
 
 void MainWindow::simulationInitialize()
 {
-    if(ui->topologicalModel->isChecked())
-        Configuration = make_shared<sphericalVoronoi>(N,noise);
+    if(ui->sphericalModel->isChecked())
+        {
+        if(ui->topologicalModel->isChecked())
+            Configuration = make_shared<sphericalVoronoi>(N,noise);
+        else
+            Configuration = make_shared<sphericalModel>(N,noise);
+        Configuration->setRadius(radius);
+        Configuration->getNeighbors();
+        if(ui->softRepulsion->isChecked())
+            Configuration->setSoftRepulsion();
+        vicsek = make_shared<sphericalVectorialVicsek>();
+        }
     else
-        Configuration = make_shared<sphericalModel>(N,noise);
-    Configuration->setRadius(radius);
-    Configuration->getNeighbors();
-    if(ui->softRepulsion->isChecked())
-        Configuration->setSoftRepulsion();
-    vicsek = make_shared<sphericalVectorialVicsek>();
+        {
+        Configuration = make_shared<simpleModel>(N,noise);
+        Configuration->setRadius(radius);
+        Configuration->getNeighbors();
+        if(ui->softRepulsion->isChecked())
+            Configuration->setSoftRepulsion();
+        vicsek = make_shared<vectorialVicsek>();
+        }
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
     vicsek->setV0(v0);
@@ -382,8 +394,21 @@ void MainWindow::on_drawStuffButton_released()
                     end.x = p.data[neighbor][0]/radius;
                     end.y = p.data[neighbor][1]/radius;
                     end.z = p.data[neighbor][2]/radius;
-                    connections.push_back(start);
-                    connections.push_back(end);
+                    if(!ui->sphericalModel->isChecked())
+                        {
+                        scalar len2 = radius*((start.x-end.x)*(start.x-end.x) + (start.y-end.y)*(start.y-end.y)+(start.z-end.z)*(start.z-end.z));
+                        printf("%f\t",len2);
+                        if(len2 < radius)
+                            {
+                            connections.push_back(start);
+                            connections.push_back(end);
+                            };
+                        }
+                    else
+                        {
+                        connections.push_back(start);
+                        connections.push_back(end);
+                        }
                     }
                 }
             }

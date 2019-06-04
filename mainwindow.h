@@ -93,9 +93,9 @@ public:
 
     noiseSource noise;
 
-    shared_ptr<sphericalModel> Configuration;
+    shared_ptr<simpleModel> Configuration;
     shared_ptr<Simulation> sim;
-    shared_ptr<sphericalVectorialVicsek> vicsek;
+    shared_ptr<vectorialVicsek> vicsek;
 //    shared_ptr<landauDeGennesLC> landauLCForce;
  //   shared_ptr<energyMinimizerFIRE> fire;
 
