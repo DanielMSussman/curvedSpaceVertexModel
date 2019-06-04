@@ -108,8 +108,8 @@ void periodicBoundaryConditions::putInBox(dVec &vp)
     {//acts on points in the virtual space
     for (int dd = 0; dd< DIMENSION; ++dd)
         {
-        while(vp.x[dd] < 0) vp.x[dd] += 1.0;
-        while(vp.x[dd] >= 1.0) vp.x[dd] -= 1.0;
+        while(vp.x[dd] < -.5) vp.x[dd] += 1.0;
+        while(vp.x[dd] >= .5) vp.x[dd] -= 1.0;
         };
     };
 

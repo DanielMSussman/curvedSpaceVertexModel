@@ -17,7 +17,8 @@ void sphericalModel::setRadius(scalar _r)
         sphere.putInBoxReal(p.data[ii]);
         sphere.putInBoxVirtual(V.data[ii]);
         }
-    metricNeighbors.setBasics(1.0,sphere.radius);
+
+    metricNeighbors.setBasics(1.0,sphere.radius+2.5);
     getNeighbors();
     };
 

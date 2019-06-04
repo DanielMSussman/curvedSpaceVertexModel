@@ -116,6 +116,7 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
         ArrayHandle<int> h_adj(cellList->returnAdjacentCells());
         recompute = false;
         vector<int> cellsToScan;
+        dVec disp;
         for (int pp = 0; pp < Np; ++pp)
             {
             dVec target = h_pt.data[pp];
@@ -128,7 +129,8 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
                     {
                     int neighborIndex = indices.data[cellList->cellListIndexer(p1,currentCell)];
                     if (neighborIndex == pp) continue;
-                    dVec disp=target - h_pt.data[neighborIndex];
+                    // disp=target - h_pt.data[neighborIndex];
+                    cellList->Box->minDist(target,h_pt.data[neighborIndex],disp);
 //                    Box->minDist(target,h_pt.data[neighborIndex],disp);
                     scalar dist = norm(disp);
                     if(dist>=maxRange) continue;

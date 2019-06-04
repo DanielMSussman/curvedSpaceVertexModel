@@ -100,6 +100,9 @@ class hyperrectangularCellList
         //! indexes the adjacent cells of each cell
         Index2D adjacentCellIndexer;
 
+        void setBox(BoxPtr bx){Box=bx;};
+        BoxPtr Box;
+
     protected:
         //!first index is Nmax, second is whether to recompute
         GPUArray<int> assist;
@@ -120,6 +123,7 @@ class hyperrectangularCellList
 
         //!have we already computed the adjacent cell lists?
         bool adjCellsComputed;
+
     };
 
 #endif

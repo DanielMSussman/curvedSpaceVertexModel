@@ -17,6 +17,7 @@ hyperrectangularCellList::hyperrectangularCellList(scalar a,scalar sphereRadius)
     Nmax = 2;
     radius = sphereRadius;
     setGridSize(a,radius);
+    Box = make_shared<periodicBoundaryConditions>(2.*radius);
     }
 
 /*!
@@ -142,6 +143,8 @@ void hyperrectangularCellList::getCellNeighbors(int cellIndex, int width, std::v
     iVec it(-w);it.x[0]-=1;
     while(iVecIterate(it,min,max))
         {
+        cellNeighbors.push_back(cellIndexer(modularAddition(cellIndexVec,it,gridCellsPerSide)));
+        /*
         iVec test;
         bool include = true;
         for (int dd = 0; dd < DIMENSION; ++dd)
@@ -152,6 +155,7 @@ void hyperrectangularCellList::getCellNeighbors(int cellIndex, int width, std::v
             };
         if (include)
             cellNeighbors.push_back(cellIndexer(test));
+        */
         };
     };
 
