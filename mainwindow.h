@@ -71,6 +71,8 @@ private slots:
 
     void on_boxPackingFraction_textEdited(const QString &arg1);
 
+    void on_sphericalModel_released();
+
 private:
     Ui::MainWindow *ui;
 

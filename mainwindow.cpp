@@ -161,6 +161,19 @@ void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
     ui->boxRadius->setText(valueAsString);
 };
 
+void MainWindow::on_sphericalModel_released()
+{
+    if(!ui->sphericalModel->isChecked())
+        {
+        ui->topologicalModel->setDisabled(true);
+        on_boxRadius_textEdited(ui->boxRadius->text());
+        }
+    else
+        {
+        ui->topologicalModel->setDisabled(false);
+        on_boxRadius_textEdited(ui->boxRadius->text());
+        }
+}
 
 void MainWindow::on_boxRadius_textEdited(const QString &arg1)
 {
@@ -608,8 +621,6 @@ void MainWindow::on_computeEnergyButton_released()
 }
 
 
-
-
 void MainWindow::on_computeEnergyButton_2_released()
 {
     ui->evolutionParametersWidget->show();
@@ -619,7 +630,3 @@ void MainWindow::on_cancelEvolutionParametersButton_pressed()
 {
     ui->evolutionParametersWidget->hide();
 }
-
-
-
-
