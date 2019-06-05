@@ -397,7 +397,6 @@ void MainWindow::on_drawStuffButton_released()
                     if(!ui->sphericalModel->isChecked())
                         {
                         scalar len2 = radius*((start.x-end.x)*(start.x-end.x) + (start.y-end.y)*(start.y-end.y)+(start.z-end.z)*(start.z-end.z));
-                        printf("%f\t",len2);
                         if(len2 < radius)
                             {
                             connections.push_back(start);

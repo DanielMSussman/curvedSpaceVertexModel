@@ -118,9 +118,13 @@ void simpleModel::setParticlePositionsRandomly(noiseSource &noise)
     Box->getBoxDims(bDims);
     ArrayHandle<dVec> n(directors);
     ArrayHandle<dVec> pos(positions);
+    printf("setting in a box of total side length %f\n", bDims.x[0]);
     for(int pp = 0; pp < N; ++pp)
         for (int dd = 0; dd <DIMENSION; ++dd)
+            {
             pos.data[pp].x[dd] = noise.getRealUniform(-0.5*bDims.x[dd],0.5*bDims.x[dd]);
+            Box->putInBoxReal(pos.data[pp]);
+            };
     for (int ii = 0; ii < N; ++ii)
         {
 #if DIMENSION == 3
