@@ -149,7 +149,14 @@ void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
 {
     N = ui->boxNTotalSize->text().toInt();
     density = ui->boxDensity->text().toDouble();
-    radius = 0.5*sqrt((double)N/(density*PI));
+    if(ui->sphericalModel->isChecked())
+        {
+        radius = 0.5*sqrt((double)N/(density*PI));
+        }
+    else
+        {
+        radius = pow(N/(density*8.0),1./3.);
+        }
     QString valueAsString = QString::number(radius);
     ui->boxRadius->setText(valueAsString);
 };
@@ -159,33 +166,69 @@ void MainWindow::on_boxRadius_textEdited(const QString &arg1)
 {
     N = ui->boxNTotalSize->text().toInt();
     radius = ui->boxRadius->text().toDouble();
-    density = ((double) N) / (4.0*PI*radius*radius) ;
-    QString valueAsString = QString::number(density);
-    ui->boxDensity->setText(valueAsString);
-    QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
-    ui->boxPackingFraction->setText(valueAsString2);
+    if(ui->sphericalModel->isChecked())
+        {
+        density = ((double) N) / (4.0*PI*radius*radius) ;
+        QString valueAsString = QString::number(density);
+        ui->boxDensity->setText(valueAsString);
+        QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
+        ui->boxPackingFraction->setText(valueAsString2);
+        }
+    else
+        {
+        density = ((double) N) / (8.0*radius*radius*radius);
+        QString valueAsString = QString::number(density);
+        ui->boxDensity->setText(valueAsString);
+        scalar packingFraction = 4.0/3.0*PI*(1.0/8.0)*N/(8.0*radius*radius*radius);
+        QString valueAsString2 = QString::number(packingFraction);
+        ui->boxPackingFraction->setText(valueAsString2);
+        }
 }
 
 void MainWindow::on_boxDensity_textEdited(const QString &arg1)
 {
     N = ui->boxNTotalSize->text().toInt();
     density = ui->boxDensity->text().toDouble();
-    radius = 0.5*sqrt((double)N/(density*PI));
-    QString valueAsString = QString::number(radius);
-    ui->boxRadius->setText(valueAsString);
-    QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
-    ui->boxPackingFraction->setText(valueAsString2);
+    if(ui->sphericalModel->isChecked())
+        {
+        radius = 0.5*sqrt((double)N/(density*PI));
+        QString valueAsString = QString::number(radius);
+        ui->boxRadius->setText(valueAsString);
+        QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
+        ui->boxPackingFraction->setText(valueAsString2);
+        }
+    else
+        {
+        radius = pow(N/(density*8.0),1./3.);
+        QString valueAsString = QString::number(radius);
+        ui->boxRadius->setText(valueAsString);
+        scalar packingFraction = 4.0/3.0*PI*(1.0/8.0)*N/(8.0*radius*radius*radius);
+        QString valueAsString2 = QString::number(packingFraction);
+        ui->boxPackingFraction->setText(valueAsString2);
+        }
 }
 
 void MainWindow::on_boxPackingFraction_textEdited(const QString &arg1)
 {
      N = ui->boxNTotalSize->text().toInt();
      scalar phi =  ui->boxPackingFraction->text().toDouble();
-     radius = sqrt(0.0625*N/phi);
-     QString valueAsString = QString::number(radius);
-     ui->boxRadius->setText(valueAsString);
-     QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
-     ui->boxDensity->setText(valueAsString2);
+    if(ui->sphericalModel->isChecked())
+        {
+        radius = sqrt(0.0625*N/phi);
+        QString valueAsString = QString::number(radius);
+        ui->boxRadius->setText(valueAsString);
+        QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
+        ui->boxDensity->setText(valueAsString2);
+        }
+    else
+        {
+        radius = pow(N/(6.0*phi*8.0)*PI,1./3.);
+        QString valueAsString = QString::number(radius);
+        ui->boxRadius->setText(valueAsString);
+        density = ((double) N) / (8.0*radius*radius*radius);
+        QString valueAsString2 = QString::number(density);
+        ui->boxDensity->setText(valueAsString2);
+        }
 }
 
 

@@ -29,7 +29,7 @@ void vectorialVicsek::integrateEOMCPU()
     for(int ii = 0; ii < Ndof; ++ii)
         {
         //get a random point on the sphere
-#if DIMENSION == 3
+//#if DIMENSION == 3
         scalar u = noise.getRealUniform();
         scalar w = noise.getRealUniform();
         scalar phi = 2.0*PI*u;
@@ -37,12 +37,14 @@ void vectorialVicsek::integrateEOMCPU()
         spherePoint.x[0] = 1.0*sin(theta)*cos(phi);
         spherePoint.x[1] = 1.0*sin(theta)*sin(phi);
         spherePoint.x[2] = 1.0*cos(theta);
+/*
 #else
         scalar u = noise.getRealUniform();
         scalar phi = 2.0*PI*u;
         spherePoint.x[0] = cos(phi);
         spherePoint.x[1] = sin(phi);
 #endif
+*/
         //average direction of neighbors?
         int m = nNeighs.data[ii];
 
