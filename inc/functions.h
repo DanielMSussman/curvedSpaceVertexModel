@@ -162,6 +162,20 @@ HOSTDEVICE scalar norm(const dVec &p)
     return sqrt(dot(p,p));
     };
 
+HOSTDEVICE scalar3 operator-(const scalar3 &a, const scalar3 &b)
+    {
+    scalar3 ans;
+    ans.x=a.x-b.x;
+    ans.y=a.y-b.y;
+    ans.z=a.z-b.z;
+    return ans;
+    }
+//!The norm of a scalar3
+HOSTDEVICE scalar norm(const scalar3 &p)
+    {
+    return sqrt(p.x*p.x+p.y*p.y+p.z*p.z);
+    };
+
 //!fit integers into non-negative domains
 HOSTDEVICE int wrap(int x,int m)
     {

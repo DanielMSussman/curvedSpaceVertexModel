@@ -8,10 +8,10 @@ OGLWidget::OGLWidget(QWidget *parent)
     xRot = 45;
     zRot = 135;
     scalar3 zero; zero.x = zero.y= zero.z=0;
-    baseSpherePositions.push_back(zero);
-    baseSphereRadii.push_back(1.);
+//    baseSpherePositions.push_back(zero);
+//    baseSphereRadii.push_back(1.);
     int3 one; one.x = one.y=one.z=1;
-    setSpheres(one);
+//    setSpheres(one);
 }
 
 OGLWidget::~OGLWidget()
@@ -21,11 +21,11 @@ OGLWidget::~OGLWidget()
 
 void OGLWidget::clearObjects()
 {
-//    baseSpherePositions.clear();
-//    baseSphereRadii.clear();
-//    spherePositions.clear();
-//    sphereRadii.clear();
-//    walls.clear();
+    baseSpherePositions.clear();
+    baseSphereRadii.clear();
+    spherePositions.clear();
+    sphereRadii.clear();
+    walls.clear();
 }
 void OGLWidget::initializeGL()
 {

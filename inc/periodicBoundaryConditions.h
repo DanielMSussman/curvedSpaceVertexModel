@@ -126,7 +126,7 @@ void periodicBoundaryConditions::minDist(const dVec &p1, const dVec &p2, dVec &p
     for (int dd = 0; dd< DIMENSION; ++dd)
         {
         pans.x[dd] = p1.x[dd]-p2.x[dd];
-        while(pans.x[dd] < halfBoxDimensions.x[dd]) pans.x[dd] += boxDimensions.x[dd];
+        while(pans.x[dd] < -halfBoxDimensions.x[dd]) pans.x[dd] += boxDimensions.x[dd];
         while(pans.x[dd] > halfBoxDimensions.x[dd]) pans.x[dd] -= boxDimensions.x[dd];
         };
     };

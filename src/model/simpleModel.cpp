@@ -191,6 +191,7 @@ void simpleModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
         gpu_move_particles(d_pos.data,d_disp.data,*(Box),scale,N);
         };
     forcesComputed = false;
+    getNeighbors();
     };
 
 void simpleModel::setRadius(scalar _r)

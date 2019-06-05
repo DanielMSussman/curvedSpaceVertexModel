@@ -260,6 +260,11 @@ void MainWindow::simulationInitialize()
         if(ui->softRepulsion->isChecked())
             Configuration->setSoftRepulsion();
         vicsek = make_shared<sphericalVectorialVicsek>();
+        scalar3 zero; zero.x = zero.y= zero.z=0;
+        int3 one; one.x = one.y=one.z=1;
+        scalar rad = 1.0;
+        ui->displayZone->addSphere(zero,rad);
+        ui->displayZone->setSpheres(one);
         }
     else
         {
@@ -269,6 +274,7 @@ void MainWindow::simulationInitialize()
         if(ui->softRepulsion->isChecked())
             Configuration->setSoftRepulsion();
         vicsek = make_shared<vectorialVicsek>();
+        ui->displayZone->clearObjects();
         }
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
@@ -439,8 +445,8 @@ void MainWindow::on_drawStuffButton_released()
                     end.z = p.data[neighbor][2]/radius;
                     if(!ui->sphericalModel->isChecked())
                         {
-                        scalar len2 = radius*((start.x-end.x)*(start.x-end.x) + (start.y-end.y)*(start.y-end.y)+(start.z-end.z)*(start.z-end.z));
-                        if(len2 < radius)
+                        scalar len = norm(p.data[neighbor]-p.data[ii]);
+                        if(len < 1.)
                             {
                             connections.push_back(start);
                             connections.push_back(end);
