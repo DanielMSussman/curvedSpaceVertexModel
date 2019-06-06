@@ -114,8 +114,8 @@ int main(int argc, char*argv[])
 
     int dim =DIMENSION;
     noiseSource noise(true);
-    shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N,noise);
-    scalar boxL = pow(0.5,1./3.)*pow(N,1./3.);
+    shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N,noise,GPU,!GPU);
+    scalar boxL = pow(2.,1./3.)*pow(N,1./3.);
     Configuration->setRadius(boxL*0.5);
     Configuration->getNeighbors();
             //Configuration->setSoftRepulsion();
@@ -134,17 +134,28 @@ int main(int argc, char*argv[])
         };
 
     int rate = 100;
+    char filename[256];
+    sprintf(filename,"../data/GNFTesting_N%i_rho%.3f.txt",N,N/(1.0*boxL*boxL*boxL));
+    ofstream myfile;
+    myfile.open(filename);myfile.setf(ios_base::scientific);myfile << setprecision(10);
 
 vector<hyperrectangularCellList> cls;
 vector<vector<int> > vs;
-for (scalar cellLengthSize = 1.0; cellLengthSize < 3.0; cellLengthSize += 0.5)
+scalar lastSize = 0.0;
+for (scalar cellLengthSize = 1.0; cellLengthSize < boxL/5; cellLengthSize += 0.25)
     {
     hyperrectangularCellList CL1(cellLengthSize,boxL/2);
     CL1.setGPU(gpuSwitch >=0);
     CL1.computeAdjacentCells(1);
-    vector<int> v1(CL1.totalCells);
-    cls.push_back(CL1);
-    vs.push_back(v1);
+    scalar currentSize = CL1.getCellSize().x[0];
+    if(currentSize > lastSize)
+        {
+        printf("%f\n",currentSize);
+        vector<int> v1(CL1.totalCells);
+        cls.push_back(CL1);
+        vs.push_back(v1);
+        lastSize = currentSize;
+        }
     }
 
     for (int ii = 0; ii < maximumIterations; ++ii)
@@ -152,6 +163,7 @@ for (scalar cellLengthSize = 1.0; cellLengthSize < 3.0; cellLengthSize += 0.5)
         sim->performTimestep();
         if(ii%rate == 0 )
             {
+            myfile << ii;
             for (int cc = 0; cc < cls.size(); ++cc)
                 {
                 cls[cc].computeCellList(Configuration->returnPositions());
@@ -165,10 +177,13 @@ for (scalar cellLengthSize = 1.0; cellLengthSize < 3.0; cellLengthSize += 0.5)
                 scalar mean, var;
                 getMeanVar(vs[cc],mean,var);
                 printf("timestep %i\t m,v = %f , %f\n",ii, mean, var);
+                myfile << "\t" << mean << "\t" << var;
                 }
+            myfile << "\n";
             }
         }
 
+    myfile.close();
 
 //
 //The end of the tclap try

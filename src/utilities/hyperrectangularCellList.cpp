@@ -244,7 +244,7 @@ void hyperrectangularCellList::computeAdjacentCells(int width)
         };
     }
     adjacentCellsPerCell = neighs;
-    cout << "building a cell list with "<< adjacentCellsPerCell << " adj cells per cell" << endl;
+    //cout << "building a cell list with "<< adjacentCellsPerCell << " adj cells per cell" << endl;
 
     if(adjacentCellsPerCell == adjacentCells.getNumElements()) return;
 
