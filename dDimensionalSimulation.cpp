@@ -38,6 +38,20 @@ scalar sphereVolume(scalar radius, int dimension)
             return (2.*PI*radius*radius)/((scalar) dimension)*sphereVolume(radius,dimension-2);
     };
 
+void getMeanVar(vector<int> &vec, scalar &mean, scalar &var)
+    {
+    mean = 0.0;
+    var = 0.0;
+    for (int ii = 0; ii < vec.size(); ++ii)
+        mean +=vec[ii];
+    if (vec.size() > 0)
+        mean /= vec.size();
+    for (int ii = 0; ii < vec.size(); ++ii)
+        var += (vec[ii]-mean)*(vec[ii]-mean);
+    if(vec.size() >0)
+        var /=(vec.size()-1);
+    }
+
 /*!
 This file runs some dynamics on particles interacting according to some
 potential... when this repository is ever meant to be used this all should be
@@ -99,12 +113,14 @@ int main(int argc, char*argv[])
 
 
     int dim =DIMENSION;
-    cout << "running a simulation in "<<dim << " dimensions with box sizes " << L << endl;
-    cout << "density = " << rho << "\tvolume fracation = "<<phi<<endl;
     noiseSource noise(true);
-    shared_ptr<simpleModel> Configuration = make_shared<sphericalVoronoi>(N,noise);
-    shared_ptr<sphericalVectorialVicsek> vicsek = make_shared<sphericalVectorialVicsek>();
-    vicsek->setEta(0.2);
+    shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N,noise);
+    scalar boxL = pow(0.5,1./3.)*pow(N,1./3.);
+    Configuration->setRadius(boxL*0.5);
+    Configuration->getNeighbors();
+            //Configuration->setSoftRepulsion();
+    shared_ptr<vectorialVicsek> vicsek = make_shared<vectorialVicsek>();
+    vicsek->setEta(0.1);
     vicsek->setV0(0.5);
     vicsek->setDeltaT(.1);
 
@@ -112,48 +128,46 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
     sim->addUpdater(vicsek,Configuration);
 
-    /*
-    //after the simulation box has been set, we can set particle positions...do so via poisson disk sampling?
-    vector<dVec> poissonPoints;
-    scalar diameter = .75;
-    clock_t tt1=clock();
-    int loopCount = 0;
-    while(poissonPoints.size() != N)
-        {
-        poissonDiskSampling(N,diameter,poissonPoints,noise,PBC);
-        loopCount +=1;
-         diameter *= 0.95;
-        }
-    clock_t tt2=clock();
-    scalar seedingTimeTaken = (tt2-tt1)/(scalar)CLOCKS_PER_SEC;
-    cout << "disk sampling took "<< loopCount << " diameter attempts and took " << seedingTimeTaken << " total seconds" <<endl;
-
-    Configuration->setParticlePositions(poissonPoints);
-    */
-
-     //monodisperse harmonic spheres
-    //shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
-    //softSpheres->setMonodisperse();
-    //softSpheres->setNeighborList(neighList);
-    //vector<scalar> stiffnessParameters(1,1.0);
-    //softSpheres->setForceParameters(stiffnessParameters);
-    //sim->addForce(softSpheres,Configuration);
-    //cout << "simulation set-up finished" << endl;cout.flush();
-
-    //shared_ptr<noseHooverNVT> nvt = make_shared<noseHooverNVT>(Configuration,Temperature);
-    //nvt->setDeltaT(1e-2);
-    //sim->addUpdater(nvt,Configuration);
-
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);
-//        Configuration->setGPU();
-//        softSpheres->setGPU();
-//        fire->setGPU();
-//        neighList->setGPU();
         };
-for (int ii = 0; ii < maximumIterations; ++ii) sim->performTimestep();
-//neighList->nlistTuner->printTimingData();
+
+    int rate = 100;
+
+vector<hyperrectangularCellList> cls;
+vector<vector<int> > vs;
+for (scalar cellLengthSize = 1.0; cellLengthSize < 3.0; cellLengthSize += 0.5)
+    {
+    hyperrectangularCellList CL1(cellLengthSize,boxL/2);
+    CL1.setGPU(gpuSwitch >=0);
+    CL1.computeAdjacentCells(1);
+    vector<int> v1(CL1.totalCells);
+    cls.push_back(CL1);
+    vs.push_back(v1);
+    }
+
+    for (int ii = 0; ii < maximumIterations; ++ii)
+        {
+        sim->performTimestep();
+        if(ii%rate == 0 )
+            {
+            for (int cc = 0; cc < cls.size(); ++cc)
+                {
+                cls[cc].computeCellList(Configuration->returnPositions());
+                ArrayHandle<unsigned int> particlesPerCell(cls[cc].elementsPerCell);
+                int totalCells = cls[cc].totalCells;
+                for (int currentCell = 0; currentCell < totalCells; ++currentCell)
+                    {
+                    int particlesInBin =  particlesPerCell.data[currentCell];
+                    vs[cc][currentCell] = particlesInBin;
+                    };
+                scalar mean, var;
+                getMeanVar(vs[cc],mean,var);
+                printf("timestep %i\t m,v = %f , %f\n",ii, mean, var);
+                }
+            }
+        }
 
 
 //

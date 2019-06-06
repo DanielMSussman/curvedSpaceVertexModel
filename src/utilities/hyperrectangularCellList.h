@@ -103,6 +103,7 @@ class hyperrectangularCellList
         void setBox(BoxPtr bx){Box=bx;};
         BoxPtr Box;
 
+        int totalCells;
     protected:
         //!first index is Nmax, second is whether to recompute
         GPUArray<int> assist;
@@ -115,7 +116,6 @@ class hyperrectangularCellList
         //!The size of each cell (e.g., each cell is a small hyperrectangle of these dimensions
         dVec gridCellSizes;
 
-        int totalCells;
         //! the maximum number of particles found in any bin
         int Nmax;
         //!whether the updater does its work on the GPU or not
