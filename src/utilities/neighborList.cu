@@ -20,6 +20,7 @@ __global__ void gpu_compute_neighbor_list_TPP_kernel(int *d_idx,
                                dVec *d_pt,
                                int *d_assist,
                                int *d_adj,
+                               periodicBoundaryConditions Box,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -67,8 +68,9 @@ __global__ void gpu_compute_neighbor_list_TPP_kernel(int *d_idx,
             if (neighborIndex != particleIdx)
                 {
                 dVec otherParticle = cellParticlePos[cellListIdx];
-                dVec disp=target-otherParticle;
-//                Box.minDist(target,otherParticle,disp);
+//                dVec disp=target-otherParticle;
+                dVec disp;
+                Box.minDist(target,otherParticle,disp);
                 if(dot(disp,disp) < maxRange*maxRange)
                     {
                     int offset = atomicAdd(&(d_npp[particleIdx]),1);
@@ -112,6 +114,7 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
                                dVec *d_pt,
                                int *d_assist,
                                int *d_adj,
+                               periodicBoundaryConditions Box,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -145,8 +148,8 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
         int neighborIndex = indices[cellListIdx];
         if (neighborIndex == particleIdx) continue;
         dVec otherParticle = cellParticlePos[cellListIndexer(p1,currentCell)];
-        disp=target-otherParticle;
-//        Box.minDist(target,otherParticle,disp);
+//        disp=target-otherParticle;
+        Box.minDist(target,otherParticle,disp);
         if(dot(disp,disp)>=maxRange2) continue;
         int offset = atomicAdd(&(d_npp[particleIdx]),1);
         if(offset<nmax)
@@ -176,6 +179,7 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                                dVec *d_pt,
                                int *d_assist,
                                int *d_adj,
+                               periodicBoundaryConditions Box,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -206,8 +210,9 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
             {
             int neighborIndex = indices[cellListIndexer(p1,currentCell)];
             if (neighborIndex == idx) continue;
-            dVec disp = target-d_pt[neighborIndex];
-//            Box.minDist(target,d_pt[neighborIndex],disp);
+//            dVec disp = target-d_pt[neighborIndex];
+            dVec disp;
+            Box.minDist(target,d_pt[neighborIndex],disp);
             if(dot(disp,disp)>=maxRange2) continue;
 
             int offset = d_npp[idx];
@@ -240,6 +245,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                dVec *d_pt,
                                int *d_assist,
                                int *d_adj,
+                               periodicBoundaryConditions &Box,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -301,6 +307,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             d_pt,
             d_assist,
             d_adj,
+            Box,
             neighborIndexer,
             cellListIndexer,
             cellIndexer,
@@ -328,6 +335,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             d_pt,
             d_assist,
             d_adj,
+            Box,
             neighborIndexer,
             cellListIndexer,
             cellIndexer,

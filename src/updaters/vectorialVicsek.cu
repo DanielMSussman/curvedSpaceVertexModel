@@ -49,19 +49,6 @@ __global__ void gpu_vectorVicsek_update_directors_kernel(dVec *director,
     nrm = sqrt(nrm);
     director[idx] = disp[idx]*(1.0/nrm);
     }
-bool gpu_vectorVicsek_update_directors(dVec *director,
-                                       dVec *disp,
-                                       scalar tau,
-                                       scalar deltaT,
-                                       int N)
-    {
-    unsigned int block_size = 512;
-    if (N < 512) block_size = 32;
-    unsigned int nblocks  = (N)/block_size + 1;
-    gpu_vectorVicsek_update_directors_kernel<<<nblocks,block_size>>>(director,disp,tau,deltaT,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
 
 __global__ void gpu_vectorVicsek_target_directors_kernel(dVec *director,
                                            dVec *disp,
@@ -119,4 +106,17 @@ bool gpu_vectorVicsek_target_directors(dVec *director,
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
+bool gpu_vectorVicsek_update_directors(dVec *director,
+                                       dVec *disp,
+                                       scalar tau,
+                                       scalar deltaT,
+                                       int N)
+    {
+    unsigned int block_size = 512;
+    if (N < 512) block_size = 32;
+    unsigned int nblocks  = (N)/block_size + 1;
+    gpu_vectorVicsek_update_directors_kernel<<<nblocks,block_size>>>(director,disp,tau,deltaT,N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
 /** @} */ //end of group declaration

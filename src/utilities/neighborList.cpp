@@ -196,6 +196,7 @@ NVTXPUSH("primary neighborlist computation");
                                   d_pt.data,
                                   d_assist.data,
                                   d_adj.data,
+                                  *(cellList->Box),  
                                   neighborIndexer,
                                   cellList->cellListIndexer,
                                   cellList->cellIndexer,
