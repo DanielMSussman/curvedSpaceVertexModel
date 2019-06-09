@@ -102,6 +102,8 @@ class simpleModel
         virtual GPUArray<dVec> & returnDirectors(){return directors;};
         neighborList metricNeighbors;
 
+        virtual void getMeanDirection(dVec &meanDir);
+
         Index2D neighborIndex;
         GPUArray<unsigned int> numberOfNeighbors;
         GPUArray<int> neighbors;

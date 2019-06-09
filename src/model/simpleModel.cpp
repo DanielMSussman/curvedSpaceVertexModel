@@ -72,6 +72,17 @@ scalar simpleModel::computeKineticEnergy()
     return en;
     };
 
+void simpleModel::getMeanDirection(dVec &meanDir)
+    {
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        meanDir[dd] = 0.0;
+    ArrayHandle<dVec> n(directors);
+    for (int ii = 0; ii < N; ++ii)
+        meanDir += n.data[ii];
+
+    meanDir = meanDir*(1./N);
+    };
+
 scalar simpleModel::computeInstantaneousTemperature(bool fixedMomentum)
     {
     ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);

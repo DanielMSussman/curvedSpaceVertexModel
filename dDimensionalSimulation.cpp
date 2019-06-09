@@ -79,6 +79,8 @@ int main(int argc, char*argv[])
     scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
     ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
     ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
+    ValueArg<scalar> dtSwitchArg("e","dt","timestep",false,0.1,"double",cmd);
+    ValueArg<scalar> v0SwitchArg("v","v0","v0",false,0.5,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
 
@@ -89,6 +91,8 @@ int main(int argc, char*argv[])
     scalar Temperature = temperatureSwitchArg.getValue();
     scalar phi = phiSwitchArg.getValue();
     scalar rho = rhoSwitchArg.getValue();
+    scalar dt = dtSwitchArg.getValue();
+    scalar v0 = v0SwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
@@ -117,12 +121,13 @@ int main(int argc, char*argv[])
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N,noise,GPU,!GPU);
     scalar boxL = pow(2.,1./3.)*pow(N,1./3.);
     Configuration->setRadius(boxL*0.5);
+    printf("new box side length = %f\n",boxL);
     Configuration->getNeighbors();
             //Configuration->setSoftRepulsion();
     shared_ptr<vectorialVicsek> vicsek = make_shared<vectorialVicsek>();
     vicsek->setEta(0.1);
-    vicsek->setV0(0.5);
-    vicsek->setDeltaT(.1);
+    vicsek->setV0(v0);
+    vicsek->setDeltaT(dt);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
@@ -133,37 +138,48 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
 
-    int rate = 100;
     char filename[256];
     sprintf(filename,"../data/GNFTesting_N%i_rho%.3f.txt",N,N/(1.0*boxL*boxL*boxL));
     ofstream myfile;
     myfile.open(filename);myfile.setf(ios_base::scientific);myfile << setprecision(10);
 
-vector<hyperrectangularCellList> cls;
-vector<vector<int> > vs;
-scalar lastSize = 0.0;
-for (scalar cellLengthSize = 1.0; cellLengthSize < boxL/5; cellLengthSize += 0.25)
-    {
-    hyperrectangularCellList CL1(cellLengthSize,boxL/2);
-    CL1.setGPU(gpuSwitch >=0);
-    CL1.computeAdjacentCells(1);
-    scalar currentSize = CL1.getCellSize().x[0];
-    if(currentSize > lastSize)
+    vector<hyperrectangularCellList> cls;
+    vector<vector<int> > vs;
+    scalar lastSize = 0.0;
+    for (scalar cellLengthSize = 1.0; cellLengthSize < boxL/5; cellLengthSize += 0.25)
         {
-        printf("%f\n",currentSize);
-        vector<int> v1(CL1.totalCells);
-        cls.push_back(CL1);
-        vs.push_back(v1);
-        lastSize = currentSize;
+        hyperrectangularCellList CL1(cellLengthSize,boxL/2);
+        CL1.setGPU(gpuSwitch >=0);
+        CL1.computeAdjacentCells(1);
+        scalar currentSize = CL1.getCellSize().x[0];
+        if(currentSize > lastSize)
+            {
+            printf("%f\n",currentSize);
+            vector<int> v1(CL1.totalCells);
+            cls.push_back(CL1);
+            vs.push_back(v1);
+            lastSize = currentSize;
+            }
         }
-    }
 
+    vector<scalar3> smallCellPositions(cls[0].totalCells);
+    vector<vector< int> > smallBins;
+
+    for (int ii = 0; ii < maximumIterations; ++ii)
+        sim->performTimestep();
+
+    int rate = floor(boxL/(v0*dt));
+
+    dVec meanDir;
     for (int ii = 0; ii < maximumIterations; ++ii)
         {
         sim->performTimestep();
         if(ii%rate == 0 )
             {
+            Configuration->getMeanDirection(meanDir);
             myfile << ii;
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                myfile << "\t" << meanDir.x[dd];
             for (int cc = 0; cc < cls.size(); ++cc)
                 {
                 cls[cc].computeCellList(Configuration->returnPositions());
@@ -174,6 +190,8 @@ for (scalar cellLengthSize = 1.0; cellLengthSize < boxL/5; cellLengthSize += 0.2
                     int particlesInBin =  particlesPerCell.data[currentCell];
                     vs[cc][currentCell] = particlesInBin;
                     };
+                if (cc == 0)
+                    smallBins.push_back(vs[cc]);
                 scalar mean, var;
                 getMeanVar(vs[cc],mean,var);
                 printf("timestep %i\t m,v = %f , %f\n",ii, mean, var);
@@ -185,6 +203,27 @@ for (scalar cellLengthSize = 1.0; cellLengthSize < boxL/5; cellLengthSize += 0.2
 
     myfile.close();
 
+    //read out the fluctuation statistics of the smallest bins
+    sprintf(filename,"../data/smallBinTesting_N%i_rho%.3f.txt",N,N/(1.0*boxL*boxL*boxL));
+    ofstream myfile2;
+    myfile2.open(filename);myfile2.setf(ios_base::scientific);myfile2 << setprecision(10);
+
+
+    dVec cellSizes = cls[0].getCellSize();
+    for (int bb = 0; bb < smallBins[0].size();++bb)
+        {
+        iVec cellPos = cls[0].indexToiVec(bb);
+        vector<int> counts(smallBins.size());
+        for (int tt =0; tt < counts.size();++tt)
+            counts[tt] = smallBins[tt][bb];
+        scalar mean, var;
+        getMeanVar(counts,mean,var);
+        for (int dd = 0; dd < DIMENSION; ++dd)
+            myfile2 << cellSizes.x[dd]*cellPos.x[dd] << "\t";
+        myfile2 << mean << "\t" << var << "\n";
+        }
+
+    myfile2.close();
 //
 //The end of the tclap try
 //
