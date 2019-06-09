@@ -43,7 +43,11 @@ __global__ void gpu_vectorVicsek_update_directors_kernel(dVec *director,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if(idx >= N)
         return;
-    director[idx] = disp[idx];
+    scalar nrm =0.0;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        nrm += disp[idx][dd]*disp[idx][dd];
+    nrm = sqrt(nrm);
+    director[idx] = disp[idx]*(1.0/nrm);
     }
 bool gpu_vectorVicsek_update_directors(dVec *director,
                                        dVec *disp,

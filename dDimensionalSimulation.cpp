@@ -125,7 +125,7 @@ int main(int argc, char*argv[])
     Configuration->getNeighbors();
             //Configuration->setSoftRepulsion();
     shared_ptr<vectorialVicsek> vicsek = make_shared<vectorialVicsek>();
-    vicsek->setEta(0.05);
+    vicsek->setEta(0.1);
     vicsek->setV0(v0);
     vicsek->setDeltaT(dt);
 
@@ -200,7 +200,7 @@ int main(int argc, char*argv[])
                     smallBins.push_back(vs[cc]);
                 scalar mean, var;
                 getMeanVar(vs[cc],mean,var);
-                printf("timestep %i\t m,v = %f , %f\n",ii, mean, var);
+                printf("timestep %i\t m,v = %f , %f\t\t %f\n",ii, mean, var,norm(meanDir));
                 myfile << "\t" << mean << "\t" << var;
                 }
             myfile << "\n";

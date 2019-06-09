@@ -92,7 +92,7 @@ void vectorialVicsek::integrateEOMCPU()
         {
 //        n.data[ii] += (deltaT/tau)*(nDisp.data[ii] - n.data[ii]);
 //        n.data[ii] = n.data[ii]*(1.0/norm(n.data[ii]));
-        n.data[ii] = nDisp.data[ii];
+        n.data[ii] = nDisp.data[ii]*(1.0/norm(nDisp.data[ii]));
         };
 
     }//arrayhandle scope
