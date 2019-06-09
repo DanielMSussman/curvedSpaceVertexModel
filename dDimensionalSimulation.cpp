@@ -125,7 +125,7 @@ int main(int argc, char*argv[])
     Configuration->getNeighbors();
             //Configuration->setSoftRepulsion();
     shared_ptr<vectorialVicsek> vicsek = make_shared<vectorialVicsek>();
-    vicsek->setEta(0.1);
+    vicsek->setEta(0.05);
     vicsek->setV0(v0);
     vicsek->setDeltaT(dt);
 
@@ -165,10 +165,16 @@ int main(int argc, char*argv[])
     vector<scalar3> smallCellPositions(cls[0].totalCells);
     vector<vector< int> > smallBins;
 
-    for (int ii = 0; ii < maximumIterations; ++ii)
-        sim->performTimestep();
-
+    //initialize
     int rate = floor(boxL/(v0*dt));
+    for (int ii = 0; ii < maximumIterations; ++ii)
+        {
+        if(ii%rate == 0 )
+            printf("%i out of %i initialization steps\n",ii,maximumIterations);
+
+        sim->performTimestep();
+        }
+
 
     dVec meanDir;
     for (int ii = 0; ii < maximumIterations; ++ii)

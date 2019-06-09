@@ -10,7 +10,7 @@ class vectorialVicsek : public equationOfMotion
     {
     public:
         vectorialVicsek(){useGPU = false; mu = 1.0; Eta = 1.0; tau = 1.0;v0=0.01;};
-        virtual void integrateEOMGPU(){};
+        virtual void integrateEOMGPU();
         virtual void integrateEOMCPU();
 
         //! virtual function to allow the model to be a derived class
@@ -20,6 +20,11 @@ class vectorialVicsek : public equationOfMotion
             initializeFromModel();
             if(model->neverGPU)
                 newVelocityDirector.noGPU = true;
+            else
+                {
+                noise.initialize(Ndof);
+                noise.initializeGPURNGs();
+                }
             newVelocityDirector.resize(Ndof);
             };
         //!Set the number of degrees of freedom of the equation of motion

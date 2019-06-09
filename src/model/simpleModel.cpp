@@ -214,6 +214,7 @@ void simpleModel::setRadius(scalar _r)
         Box->putInBoxReal(p.data[ii]);
         }
     metricNeighbors.setBasics(1.0,2.0*_r);
+    metricNeighbors.setGPU(useGPU);
     getNeighbors();
     };
 /*!
