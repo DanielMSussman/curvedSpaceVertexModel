@@ -302,6 +302,7 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
                           Nmax,             //maximum particles per cell
                           gridCellsPerSide, //number of cells in each direction
                           gridCellSizes,    //size of cells in each direction
+                          radius,
                           cellIndexer,
                           cellListIndexer,
                           d_assist.data

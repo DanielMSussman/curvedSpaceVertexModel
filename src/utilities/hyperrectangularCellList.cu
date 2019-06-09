@@ -19,6 +19,7 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
                                               unsigned int Nmax,
                                               iVec gridCellsPerSide,
                                               dVec gridCellSizes,
+                                              scalar radius,
                                               IndexDD cellIndexer,
                                               Index2D cellListIndexer,
                                               int *d_assist
@@ -32,7 +33,7 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
     dVec pos = d_pt[idx];
     iVec bin;
     for (int dd = 0; dd < DIMENSION; ++dd)
-        bin.x[dd] = floor(pos.x[dd] / gridCellSizes.x[dd]);
+        bin.x[dd] = floor((pos.x[dd]+radius) / gridCellSizes.x[dd]);
     int binIndex = cellIndexer(bin);
     unsigned int offset = atomicAdd(&(d_elementsPerCell[binIndex]), 1);
     if(offset < Nmax)
@@ -56,6 +57,7 @@ bool gpu_compute_cell_list(dVec *d_pt,
                                   int &Nmax,
                                   iVec gridCellsPerSide,
                                   dVec gridCellSizes,
+                                  scalar radius,
                                   IndexDD &ci,
                                   Index2D &cli,
                                   int *d_assist
@@ -76,6 +78,7 @@ bool gpu_compute_cell_list(dVec *d_pt,
                                                           nmax,
                                                           gridCellsPerSide,
                                                           gridCellSizes,
+                                                          radius,
                                                           ci,
                                                           cli,
                                                           d_assist

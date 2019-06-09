@@ -23,6 +23,7 @@ bool gpu_compute_cell_list(dVec *d_pt,
                                   int &Nmax,
                                   iVec gridCellsPerSide,
                                   dVec gridCellSizes,
+                                  scalar radius,
                                   IndexDD &ci,
                                   Index2D &cli,
                                   int *d_assist
