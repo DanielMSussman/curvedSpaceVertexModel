@@ -115,6 +115,7 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
                                int *d_assist,
                                int *d_adj,
                                periodicBoundaryConditions Box,
+                               scalar radius,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -136,7 +137,7 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
     //positionToCellIndex(target)
     iVec cellIndexVec;
     for (int dd =0; dd < DIMENSION; ++dd)
-        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor(target.x[dd]/gridCellSizes.x[dd])));
+        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor((radius+target.x[dd])/gridCellSizes.x[dd])));
     int cell = cellIndexer(cellIndexVec);
     //iterate through the given cell
     int currentCell = d_adj[adjacentCellIndexer(cellIdx,cell)];
@@ -180,6 +181,7 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                                int *d_assist,
                                int *d_adj,
                                periodicBoundaryConditions Box,
+                               scalar radius,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -199,7 +201,7 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
     //positionToCellIndex(target)
     iVec cellIndexVec;
     for (int dd =0; dd < DIMENSION; ++dd)
-        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor(target.x[dd]/gridCellSizes.x[dd])));
+        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor((radius+target.x[dd])/gridCellSizes.x[dd])));
     int cell = cellIndexer(cellIndexVec);
     //iterate through neighboring cells
     for (int cc = 0; cc < adjacentCellsPerCell; ++cc)
@@ -246,6 +248,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                int *d_assist,
                                int *d_adj,
                                periodicBoundaryConditions &Box,
+                               scalar radius,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
@@ -276,6 +279,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             d_pt,
             d_assist,
             d_adj,
+            Box,
             neighborIndexer,
             cellListIndexer,
             cellIndexer,
@@ -308,6 +312,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             d_assist,
             d_adj,
             Box,
+            radius,
             neighborIndexer,
             cellListIndexer,
             cellIndexer,
@@ -318,9 +323,6 @@ bool gpu_compute_neighbor_list(int *d_idx,
             maxRange*maxRange,
             nmax,
             Np);
-
-        HANDLE_ERROR(cudaGetLastError());
-        return cudaSuccess;
         }
     else
         {
@@ -336,6 +338,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             d_assist,
             d_adj,
             Box,
+            radius,
             neighborIndexer,
             cellListIndexer,
             cellIndexer,
@@ -346,10 +349,9 @@ bool gpu_compute_neighbor_list(int *d_idx,
             maxRange*maxRange,
             nmax,
             Np);
-
-        HANDLE_ERROR(cudaGetLastError());
-        return cudaSuccess;
         };
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
     };
 
 /** @} */ //end of group declaration

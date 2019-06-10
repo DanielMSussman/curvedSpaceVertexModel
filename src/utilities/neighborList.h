@@ -59,6 +59,7 @@ class neighborList
         //!kernelTuner object
         shared_ptr<kernelTuner> nlistTuner;
     protected:
+        BoxPtr Box;
 
         //!Save the displacement and distances associated with neihgbors?
         bool saveDistanceData;
@@ -72,7 +73,6 @@ class neighborList
         void resetNeighborsCPU(int size, int _nmax);
         //!Initialization and helper
         void resetNeighborsGPU(int size,int _nmax);
-
     };
 
 #endif

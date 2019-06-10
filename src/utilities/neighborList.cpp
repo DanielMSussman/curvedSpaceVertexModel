@@ -9,6 +9,7 @@ void neighborList::setBasics(scalar range, scalar sphereRadius,int subGridReduct
     useGPU = false;
     saveDistanceData = true;
     radius = sphereRadius;
+    Box = make_shared<periodicBoundaryConditions>(2.*radius);
     scalar gridScale = 1./(scalar)subGridReduction;
     int width = subGridReduction;
     cellList = make_shared<hyperrectangularCellList>(range*gridScale,radius);
@@ -130,8 +131,7 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
                     int neighborIndex = indices.data[cellList->cellListIndexer(p1,currentCell)];
                     if (neighborIndex == pp) continue;
                     // disp=target - h_pt.data[neighborIndex];
-                    cellList->Box->minDist(target,h_pt.data[neighborIndex],disp);
-//                    Box->minDist(target,h_pt.data[neighborIndex],disp);
+                    Box->minDist(target,h_pt.data[neighborIndex],disp);
                     scalar dist = norm(disp);
                     if(dist>=maxRange) continue;
                     int offset = h_npp.data[pp];
@@ -196,7 +196,8 @@ NVTXPUSH("primary neighborlist computation");
                                   d_pt.data,
                                   d_assist.data,
                                   d_adj.data,
-                                  *(cellList->Box),  
+                                  *(Box),
+                                  radius,
                                   neighborIndexer,
                                   cellList->cellListIndexer,
                                   cellList->cellIndexer,
@@ -215,7 +216,6 @@ NVTXPOP();
 NVTXPUSH("neighborList assist checking");
         {
         ArrayHandle<int> h_assist(assist,access_location::host,access_mode::readwrite);
-//        printf("h[0]=%i, h[1]=%i\n",h_assist.data[0],h_assist.data[1]);
         if(h_assist.data[1] == 1)
             {
             Nmax = h_assist.data[0];
@@ -228,5 +228,6 @@ NVTXPUSH("neighborList assist checking");
         };
 NVTXPOP();
         };
+    neighborIndexer = Index2D(Nmax,Np);
     };
 
