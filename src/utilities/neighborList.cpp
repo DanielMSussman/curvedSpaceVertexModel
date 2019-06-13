@@ -32,7 +32,7 @@ NVTXPUSH("resetting neighbor structures1");
     if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
         {
         particleIndices.resize(neighborIndexer.getNumElements());
-        if(saveDistanceData)
+        if(saveDistanceData && neighborVectors.getNumElements() !=neighborIndexer.getNumElements())
             {
             neighborVectors.resize(neighborIndexer.getNumElements());
             neighborDistances.resize(neighborIndexer.getNumElements());

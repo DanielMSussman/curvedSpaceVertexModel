@@ -26,6 +26,39 @@
 using namespace std;
 using namespace TCLAP;
 
+class runningStats
+    {
+    public:
+        runningStats() : m_n(0) {};
+        
+        void clear(){m_n = 0;};
+        void push(scalar x)
+            {
+            m_n++;
+            if(m_n ==1)
+                {
+                m_oldM = m_newM = x;
+                m_oldS = 0.0;
+                }
+            else
+                {
+                m_newM = m_oldM+(x-m_oldM)/m_n;
+                m_newS = m_oldS+(x-m_oldM)*(x-m_newM);
+
+                m_oldM = m_newM;
+                m_oldS = m_newS;
+                };
+            }
+
+        int numEntries() const {return m_n;};
+        scalar mean() const {return (m_n>0) ? m_newM : 0.0;};
+        scalar variance() const {return (m_n>1) ? m_newS/(m_n-1) : 0.0;};
+
+    protected:
+        int m_n;
+        scalar m_oldM, m_oldS,m_newM,m_newS;
+    };
+
 //!What, after all, *is* the volume of a d-dimensional sphere?
 scalar sphereVolume(scalar radius, int dimension)
     {
@@ -51,6 +84,73 @@ void getMeanVar(vector<int> &vec, scalar &mean, scalar &var)
     if(vec.size() >0)
         var /=(vec.size()-1);
     }
+
+void getMeanVar(vector<unsigned int> &vec, scalar &mean, scalar &var,int group)
+    {
+    mean = 0.0;
+    var = 0.0;
+    for (int ii = 0; ii < floor(vec.size()/group); ++ii)
+        {
+        scalar partialSum = 0.0;
+        for (int gg = 0; gg <group; ++gg)
+            partialSum += vec[group*ii+gg];
+        mean +=partialSum;
+        };
+    if (vec.size() > 0)
+        mean /= floor(vec.size()/group);
+
+    for (int ii = 0; ii < floor(vec.size()/group); ++ii)
+        {
+        scalar partialSum = 0.0;
+        for (int gg = 0; gg <group; ++gg)
+            partialSum += vec[group*ii+gg];
+        var += (partialSum-mean)*(partialSum-mean);
+        };
+    if(vec.size() >0)
+        var /=(floor(vec.size()/group)-1);
+    }
+
+void computeRelativeFluctuationScaling(shared_ptr<hyperrectangularCellList> cl, vector<vector< runningStats> > &stats, scalar drStep, scalar dtStep, dVec meanDir)
+    {
+    ArrayHandle<unsigned int> particlesPerCell(cl->elementsPerCell);
+    dVec cellSizes = cl->getCellSize();
+    scalar aveN = 1;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        aveN *= cellSizes[dd];
+    aveN*=0.5;//set density correctly
+
+    printf("total cells %i \n" ,cl->totalCells-1);
+    for (int b1 = 0; b1 < cl->totalCells-1;++b1)
+        {
+        iVec cellPos1 = cl->indexToiVec(b1);
+        dVec pos1;
+        for (int dd = 0; dd < DIMENSION;++dd)
+            pos1[dd] = cellSizes[dd]*cellPos1[dd];
+        for (int b2 = b1 +1; b2 < cl->totalCells; ++b2)
+            {
+            dVec distanceBetweenBoxes;
+            iVec cellPos2 = cl->indexToiVec(b2);
+            dVec pos2;
+            for (int dd = 0; dd < DIMENSION;++dd)
+                pos2[dd] = cellSizes[dd]*cellPos2[dd];
+
+            cl->Box->minDist(pos1,pos2,distanceBetweenBoxes);
+            scalar dispNorm = norm(distanceBetweenBoxes);
+            if(dispNorm < drStep*stats.size())
+                {
+                int rBin = floor(dispNorm / drStep);
+                scalar theta = acos(dot(meanDir,distanceBetweenBoxes)/(dispNorm*norm(meanDir)));
+                int tBin = floor(theta/dtStep);
+                if(tBin < stats[0].size() && rBin < stats.size())
+                    {
+                    int bc1 = particlesPerCell.data[b1]-aveN;
+                    int bc2 = particlesPerCell.data[b2]-aveN;
+                    stats[rBin][tBin].push(bc1*bc2);
+                    };
+                }
+            }
+        }
+    };
 
 /*!
 This file runs some dynamics on particles interacting according to some
@@ -123,9 +223,9 @@ int main(int argc, char*argv[])
     Configuration->setRadius(boxL*0.5);
     printf("new box side length = %f\n",boxL);
     Configuration->getNeighbors();
-            //Configuration->setSoftRepulsion();
+//    Configuration->setSoftRepulsion(0.2,1.0);
     shared_ptr<vectorialVicsek> vicsek = make_shared<vectorialVicsek>();
-    vicsek->setEta(0.1);
+    vicsek->setEta(0.2);
     vicsek->setV0(v0);
     vicsek->setDeltaT(dt);
 
@@ -143,10 +243,12 @@ int main(int argc, char*argv[])
     ofstream myfile;
     myfile.open(filename);myfile.setf(ios_base::scientific);myfile << setprecision(10);
 
+/*
     vector<hyperrectangularCellList> cls;
     vector<vector<int> > vs;
     scalar lastSize = 0.0;
-    for (scalar cellLengthSize = 1.0; cellLengthSize < boxL/5; cellLengthSize += 0.25)
+    int targetCellList = 0;
+    for (scalar cellLengthSize = 1.0; cellLengthSize < 2.0; cellLengthSize += 0.25)
         {
         hyperrectangularCellList CL1(cellLengthSize,boxL/2);
         CL1.setGPU(gpuSwitch >=0);
@@ -154,16 +256,35 @@ int main(int argc, char*argv[])
         scalar currentSize = CL1.getCellSize().x[0];
         if(currentSize > lastSize)
             {
-            printf("%f\n",currentSize);
+            printf("%f grid size with %i total cells \n",currentSize,CL1.totalCells);
             vector<int> v1(CL1.totalCells);
             cls.push_back(CL1);
             vs.push_back(v1);
             lastSize = currentSize;
+            if(CL1.totalCells > 1001)
+                targetCellList += 1;
             }
         }
+    targetCellList = 2;
+*/
+    shared_ptr<hyperrectangularCellList> CL = make_shared<hyperrectangularCellList>(1.25,boxL/2);
+    CL->setGPU(gpuSwitch >=0);
+    CL->computeAdjacentCells(1);
+    scalar currentSize = CL->getCellSize().x[0];
 
-    vector<scalar3> smallCellPositions(cls[0].totalCells);
-    vector<vector< int> > smallBins;
+    scalar drStep = Configuration->metricNeighbors.cellList->getCellSize().x[0];
+    drStep = currentSize;
+
+    ///let's say we're thinking of tonerTest[distance][angle]
+    int rBins = floor(boxL/2./drStep);
+    int nAngles = 40;
+    scalar dthetaStep = PI/(nAngles);
+    vector<runningStats> angles(nAngles);
+    vector<vector< runningStats> > tonerTest(rBins,angles);
+    for (int rr = 0; rr < rBins; ++rr)
+        for (int tt = 0; tt < nAngles; ++tt)
+            tonerTest[rr][tt].clear();
+    printf("setting up a grid with %i angular steps and %i radial steps of size %f\n",(int)angles.size(),rBins,drStep);
 
     //initialize
     int rate = floor(boxL/(v0*dt));
@@ -175,7 +296,15 @@ int main(int argc, char*argv[])
         sim->performTimestep();
         }
 
+    vector<int> cellListGroupings;
+    int last = 1;
+    while(last *0.5 < 0.15*boxL*boxL*boxL)
+        {
+        cellListGroupings.push_back(last);
+        last = last*2;
+        }
 
+    vector<unsigned int> clData;
     dVec meanDir;
     for (int ii = 0; ii < maximumIterations; ++ii)
         {
@@ -186,9 +315,21 @@ int main(int argc, char*argv[])
             myfile << ii;
             for (int dd = 0; dd < DIMENSION; ++dd)
                 myfile << "\t" << meanDir.x[dd];
+            Configuration->getNeighbors();
+            copyGPUArrayData(Configuration->metricNeighbors.cellList->elementsPerCell,clData);
+            for (int gg = 0 ; gg < cellListGroupings.size(); ++gg)
+                {
+                scalar mean, var;
+                getMeanVar(clData,mean,var,cellListGroupings[gg]);
+                printf("timestep %i\t m,v = %f , %f\t\t %f\n",ii, mean, var,norm(meanDir));
+                myfile << "\t" << mean << "\t" << var;
+                }
+
+            /*
             for (int cc = 0; cc < cls.size(); ++cc)
                 {
                 cls[cc].computeCellList(Configuration->returnPositions());
+                copyGPUArrayData(cls[cc].elementsPerCell,clData);
                 ArrayHandle<unsigned int> particlesPerCell(cls[cc].elementsPerCell);
                 int totalCells = cls[cc].totalCells;
                 for (int currentCell = 0; currentCell < totalCells; ++currentCell)
@@ -196,14 +337,17 @@ int main(int argc, char*argv[])
                     int particlesInBin =  particlesPerCell.data[currentCell];
                     vs[cc][currentCell] = particlesInBin;
                     };
-                if (cc == 0)
-                    smallBins.push_back(vs[cc]);
                 scalar mean, var;
                 getMeanVar(vs[cc],mean,var);
                 printf("timestep %i\t m,v = %f , %f\t\t %f\n",ii, mean, var,norm(meanDir));
                 myfile << "\t" << mean << "\t" << var;
                 }
+            */
             myfile << "\n";
+            cout << "starting fluctation processing...";cout.flush();
+            CL->computeCellList(Configuration->returnPositions());
+            computeRelativeFluctuationScaling(CL,tonerTest,drStep,dthetaStep,meanDir);
+            cout <<" finished." << endl;cout.flush();
             }
         }
 
@@ -213,23 +357,24 @@ int main(int argc, char*argv[])
     sprintf(filename,"../data/smallBinTesting_N%i_rho%.3f.txt",N,N/(1.0*boxL*boxL*boxL));
     ofstream myfile2;
     myfile2.open(filename);myfile2.setf(ios_base::scientific);myfile2 << setprecision(10);
-
-
-    dVec cellSizes = cls[0].getCellSize();
-    for (int bb = 0; bb < smallBins[0].size();++bb)
+    for (int rr = 0; rr < tonerTest.size(); ++rr)
         {
-        iVec cellPos = cls[0].indexToiVec(bb);
-        vector<int> counts(smallBins.size());
-        for (int tt =0; tt < counts.size();++tt)
-            counts[tt] = smallBins[tt][bb];
-        scalar mean, var;
-        getMeanVar(counts,mean,var);
-        for (int dd = 0; dd < DIMENSION; ++dd)
-            myfile2 << cellSizes.x[dd]*cellPos.x[dd] << "\t";
-        myfile2 << mean << "\t" << var << "\n";
-        }
+        for (int tt = 0; tt < tonerTest[0].size(); ++tt)
+            {
+            scalar m = tonerTest[rr][tt].mean();
+            scalar v = tonerTest[rr][tt].variance();
+            scalar ans = 0.0;
+//            if(m!= 0)
+                ans = m;
+            myfile2 << ans << "\t";
+            }
+        myfile2 << "\n";
+        };
+
+
 
     myfile2.close();
+
 //
 //The end of the tclap try
 //

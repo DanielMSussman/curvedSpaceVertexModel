@@ -313,6 +313,15 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
 NVTXPUSH("cell list thing");
         if (true)
             {
+            ArrayHandle<int> h_assist(assist);
+            if(h_assist.data[1] == 1)
+                {
+                Nmax = h_assist.data[0];
+                if (Nmax%2 == 0 ) Nmax +=2;
+                if (Nmax%2 == 1 ) Nmax +=1;
+                recompute = true;
+                }
+            /*
             ArrayHandle<unsigned int> h_elementsPerCell(elementsPerCell,access_location::host,access_mode::read);
             for (int cc = 0; cc < totalCells; ++cc)
                 {
@@ -325,6 +334,7 @@ NVTXPUSH("cell list thing");
                     recompute = true;
                     };
                 };
+            */
             };
 NVTXPOP();
         };

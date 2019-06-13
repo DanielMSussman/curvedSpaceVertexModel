@@ -213,7 +213,7 @@ void simpleModel::setRadius(scalar _r)
         {
         Box->putInBoxReal(p.data[ii]);
         }
-    metricNeighbors.setBasics(1.0,2.0*_r);
+    metricNeighbors.setBasics(1.0,1.0*_r);
     metricNeighbors.setGPU(useGPU);
     getNeighbors();
     };
@@ -264,6 +264,8 @@ void simpleModel::computeHarmonicRepulsions(bool zeroOutForces)
 
 void simpleModel::computeForces(bool zeroOutForces)
     {
+    numberOfNeighbors.swap(metricNeighbors.neighborsPerParticle);
+    neighbors.swap(metricNeighbors.particleIndices);
     if(selfForceCompute)
         computeHarmonicRepulsions(zeroOutForces);
     if(zeroOutForces && !selfForceCompute)
@@ -296,8 +298,10 @@ void simpleModel::setSoftRepulsion(scalar range, scalar stiffness)
 void simpleModel::getNeighbors()
     {
     metricNeighbors.computeNeighborLists(positions);
-    numberOfNeighbors = metricNeighbors.neighborsPerParticle;
-    neighbors = metricNeighbors.particleIndices;
+    numberOfNeighbors.swap(metricNeighbors.neighborsPerParticle);
+    neighbors.swap(metricNeighbors.particleIndices);
+//    numberOfNeighbors = metricNeighbors.neighborsPerParticle;
+//    neighbors = metricNeighbors.particleIndices;
     neighborIndex=metricNeighbors.neighborIndexer;
     };
 

@@ -44,7 +44,8 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
         }
     else
         {
-        d_assist[0] = offset+1;
+        atomicCAS(&(d_assist)[0],offset,offset+1);
+        //d_assist[0] = offset+1;
         d_assist[1] = 1;
         };
     };
