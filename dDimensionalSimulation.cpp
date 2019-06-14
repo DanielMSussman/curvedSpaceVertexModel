@@ -30,7 +30,7 @@ class runningStats
     {
     public:
         runningStats() : m_n(0) {};
-        
+
         void clear(){m_n = 0;};
         void push(scalar x)
             {
@@ -219,7 +219,7 @@ int main(int argc, char*argv[])
     int dim =DIMENSION;
     noiseSource noise(true);
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N,noise,GPU,!GPU);
-    scalar boxL = pow(2.,1./3.)*pow(N,1./3.);
+    scalar boxL = pow(2.,(1./DIMENSION))*pow(N,(1./DIMENSION));
     Configuration->setRadius(boxL*0.5);
     printf("new box side length = %f\n",boxL);
     Configuration->getNeighbors();
@@ -239,7 +239,7 @@ int main(int argc, char*argv[])
         };
 
     char filename[256];
-    sprintf(filename,"../data/GNFTesting_N%i_rho%.3f.txt",N,N/(1.0*boxL*boxL*boxL));
+    sprintf(filename,"../data/GNFTesting_D%i_N%i_rho%.3f.txt",DIMENSION,N,N/(1.0*pow(boxL,DIMENSION)));
     ofstream myfile;
     myfile.open(filename);myfile.setf(ios_base::scientific);myfile << setprecision(10);
 
@@ -267,7 +267,7 @@ int main(int argc, char*argv[])
         }
     targetCellList = 2;
 */
-    shared_ptr<hyperrectangularCellList> CL = make_shared<hyperrectangularCellList>(1.25,boxL/2);
+    shared_ptr<hyperrectangularCellList> CL = make_shared<hyperrectangularCellList>(3.0,boxL/2);
     CL->setGPU(gpuSwitch >=0);
     CL->computeAdjacentCells(1);
     scalar currentSize = CL->getCellSize().x[0];
@@ -298,10 +298,14 @@ int main(int argc, char*argv[])
 
     vector<int> cellListGroupings;
     int last = 1;
-    while(last *0.5 < 0.15*boxL*boxL*boxL)
+    while(last*0.5*drStep < 0.3*boxL)
         {
         cellListGroupings.push_back(last);
-        last = last*2;
+        printf("boxFraction of %f\n",pow(drStep*last,DIMENSION)/pow(boxL,DIMENSION));
+        scalar current = last;
+        while((int) current ==last)
+            current *=1.1;
+        last = (int) current;
         }
 
     vector<unsigned int> clData;
@@ -354,7 +358,7 @@ int main(int argc, char*argv[])
     myfile.close();
 
     //read out the fluctuation statistics of the smallest bins
-    sprintf(filename,"../data/smallBinTesting_N%i_rho%.3f.txt",N,N/(1.0*boxL*boxL*boxL));
+    sprintf(filename,"../data/smallBinTesting_D%i_N%i_rho%.3f.txt",DIMENSION,N,N/(1.0*pow(boxL,DIMENSION)));
     ofstream myfile2;
     myfile2.open(filename);myfile2.setf(ios_base::scientific);myfile2 << setprecision(10);
     for (int rr = 0; rr < tonerTest.size(); ++rr)

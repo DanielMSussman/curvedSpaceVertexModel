@@ -415,11 +415,15 @@ void MainWindow::on_drawStuffButton_released()
         scalar3 pos;
         pos.x = p.data[ii].x[0]/radius;
         pos.y = p.data[ii].x[1]/radius;
+#if DIMENSION == 3
         pos.z = p.data[ii].x[2]/radius;
-
+        director.z=v.data[ii].x[2];
+#else
+        pos.z = 0.;
+        director.z=0.;
+#endif
         director.x=v.data[ii].x[0];
         director.y=v.data[ii].x[1];
-        director.z=v.data[ii].x[2];
 
         scalar3 lineSegment1;
         scalar3 lineSegment2;
@@ -452,10 +456,15 @@ void MainWindow::on_drawStuffButton_released()
                     scalar3 start,end;
                     start.x = p.data[ii][0]/radius;
                     start.y = p.data[ii][1]/radius;
-                    start.z = p.data[ii][2]/radius;
                     end.x = p.data[neighbor][0]/radius;
                     end.y = p.data[neighbor][1]/radius;
+#if DIMENSION == 3
+                    start.z = p.data[ii][2]/radius;
                     end.z = p.data[neighbor][2]/radius;
+#else
+                    start.z = 0;
+                    end.z=0;
+#endif
                     if(!ui->sphericalModel->isChecked())
                         {
                         scalar len = norm(p.data[neighbor]-p.data[ii]);
