@@ -29,25 +29,14 @@ if(APPLE)
      find_package(OpenGL)
  elseif(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set(Qt5_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5")
-    set(Qt5Core_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Core")
-    set(Qt5Gui_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Gui")
-    set(Qt5Widgets_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Widgets")
-    #set(Qt53DCore_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DCore")
-    #set(Qt53DRender_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DRender")
-    #set(Qt53DInput_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DInput")
-    #set(Qt53DExtras_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DExtras")
-    find_package(Qt5Widgets REQUIRED)
-    find_package(Qt5OpenGL REQUIRED)
+    #set(Qt5_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5")
     find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
-    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
     find_package(OpenGL)
 endif()
 
 add_definitions( ${QT_DEFINITIONS} )
 
 find_package(CUDA REQUIRED)
-set(CGAL_DIR "/home/user/CGAL/CGAL-4.9/")
 find_package(CGAL REQUIRED)
 
 
@@ -58,7 +47,7 @@ endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL /home/user/CGAL/CGAL-4.9/include/CGAL/ src src/utilities src/simulation src/model src/forces src/updaters)
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL src src/utilities src/simulation src/model src/forces src/updaters /usr/include/GL)
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -89,10 +78,6 @@ target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIE
     Qt5::Core
     Qt5::Gui
     CGAL::CGAL
-#    Qt5::3DCore
-#    Qt5::3DExtras
-#    Qt5::3DRender
-#    Qt5::3DInput
     )
 qt5_use_modules("${ARG}.out" Widgets)
 endforeach()
