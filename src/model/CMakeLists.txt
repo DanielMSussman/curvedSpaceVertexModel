@@ -8,6 +8,7 @@ add_library(model
     sphericalModel.cpp
     sphericalVoronoi.cpp
     convexHullCGAL.cpp
+    sphericalVertexModel.cpp
     )
 cuda_add_library(modelGPU
     simpleModel.cu
