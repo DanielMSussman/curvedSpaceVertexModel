@@ -102,15 +102,21 @@ void OGLWidget::addWall(int3 planeAndNormalAndType)
 }
 void OGLWidget::draw()
 {
+    GLfloat thickness = 1.0;
+    glLineWidth(thickness);
     glBegin(GL_LINES);
     for (int ii = 0; ii < lines.size(); ++ii)
     {
         glColor3f(1.0, 0.0, 0.0);
         glVertex3f(lines[ii].x,lines[ii].y,lines[ii].z);
     }
+    glEnd();
+    thickness = 2.0;
+    glLineWidth(thickness);
+    glBegin(GL_LINES);
     for (int ii = 0; ii < connections.size(); ++ii)
     {
-        glColor4f(.0, 0.0, .9,.2);
+        glColor4f(.0, 0.0, 1.,.99);
         glVertex3f(connections[ii].x,connections[ii].y,connections[ii].z);
     }
 

@@ -79,7 +79,7 @@ void getFacetCenter(Polyhedron_3 &P, Polyhedron_3::Facet_iterator f, dVec &cente
     center = (1.0/neighs)*center;
     }
 
-void sphericalConvexHullForVertexModel(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx)
+void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx)
     {
     //first, sadly copyPaste the above routine to get the convex hull and cellNeighbor positions
     if(numNeighs.getNumElements() < n)
@@ -123,6 +123,8 @@ void sphericalConvexHullForVertexModel(dVec *points, int n, GPUArray<int> &allNe
         idx +=1;
         }
     }
+
+    printf("max vns = %i\n",maxVns);
     vertexNeighs.resize(nFaces*maxVns);
     vnidx = Index2D(maxVns,nFaces);
     {//get vertex neighbors

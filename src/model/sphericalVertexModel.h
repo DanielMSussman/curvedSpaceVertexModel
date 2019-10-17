@@ -7,12 +7,13 @@
 //!set up a spherical vertex model. N is the number of CELLS, not vertices
 class sphericalVertexModel : public sphericalModel
     {
-    sphericalVertexModel(int n, noiseSource &_noise, bool _useGPU=false, bool _neverGPU = true);
+    public:
+        sphericalVertexModel(int n, noiseSource &_noise, bool _useGPU=false, bool _neverGPU = true);
 
         virtual void getNeighbors(){};
-    convexHullCGALInterface convexHuller;
-    Index2D cellNeighborIndex;
-    GPUArray<unsigned int> cellNumberOfNeighbors;
-    GPUArray<int> cellNeighbors;
+        convexHullCGALInterface convexHuller;
+        Index2D cellNeighborIndex;
+        GPUArray<unsigned int> cellNumberOfNeighbors;
+        GPUArray<int> cellNeighbors;
     };
 #endif

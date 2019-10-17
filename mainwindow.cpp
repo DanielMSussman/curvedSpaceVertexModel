@@ -265,7 +265,7 @@ void MainWindow::simulationInitialize()
     if(ui->sphericalModel->isChecked())
         {
         if(ui->topologicalModel->isChecked())
-            Configuration = make_shared<sphericalVoronoi>(N,noise);
+            Configuration = make_shared<sphericalVertexModel>(N,noise);
         else
             Configuration = make_shared<sphericalModel>(N,noise);
         Configuration->setRadius(radius);
@@ -289,6 +289,7 @@ void MainWindow::simulationInitialize()
         vicsek = make_shared<vectorialVicsek>();
         ui->displayZone->clearObjects();
         }
+    N = Configuration->getNumberOfParticles();
     printf("%f %f %f\n",eta,v0,dt);
     vicsek->setEta(eta);
     vicsek->setV0(v0);
@@ -484,6 +485,7 @@ void MainWindow::on_drawStuffButton_released()
             }
 
         }
+//    printf("n connections = %i\n",connections.size());
     ui->displayZone->setConnections(connections,zero);
 
     ui->displayZone->update();
