@@ -63,15 +63,7 @@ void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar
     putInBoxVirtual(pt1);
     putInBoxVirtual(pt2);
     putInBoxVirtual(pt3);
-    scalar a,b,c,alpha,beta,gamma;
-    a=asin(normCross(pt2,pt3));
-    b=asin(normCross(pt3,pt1));
-    c=asin(normCross(pt1,pt2));
-    alpha = acos((cos(a)-cos(b)*cos(c))/(sin(b)*sin(c)));
-    beta = acos((cos(b)-cos(a)*cos(c))/(sin(a)*sin(c)));
-    gamma = acos((cos(c)-cos(a)*cos(b))/(sin(a)*sin(b)));
-    area = radius*radius*(alpha+beta+gamma-PI);
-/*
+
     scalar p1Dotp2 = dot(pt1,pt2);
     scalar p1Dotp3 = dot(pt1,pt3);
     scalar p2Dotp3 = dot(pt2,pt3);
@@ -80,6 +72,18 @@ void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar
     area += acos((p1Dotp2-p1Dotp3*p2Dotp3) / (sqrt(1-p1Dotp3*p1Dotp3)*sqrt(1-p2Dotp3*p2Dotp3)) );
     area += acos((p1Dotp3-p1Dotp2*p2Dotp3) / (sqrt(1-p1Dotp2*p1Dotp2)*sqrt(1-p2Dotp3*p2Dotp3)) );
     area *= (radius*radius);
+/*
+    scalar a,b,c,alpha,beta,gamma;
+    //a=asin(normCross(pt2,pt3));
+    //b=asin(normCross(pt3,pt1));
+    //c=asin(normCross(pt1,pt2));
+    a=atan(normCross(pt2,pt3)/dot(pt2,pt3));
+    b=atan(normCross(pt3,pt1)/dot(pt3,pt1));
+    c=atan(normCross(pt1,pt2)/dot(pt1,pt2));
+    alpha = acos((cos(a)-cos(b)*cos(c))/(sin(b)*sin(c)));
+    beta = acos((cos(b)-cos(a)*cos(c))/(sin(a)*sin(c)));
+    gamma = acos((cos(c)-cos(a)*cos(b))/(sin(a)*sin(b)));
+    area = radius*radius*(alpha+beta+gamma-PI);
 
 */
     }
