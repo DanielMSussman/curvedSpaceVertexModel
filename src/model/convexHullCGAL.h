@@ -34,6 +34,8 @@ class convexHullCGALInterface
         void sphericalConvexHull(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx);
 
         //!meant to be used as the vertex model initializer... computes DT, then infers vertex positions and neighbor relations
-        void sphericalConvexHullForVertexModel(dVec *cellpoints, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx);
+        void sphericalConvexHullForVertexModel(dVec *cellpoints, int n, GPUArray<int> &allNeighs,
+                    GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, 
+                    GPUArray<int> &vertexCellNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx);
     };
 #endif

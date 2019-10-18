@@ -4,7 +4,7 @@
 #include "functions.h"
 #include "noiseSource.h"
 #include "indexer.h"
-#include "sphericalvoronoi.h"
+#include "sphericalVoronoi.h"
 #include "sphericalVertexModel.h"
 #include "sphericalVectorialVicsek.h"
 #include "simulation.h"

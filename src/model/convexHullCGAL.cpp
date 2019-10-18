@@ -79,7 +79,7 @@ void getFacetCenter(Polyhedron_3 &P, Polyhedron_3::Facet_iterator f, dVec &cente
     center = (1.0/neighs)*center;
     }
 
-void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx)
+void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, GPUArray<int> &vertexCellNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx)
     {
     //first, sadly copyPaste the above routine to get the convex hull and cellNeighbor positions
     if(numNeighs.getNumElements() < n)
@@ -126,9 +126,11 @@ void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, in
 
     printf("max vns = %i\n",maxVns);
     vertexNeighs.resize(nFaces*maxVns);
+    vertexCellNeighs.resize(nFaces*maxVns);
     vnidx = Index2D(maxVns,nFaces);
     {//get vertex neighbors
     ArrayHandle<int> vnset(vertexNeighs);
+    ArrayHandle<int> vcset(vertexCellNeighs);
     for(Polyhedron_3::Facet_iterator f = poly.facets_begin(); f != poly.facets_end();++f)
         {
         int vIdx = facetToIndex[f];
@@ -136,12 +138,15 @@ void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, in
         int neighNum = 0;
         do {
             int otherVidx = facetToIndex[h->opposite()->facet()];
+            int cellIndex = pointToIndex[h->vertex()->point()];
             vnset.data[vnidx(neighNum,vIdx)] = otherVidx;
+            vcset.data[vnidx(neighNum,vIdx)] = cellIndex;
             neighNum +=1;
             } while(++h != f->facet_begin());
         }
     }
 
+    //determine the vertices that compose each cell...first the cell sizes
     ArrayHandle<unsigned int> nNeigh(numNeighs);
     for(Polyhedron_3::Vertex_iterator v = poly.vertices_begin(); v!= poly.vertices_end(); ++v)
         {
@@ -158,23 +163,21 @@ void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, in
         nidx = Index2D(maximumDegree,n);
         }
 
+    //...and next the actual neighbors
     ArrayHandle<int> neighs(allNeighs);
     for(Polyhedron_3::Vertex_iterator v = poly.vertices_begin(); v!= poly.vertices_end(); ++v)
         {
-  //      std::cout << v->point() << std::endl;
         int idx = pointToIndex[v->point()];
-//        printf("\t\t (%f,%f,%f)\n",points[idx].x[0], points[idx].x[1], points[idx].x[2]);
 
         std::vector<int> nbs;nbs.reserve(6);
         Polyhedron_3::Halfedge_around_vertex_circulator h = v->vertex_begin();
         int ii = 0;
         do
             {
-            neighs.data[nidx(ii,idx)] = pointToIndex[h->opposite()->vertex()->point()];
+            int vertexIdx = facetToIndex[h->facet()];
+            neighs.data[nidx(ii,idx)] = vertexIdx;
             ++ii;
             ++h;
             }while (h!= v->vertex_begin());
         };
-
-    //now that the cells are established, get all of the "Vertex" information (dual of current triangulation)
     };

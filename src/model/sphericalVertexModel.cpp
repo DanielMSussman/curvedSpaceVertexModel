@@ -9,7 +9,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _use
         GPUArray<dVec> cellPositions(positions);
 
         ArrayHandle<dVec> cellPos(cellPositions);
-        convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,numberOfNeighbors,neighborIndex);
+        convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
         };
     int nVertices = positions.getNumElements();
     N=nVertices;

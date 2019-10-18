@@ -15,5 +15,6 @@ class sphericalVertexModel : public sphericalModel
         Index2D cellNeighborIndex;
         GPUArray<unsigned int> cellNumberOfNeighbors;
         GPUArray<int> cellNeighbors;
+        GPUArray<int> vertexCellNeighbors;
     };
 #endif
