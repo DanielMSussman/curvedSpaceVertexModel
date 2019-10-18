@@ -13,8 +13,11 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _use
         convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
         };
     int nVertices = positions.getNumElements();
+
+    printf("initialized a system with %i cells and %i vertices\n",nCells, nVertices);
+
+
     N=nVertices;
-    
     //here is the set of data structures to be resized
     velocities.resize(nVertices);
     directors.resize(nVertices);

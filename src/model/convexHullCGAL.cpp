@@ -104,7 +104,7 @@ void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, in
         facetToIndex[f] = faceIdx;
         faceIdx+=1;
         }
-    int nFaces = faceIdx + 1;
+    int nFaces = faceIdx;
 
     vertexPositions.resize(nFaces);
     numVertexNeighs.resize(nFaces);
