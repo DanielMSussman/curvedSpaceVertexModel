@@ -5,9 +5,10 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _use
     //the initialization sets n cell positions randomly
     //use the convex huller to determine an initial delaunay triangulation on the sphere
     cout << "extracting vertex positions from convex huller" << endl;
+    nCells = n;
+    setRadius(sqrt(nCells/(4.0*PI)));
+    cellPositions = positions;
         {
-        GPUArray<dVec> cellPositions(positions);
-
         ArrayHandle<dVec> cellPos(cellPositions);
         convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
         };
@@ -32,4 +33,47 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _use
     fillGPUArrayWithVector(ones,masses);
     fillGPUArrayWithVector(zeroes,directors);
     //fillGPUArrayWithVector(halves,radii);
+    
+    areaPerimeter.resize(nCells);
+    computeGeometry();
     };
+
+void sphericalVertexModel::computeGeometryCPU()
+    {
+    ArrayHandle<scalar2> ap(areaPerimeter);
+    ArrayHandle<dVec> p(positions);
+    ArrayHandle<dVec> cp(cellPositions);
+    ArrayHandle<int> cvn(cellNeighbors);
+    ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
+    scalar totalArea = 0;
+    for (int cc = 0; cc < nCells; ++cc)
+        {
+        int neighs = cnn.data[cc];
+        int lastVertexIdx = cvn.data[cellNeighborIndex(neighs-1,cc)];
+        dVec lastVertexPos = p.data[lastVertexIdx];
+        dVec curVertexPos;
+        dVec cellPos = cp.data[cc];
+        int curVertexIdx;
+        scalar perimeter = 0;
+        scalar area = 0;
+        scalar tempVal;
+
+        for (int nn = 0; nn < neighs; ++nn)
+            {
+            curVertexIdx = cvn.data[cellNeighborIndex(nn,cc)];
+            curVertexPos = p.data[curVertexIdx];
+            sphere.geodesicDistance(lastVertexPos,curVertexPos,tempVal);
+            perimeter += tempVal;
+            sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
+            area +=tempVal;
+
+            lastVertexIdx = curVertexIdx;
+            lastVertexPos = curVertexPos;
+            }
+        ap.data[cc].x = area;
+        ap.data[cc].y = perimeter;
+        printf("cell %i area = %f\t peri =%f\n",cc,area,perimeter);
+        totalArea += area;
+        }
+        printf("total area = %f\n",totalArea);
+    }

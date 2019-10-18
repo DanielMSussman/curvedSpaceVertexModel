@@ -9,7 +9,8 @@ sphericalModel::sphericalModel(int n, noiseSource &_noise, bool _useGPU, bool _n
 
 void sphericalModel::setRadius(scalar _r)
     {
-    sphere.radius = _r;
+    sphere.changeRadius(_r);
+    inverseRadius = 1.0/sphere.radius;
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> V(velocities);
     for (int ii = 0; ii < N; ++ii)

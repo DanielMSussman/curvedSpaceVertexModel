@@ -18,5 +18,6 @@ class sphericalModel : public simpleModel
         virtual void setParticlePositionsBandedRandomly(noiseSource &noise,scalar angularExtent);
 
         sphericalDomain sphere;
+        scalar inverseRadius;
     };
 #endif

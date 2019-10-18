@@ -12,7 +12,7 @@
 class sphericalDomain
     {
     public:
-        sphericalDomain(scalar _radius=1.0){radius = _radius;};
+        sphericalDomain(scalar _radius=1.0){radius = _radius; inverseRadius = 1.0/_radius;};
 
         HOSTDEVICE void putInBoxVirtual(dVec &p);
         HOSTDEVICE void putInBoxReal(dVec &p);
@@ -23,11 +23,46 @@ class sphericalDomain
         HOSTDEVICE void projectToTangentPlane(dVec &vec, const dVec &normal);
         HOSTDEVICE void projectToTangentPlaneAndNormalize(dVec &vec, const dVec &normal);
 
+        HOSTDEVICE void changeRadius(scalar _r){radius = _r; inverseRadius = 1.0/_r;};
+
+        HOSTDEVICE void geodesicDistance(dVec &p1, dVec &p2, scalar &dist);
+        HOSTDEVICE void sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area);
+
         scalar radius=1.0;
+        scalar inverseRadius = 1.0;
         dVec tangentPlaneProjection;
         dVec pt;
+        dVec pt1,pt2,pt3;
         dVec disp;
     };
+
+void sphericalDomain::geodesicDistance(dVec &p1, dVec &p2, scalar &dist)
+    {
+    pt1 = p1;
+    pt2 = p2;
+    putInBoxVirtual(pt1);
+    putInBoxVirtual(pt2);
+    dist = radius*acos(dot(pt1,pt2));
+    }
+
+void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area)
+    {
+    pt1 = p1;
+    pt2 = p2;
+    pt3= p3;
+    putInBoxVirtual(pt1);
+    putInBoxVirtual(pt2);
+    putInBoxVirtual(pt3);
+
+    scalar p1Dotp2 = dot(pt1,pt2);
+    scalar p1Dotp3 = dot(pt1,pt3);
+    scalar p2Dotp3 = dot(pt2,pt3);
+    area = -PI;
+    area += acos((p2Dotp3-p1Dotp2*p1Dotp3) / (sqrt(1-p1Dotp2*p1Dotp2)*sqrt(1-p1Dotp3*p1Dotp3)) );
+    area += acos((p1Dotp2-p1Dotp3*p2Dotp3) / (sqrt(1-p1Dotp3*p1Dotp3)*sqrt(1-p2Dotp3*p2Dotp3)) );
+    area += acos((p1Dotp3-p1Dotp2*p2Dotp3) / (sqrt(1-p1Dotp2*p1Dotp2)*sqrt(1-p2Dotp3*p2Dotp3)) );
+    area *= (radius*radius);
+    }
 
 void sphericalDomain::projectToTangentPlane(dVec &vec, const dVec &normal)
     {
