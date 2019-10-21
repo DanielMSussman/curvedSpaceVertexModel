@@ -45,7 +45,7 @@ int main(int argc, char*argv[])
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
-    ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
+    ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,0,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
@@ -108,7 +108,10 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
 
-    sim->performTimestep();
+    Configuration->computeForces(true);
+
+    for (int ii = 0; ii <maximumIterations; ++ii)
+        sim->performTimestep();
 //
 //The end of the tclap try
 //

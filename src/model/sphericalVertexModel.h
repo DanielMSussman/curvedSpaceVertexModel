@@ -8,7 +8,7 @@
 class sphericalVertexModel : public sphericalModel
     {
     public:
-        sphericalVertexModel(int n, noiseSource &_noise, bool _useGPU=false, bool _neverGPU = true);
+        sphericalVertexModel(int n, noiseSource &_noise, scalar _area = 1.0, scalar _perimeter = 4.0, bool _useGPU=false, bool _neverGPU = true);
 
         virtual void getNeighbors(){};
 
@@ -41,12 +41,14 @@ class sphericalVertexModel : public sphericalModel
         GPUArray<int> cellNeighbors;
         GPUArray<int> vertexCellNeighbors;
         GPUArray<scalar2> areaPerimeter;
+        GPUArray<scalar2> areaPerimeterPreference;
         GPUArray<dVec> cellPositions;
 
         GPUArray<dVec> currentVertexAroundCell;
         GPUArray<dVec> lastVertexAroundCell;
         GPUArray<dVec> nextVertexAroundCell;
         int nCells;
+        int maxVNeighs;
 
     };
 #endif

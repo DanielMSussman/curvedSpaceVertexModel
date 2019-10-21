@@ -26,6 +26,7 @@ class sphericalDomain
         HOSTDEVICE void changeRadius(scalar _r){radius = _r; inverseRadius = 1.0/_r;};
 
         HOSTDEVICE void geodesicDistance(dVec &p1, dVec &p2, scalar &dist);
+        HOSTDEVICE void dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative);
         HOSTDEVICE void sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area);
 
         HOSTDEVICE scalar normCross(dVec &p1, dVec &p2);
@@ -53,6 +54,16 @@ void sphericalDomain::geodesicDistance(dVec &p1, dVec &p2, scalar &dist)
     putInBoxVirtual(pt1);
     putInBoxVirtual(pt2);
     dist = radius*acos(dot(pt1,pt2));
+    }
+
+void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative)
+    {
+    pt1 = p;
+    pt2 = other;
+    putInBoxVirtual(pt1);
+    putInBoxVirtual(pt2);
+    scalar denomInverse = -1.*radius/sqrt(1-dot(pt1,pt2));
+    derivative = pt2*denomInverse;
     }
 
 void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area)

@@ -102,9 +102,9 @@ void MainWindow::on_setParametersButton_released()
     v0 =ui->initialSpeedSet->text().toDouble();
     eta =ui->initialEtaSet->text().toDouble();
     dt =ui->initialDtSet->text().toDouble();
-    vicsek->setEta(eta);
-    vicsek->setV0(v0);
-    vicsek->setDeltaT(dt);
+    //vicsek->setEta(eta);
+    //vicsek->setV0(v0);
+    //vicsek->setDeltaT(dt);
     ui->evolutionParametersWidget->hide();
     ui->initialSpeed->setText(ui->initialSpeedSet->text());
     ui->initialEta->setText(ui->initialEtaSet->text());
@@ -115,16 +115,16 @@ void MainWindow::on_setParametersButton_released()
 void MainWindow::simulationInitialize()
 {
     Configuration = make_shared<sphericalVertexModel>(N,noise);
-    Configuration->setRadius(radius);
-    Configuration->getNeighbors();
-    scalar temperature = 0.0;
+    //Configuration->setRadius(radius);
+    //Configuration->getNeighbors();
+    scalar temperature = 0.01;
     NVT = make_shared<noseHooverNVT>(Configuration,temperature);
-    NVT->setDeltaT(dt);
     N = Configuration->getNumberOfParticles();
 
     sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    sim->addUpdater(NVT);
+    sim->addUpdater(NVT,Configuration);
+    sim->setIntegrationTimestep(dt);
     
     scalar3 zero; zero.x = zero.y= zero.z=0;
     int3 one; one.x = one.y=one.z=1;
@@ -147,7 +147,9 @@ void MainWindow::on_addIterationsButton_released()
 
     int additionalIterations = ui->addIterationsBox->text().toInt();
 
+
     int stepsPerSubdivision = 1 / dt;
+
     int subdivisions = additionalIterations/stepsPerSubdivision;
     profiler prof1("drawing");
     profiler prof2("evolving");
@@ -170,49 +172,19 @@ void MainWindow::on_addIterationsButton_released()
         ui->testingBox->setText(printable2);
         ui->progressBar->setValue(progress);
         }
+    if(subdivisions ==0)
+        {
+        prof2.start();
+        for (int ii = 0; ii < additionalIterations;++ii)
+           sim->performTimestep();
+        prof2.end();
+        on_drawStuffButton_released();
+        }
     prof2.print();
     prof1.print();
 
     QString printable3 = QStringLiteral("system evolved...");
     ui->testingBox->setText(printable3);
-    /*
-    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
-    ui->progressBar->setValue(0);
-
-    int additionalIterations = ui->addIterationsBox->text().toInt();
-    maximumIterations = additionalIterations;
-    int subdivisions =  10;
-
-    if (iterationsPerColloidalEvolution >0)
-        subdivisions = additionalIterations / iterationsPerColloidalEvolution;
-
-    int stepsPerSubdivision = additionalIterations / subdivisions;
-    vector<int3> moveChain;
-    for (int ii = 0; ii < subdivisions; ++ii)
-        {
-        {
-        auto upd = sim->updaters[0].lock();
-        int curIterations = upd->getCurrentIterations();
-        upd->setMaximumIterations(curIterations+stepsPerSubdivision);
-        }
-        sim->performTimestep();
-
-
-        if(graphicalProgress) on_drawStuffButton_released();
-        int progress = ((1.0*ii/(1.0*subdivisions))*100);
-        QString printable2 = QStringLiteral("evolving... %1 percent done").arg(progress);
-        ui->testingBox->setText(printable2);
-        ui->progressBar->setValue(progress);
-        }
-    scalar maxForce = sim->getMaxForce();
-    QString printable3 = QStringLiteral("system evolved...mean force is %1").arg(maxForce);
-    ui->testingBox->setText(printable3);
-    ui->progressBar->setValue(100);
-    printf("move chain:\n");
-    for(int ii = 0; ii < moveChain.size(); ++ii)
-        printf("{%i,%i,%i},",moveChain[ii].x,moveChain[ii].y,moveChain[ii].z);
-    printf("\nmove chain end :\n");
-    */
 }
 
 void MainWindow::on_drawStuffButton_released()
