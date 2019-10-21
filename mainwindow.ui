@@ -198,7 +198,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: red</string>
      </property>
      <property name="text">
-      <string>v0:</string>
+      <string>XX</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_25">
@@ -214,7 +214,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: red</string>
      </property>
      <property name="text">
-      <string>eta</string>
+      <string>XX</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_26">
@@ -230,7 +230,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: red</string>
      </property>
      <property name="text">
-      <string>dt</string>
+      <string>XX</string>
      </property>
     </widget>
     <widget class="QComboBox" name="detectedGPUBox">
@@ -406,100 +406,7 @@ color: black
       <string notr="true">border : white</string>
      </property>
      <property name="text">
-      <string>Topological model</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_63">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>120</y>
-       <width>41</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: red</string>
-     </property>
-     <property name="text">
-      <string>phi</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="boxPackingFraction">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>120</y>
-       <width>91</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: 1px red solid</string>
-     </property>
-     <property name="text">
-      <string>0.785398</string>
-     </property>
-    </widget>
-    <widget class="Line" name="line">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>110</y>
-       <width>2</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-    <widget class="Line" name="line_2">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>110</y>
-       <width>10</width>
-       <height>2</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-    <widget class="Line" name="line_3">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>130</y>
-       <width>10</width>
-       <height>2</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="sphericalModel">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>200</y>
-       <width>151</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border : white</string>
-     </property>
-     <property name="text">
-      <string>Spherical model</string>
+      <string>Unused setting</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -1127,48 +1034,6 @@ color: black
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="resetSystemBandButton">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>180</y>
-      <width>161</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Reset system in band</string>
-    </property>
-   </widget>
-   <widget class="QSlider" name="angularExtent">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>220</y>
-      <width>160</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="value">
-     <number>10</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_45">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>240</y>
-      <width>101</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Angular extent</string>
-    </property>
-   </widget>
    <zorder>fileSaveWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
@@ -1199,10 +1064,7 @@ color: black
    <zorder>showNeighborsCheckbox</zorder>
    <zorder>computeEnergyButton_2</zorder>
    <zorder>evolutionParametersWidget</zorder>
-   <zorder>resetSystemBandButton</zorder>
    <zorder>initializationFrame</zorder>
-   <zorder>angularExtent</zorder>
-   <zorder>label_45</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

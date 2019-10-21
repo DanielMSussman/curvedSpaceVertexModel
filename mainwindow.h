@@ -42,19 +42,11 @@ private slots:
 
     void on_actionReset_the_system_triggered();
 
-
-
     void on_reprodicbleRNGBox_stateChanged(int arg1);
-
-
 
     void on_saveFileNowButton_released();
 
-
     void on_computeEnergyButton_released();
-
-
-    void on_boxNTotalSize_textChanged(const QString &arg1);
 
     void on_boxRadius_textEdited(const QString &arg1);
 
@@ -68,11 +60,7 @@ private slots:
 
     void on_setParametersButton_released();
 
-    void on_resetSystemBandButton_released();
-
-    void on_boxPackingFraction_textEdited(const QString &arg1);
-
-    void on_sphericalModel_released();
+    void on_boxNTotalSize_selectionChanged();
 
 private:
     Ui::MainWindow *ui;

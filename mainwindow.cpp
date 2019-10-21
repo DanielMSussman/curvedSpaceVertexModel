@@ -19,23 +19,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->fileSaveWidget->hide();
-    /*
-    ui->setPhaseConstants->hide();
-    ui->setDistortionConstants1->hide();
-    ui->setDistortionConstants2->hide();
-    ui->setDistortionConstants3->hide();
-    ui->fireParametersWidget->hide();
-    ui->addObjectsWidget->hide();
-    ui->fileImportWidget->hide();
-
-    ui->multithreadingWidget->hide();
-    ui->nesterovWidget->hide();
-    ui->applyFieldWidget->hide();
-    ui->moveObjectWidget->hide();
-    ui->colloidalEvolutionWidget->hide();
-    ui->colloidalTrajectoryWidget->hide();
-    ui->LOLBFGSWidget->hide();
-    */
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
 
@@ -47,66 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::hideControls()
 {
     ui->evolutionParametersWidget->hide();
-    /*
-    ui->label_41->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide(); ui->label_40->hide(); ui->label_42->hide();
-    ui->label_12->hide();ui->label_13->hide();ui->label_56->hide();ui->label_57->hide(); ui->label_7->hide(); ui->label_39->hide();
-    ui->resetQTensorsButton->hide();
-    ui->minimizeButton->hide();
-    ui->addObjectButton->hide();
-    ui->minimizationParametersButton->hide();
-    ui->addIterationsButton->hide();
-    ui->addIterationsBox->hide();
-    ui->displayZone->hide();
-    ui->drawStuffButton->hide();
-    ui->latticeSkipBox->hide();
-    ui->directorScaleBox->hide();
-    ui->xRotSlider->hide();
-    ui->zRotSlider->hide();
-    ui->zoomSlider->hide();
-    ui->visualProgressCheckBox->hide();
-    ui->defectThresholdBox->hide();
-    ui->defectDrawCheckBox->hide();
-    ui->progressBar->hide();
-    ui->reprodicbleRNGBox->hide();
-    ui->globalAlignmentCheckBox->hide();
-    ui->builtinBoundaryVisualizationBox->hide();
-    ui->boundaryFromFileButton->hide();
-    ui->nesterovMinimizationButton->hide();
-    ui->computeEnergyButton->hide();
-    ui->lolbfgsMinimizationButton->hide();
-    */
 }
 void MainWindow::showControls()
 {
-    /*
-    ui->label_41->show();ui->label_43->show();ui->label_44->show();ui->label_45->show();
-    ui->label_39->show();ui->label_42->show();ui->label_40->show();ui->label_7->show();
-    ui->label_12->show();ui->label_13->show();ui->label_56->show();ui->label_57->show();
-    ui->defectDrawCheckBox->show();
-    ui->resetQTensorsButton->show();
-    ui->minimizeButton->show();
-    ui->addObjectButton->show();
-    ui->minimizationParametersButton->show();
-    ui->addIterationsButton->show();
-    ui->addIterationsBox->show();
-    ui->displayZone->show();
-    ui->drawStuffButton->show();
-    ui->latticeSkipBox->show();
-    ui->directorScaleBox->show();
-    ui->xRotSlider->show();
-    ui->zRotSlider->show();
-    ui->zoomSlider->show();
-    ui->visualProgressCheckBox->show();
-    ui->defectThresholdBox->show();
-    ui->progressBar->show();
-    ui->reprodicbleRNGBox->show();
-    ui->globalAlignmentCheckBox->show();
-    ui->builtinBoundaryVisualizationBox->show();
-    ui->boundaryFromFileButton->show();
-    ui->nesterovMinimizationButton->show();
-    ui->computeEnergyButton->show();
-    //ui->lolbfgsMinimizationButton->show();
-    */
 }
 
 void MainWindow::on_initializeButton_released()
@@ -145,105 +71,31 @@ void MainWindow::on_initializeButton_released()
     on_drawStuffButton_released();
 }
 
-void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
-{
-    N = ui->boxNTotalSize->text().toInt();
-    density = ui->boxDensity->text().toDouble();
-    if(ui->sphericalModel->isChecked())
-        {
-        radius = 0.5*sqrt((double)N/(density*PI));
-        }
-    else
-        {
-        radius = pow(N/(density*8.0),1./3.);
-        }
-    QString valueAsString = QString::number(radius);
-    ui->boxRadius->setText(valueAsString);
-};
-
-void MainWindow::on_sphericalModel_released()
-{
-    if(!ui->sphericalModel->isChecked())
-        {
-        ui->topologicalModel->setDisabled(true);
-        on_boxRadius_textEdited(ui->boxRadius->text());
-        }
-    else
-        {
-        ui->topologicalModel->setDisabled(false);
-        on_boxRadius_textEdited(ui->boxRadius->text());
-        }
-}
-
 void MainWindow::on_boxRadius_textEdited(const QString &arg1)
 {
     N = ui->boxNTotalSize->text().toInt();
     radius = ui->boxRadius->text().toDouble();
-    if(ui->sphericalModel->isChecked())
-        {
         density = ((double) N) / (4.0*PI*radius*radius) ;
         QString valueAsString = QString::number(density);
         ui->boxDensity->setText(valueAsString);
-        QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
-        ui->boxPackingFraction->setText(valueAsString2);
-        }
-    else
-        {
-        density = ((double) N) / (8.0*radius*radius*radius);
-        QString valueAsString = QString::number(density);
-        ui->boxDensity->setText(valueAsString);
-        scalar packingFraction = 4.0/3.0*PI*(1.0/8.0)*N/(8.0*radius*radius*radius);
-        QString valueAsString2 = QString::number(packingFraction);
-        ui->boxPackingFraction->setText(valueAsString2);
-        }
 }
 
 void MainWindow::on_boxDensity_textEdited(const QString &arg1)
 {
     N = ui->boxNTotalSize->text().toInt();
     density = ui->boxDensity->text().toDouble();
-    if(ui->sphericalModel->isChecked())
-        {
         radius = 0.5*sqrt((double)N/(density*PI));
         QString valueAsString = QString::number(radius);
         ui->boxRadius->setText(valueAsString);
-        QString valueAsString2 = QString::number(0.25*PI*N/(4.0*PI*radius*radius));
-        ui->boxPackingFraction->setText(valueAsString2);
-        }
-    else
-        {
-        radius = pow(N/(density*8.0),1./3.);
-        QString valueAsString = QString::number(radius);
-        ui->boxRadius->setText(valueAsString);
-        scalar packingFraction = 4.0/3.0*PI*(1.0/8.0)*N/(8.0*radius*radius*radius);
-        QString valueAsString2 = QString::number(packingFraction);
-        ui->boxPackingFraction->setText(valueAsString2);
-        }
 }
 
-void MainWindow::on_boxPackingFraction_textEdited(const QString &arg1)
+void MainWindow::on_boxNTotalSize_selectionChanged()
 {
      N = ui->boxNTotalSize->text().toInt();
-     scalar phi =  ui->boxPackingFraction->text().toDouble();
-    if(ui->sphericalModel->isChecked())
-        {
-        radius = sqrt(0.0625*N/phi);
-        QString valueAsString = QString::number(radius);
-        ui->boxRadius->setText(valueAsString);
-        QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
-        ui->boxDensity->setText(valueAsString2);
-        }
-    else
-        {
-        radius = pow(N/(6.0*phi*8.0)*PI,1./3.);
-        QString valueAsString = QString::number(radius);
-        ui->boxRadius->setText(valueAsString);
-        density = ((double) N) / (8.0*radius*radius*radius);
-        QString valueAsString2 = QString::number(density);
-        ui->boxDensity->setText(valueAsString2);
-        }
+     radius = sqrt(N/(4.0*PI));
+     QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
+     ui->boxDensity->setText(valueAsString2);
 }
-
 
 void MainWindow::on_setParametersButton_released()
 {
@@ -262,55 +114,31 @@ void MainWindow::on_setParametersButton_released()
 
 void MainWindow::simulationInitialize()
 {
-    if(ui->sphericalModel->isChecked())
-        {
-        if(ui->topologicalModel->isChecked())
-            Configuration = make_shared<sphericalVoronoi>(N,noise);
-        else
-            Configuration = make_shared<sphericalModel>(N,noise);
-        Configuration->setRadius(radius);
-        Configuration->getNeighbors();
-        if(ui->softRepulsion->isChecked())
-            Configuration->setSoftRepulsion();
-        vicsek = make_shared<sphericalVectorialVicsek>();
-        scalar3 zero; zero.x = zero.y= zero.z=0;
-        int3 one; one.x = one.y=one.z=1;
-        scalar rad = 1.0;
-        ui->displayZone->addSphere(zero,rad);
-        ui->displayZone->setSpheres(one);
-        }
-    else
-        {
-        Configuration = make_shared<simpleModel>(N,noise);
-        Configuration->setRadius(radius);
-        Configuration->getNeighbors();
-        if(ui->softRepulsion->isChecked())
-            Configuration->setSoftRepulsion();
-        vicsek = make_shared<vectorialVicsek>();
-        ui->displayZone->clearObjects();
-        }
+    Configuration = make_shared<sphericalVertexModel>(N,noise);
+    Configuration->setRadius(radius);
+    Configuration->getNeighbors();
+    if(ui->softRepulsion->isChecked())
+        Configuration->setSoftRepulsion();
+//    vicsek = make_shared<sphericalVectorialVicsek>();
+    scalar3 zero; zero.x = zero.y= zero.z=0;
+    int3 one; one.x = one.y=one.z=1;
+    scalar rad = 1.0;
+    ui->displayZone->addSphere(zero,rad);
+    ui->displayZone->setSpheres(one);
+
     N = Configuration->getNumberOfParticles();
     printf("%f %f %f\n",eta,v0,dt);
-    vicsek->setEta(eta);
-    vicsek->setV0(v0);
-    vicsek->setDeltaT(dt);
+ //   vicsek->setEta(eta);
+ //   vicsek->setV0(v0);
+ //   vicsek->setDeltaT(dt);
     sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    sim->addUpdater(vicsek,Configuration);
+ //   sim->addUpdater(vicsek,Configuration);
 }
 
 void MainWindow::on_resetSystemButton_released()
 {
     Configuration->setParticlePositionsRandomly(noise);
-    Configuration->getNeighbors();
-    on_drawStuffButton_released();
-}
-
-void MainWindow::on_resetSystemBandButton_released()
-{
-    int angularExtent = ui->angularExtent->value();
-    scalar ae = angularExtent*0.01*0.5;
-    Configuration->setParticlePositionsBandedRandomly(noise,ae);
     Configuration->getNeighbors();
     on_drawStuffButton_released();
 }
@@ -456,21 +284,11 @@ void MainWindow::on_drawStuffButton_released()
                     start.z = 0;
                     end.z=0;
 #endif
-                    if(!ui->sphericalModel->isChecked())
-                        {
-                        scalar len = norm(p.data[neighbor]-p.data[ii]);
-                        if(len < 1.)
-                            {
-                            connections.push_back(start);
-                            connections.push_back(end);
-                            };
-                        }
-                    else
-                        {
-                        connections.push_back(start);
-                        connections.push_back(end);
-                        }
-                    }
+                    scalar len = norm(p.data[neighbor]-p.data[ii]);
+                    connections.push_back(start);
+                    connections.push_back(end);
+                    };
+
                 }
             }
 
@@ -631,3 +449,4 @@ void MainWindow::on_cancelEvolutionParametersButton_pressed()
 {
     ui->evolutionParametersWidget->hide();
 }
+

@@ -2,6 +2,7 @@
 
 sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _useGPU, bool _neverGPU) : sphericalModel(n,_noise,_useGPU,_neverGPU)
     {
+    selfForceCompute =true;
     //the initialization sets n cell positions randomly
     //use the convex huller to determine an initial delaunay triangulation on the sphere
     cout << "extracting vertex positions from convex huller" << endl;
@@ -79,4 +80,8 @@ void sphericalVertexModel::computeGeometryCPU()
         totalArea += area;
         }
         printf("total area = %f\n",totalArea);
+    }
+
+void sphericalVertexModel::computeForceCPU()
+    {
     }

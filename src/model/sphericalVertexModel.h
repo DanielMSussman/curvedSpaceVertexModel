@@ -19,6 +19,16 @@ class sphericalVertexModel : public sphericalModel
             else
                 computeGeometryCPU();
             };
+        virtual void computeForce()
+            {
+            if(useGPU)
+                computeForceGPU();
+            else
+                computeForceCPU();
+            };
+        virtual void computeForceCPU();
+        virtual void computeForceGPU(){};
+
         virtual void computeGeometryCPU();
         virtual void computeGeometryGPU(){};
         convexHullCGALInterface convexHuller;
