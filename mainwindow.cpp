@@ -265,7 +265,7 @@ void MainWindow::simulationInitialize()
     if(ui->sphericalModel->isChecked())
         {
         if(ui->topologicalModel->isChecked())
-            Configuration = make_shared<sphericalVertexModel>(N,noise);
+            Configuration = make_shared<sphericalVoronoi>(N,noise);
         else
             Configuration = make_shared<sphericalModel>(N,noise);
         Configuration->setRadius(radius);
@@ -297,16 +297,6 @@ void MainWindow::simulationInitialize()
     sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->addUpdater(vicsek,Configuration);
-    /*
-
-     landauLCForce = make_shared<landauDeGennesLC>();
-
-     landauLCForce->setPhaseConstants(A,B,C);
-     landauLCForce->setModel(Configuration);
-     sim->addForce(landauLCForce);
-     on_fireParamButton_released();
-     ui->reproducibleButton->setEnabled(true);
-     */
 }
 
 void MainWindow::on_resetSystemButton_released()
