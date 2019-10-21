@@ -43,6 +43,9 @@ class sphericalVertexModel : public sphericalModel
         GPUArray<scalar2> areaPerimeter;
         GPUArray<dVec> cellPositions;
 
+        GPUArray<dVec> currentVertexAroundCell;
+        GPUArray<dVec> lastVertexAroundCell;
+        GPUArray<dVec> nextVertexAroundCell;
         int nCells;
 
     };

@@ -13,6 +13,10 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _use
         ArrayHandle<dVec> cellPos(cellPositions);
         convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
         };
+    int cnnArraySize = cellNeighbors.getNumElements();
+    currentVertexAroundCell.resize(cnnArraySize);
+    lastVertexAroundCell.resize(cnnArraySize);
+    nextVertexAroundCell.resize(cnnArraySize);
     int nVertices = positions.getNumElements();
 
     printf("initialized a system with %i cells and %i vertices\n",nCells, nVertices);
@@ -44,19 +48,30 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, bool _use
 
 void sphericalVertexModel::computeGeometryCPU()
     {
-    ArrayHandle<scalar2> ap(areaPerimeter);
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> cp(cellPositions);
     ArrayHandle<int> cvn(cellNeighbors);
+    ArrayHandle<dVec> curVert(currentVertexAroundCell);
+    ArrayHandle<dVec> lastVert(lastVertexAroundCell);
+    ArrayHandle<dVec> nextVert(nextVertexAroundCell);
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
+    ArrayHandle<scalar2> ap(areaPerimeter);
     scalar totalArea = 0;
     for (int cc = 0; cc < nCells; ++cc)
         {
         int neighs = cnn.data[cc];
+        dVec cellPos(0.0);
+        for (int nn = 0; nn < neighs; ++nn)
+            {
+            cellPos = cellPos + p.data[cvn.data[cellNeighborIndex(nn,cc)]];
+            /// move curLastNext vertex stuff here...
+            }
+        sphere.putInBoxReal(cellPos);
+        cp.data[cc]=cellPos;
+
         int lastVertexIdx = cvn.data[cellNeighborIndex(neighs-1,cc)];
         dVec lastVertexPos = p.data[lastVertexIdx];
         dVec curVertexPos;
-        dVec cellPos = cp.data[cc];
         int curVertexIdx;
         scalar perimeter = 0;
         scalar area = 0;
@@ -64,6 +79,7 @@ void sphericalVertexModel::computeGeometryCPU()
 
         for (int nn = 0; nn < neighs; ++nn)
             {
+            int cni = cellNeighborIndex(nn,cc);
             curVertexIdx = cvn.data[cellNeighborIndex(nn,cc)];
             curVertexPos = p.data[curVertexIdx];
             sphere.geodesicDistance(lastVertexPos,curVertexPos,tempVal);
@@ -71,12 +87,18 @@ void sphericalVertexModel::computeGeometryCPU()
             sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
             area +=tempVal;
 
+            curVert.data[cni] = curVertexPos;
+            lastVert.data[cni] = lastVertexPos;
+
             lastVertexIdx = curVertexIdx;
             lastVertexPos = curVertexPos;
             }
+        for (int nn = 0; nn < neighs - 1; ++nn)
+            nextVert.data[cellNeighborIndex(nn,cc)] = curVert.data[cellNeighborIndex(nn+1,cc)];
+        nextVert.data[cellNeighborIndex(neighs-1,cc)] = curVert.data[cellNeighborIndex(0,cc)];
+
         ap.data[cc].x = area;
         ap.data[cc].y = perimeter;
-        printf("cell %i area = %f\t peri =%f\n",cc,area,perimeter);
         totalArea += area;
         }
         printf("total area = %f\n",totalArea);
@@ -90,4 +112,11 @@ void sphericalVertexModel::computeForceGPU()
     }
 void sphericalVertexModel::computeForceCPU()
     {
+    ArrayHandle<dVec> cp(cellPositions);
+    ArrayHandle<int> cvn(cellNeighbors);
+    ArrayHandle<dVec> curVert(currentVertexAroundCell);
+    ArrayHandle<dVec> lastVert(lastVertexAroundCell);
+    ArrayHandle<dVec> nextVert(nextVertexAroundCell);
+    ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
+    ArrayHandle<scalar2> ap(areaPerimeter);
     }
