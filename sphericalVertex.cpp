@@ -98,13 +98,17 @@ int main(int argc, char*argv[])
     printf("sphere size  = %f\n",Configuration->sphere.radius);
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    //sim->addUpdater(vicsek,Configuration);
+    scalar temperature  =0.0;
+    shared_ptr<noseHooverNVT> NVT = make_shared<noseHooverNVT>(Configuration,temperature);
+    sim->setIntegrationTimestep(0.001);
+    sim->addUpdater(NVT,Configuration);
 
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);
         };
 
+    sim->performTimestep();
 //
 //The end of the tclap try
 //

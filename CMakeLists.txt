@@ -71,7 +71,7 @@ set(HEADERS
     )
 
 # list the names of cpp files corresponding to linked executables you'd like...
-foreach(ARG dDimensionalSimulation guiVersion sphericalVertex)
+foreach(ARG guiVersion sphericalVertex)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
     Qt5::Widgets

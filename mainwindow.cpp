@@ -117,23 +117,20 @@ void MainWindow::simulationInitialize()
     Configuration = make_shared<sphericalVertexModel>(N,noise);
     Configuration->setRadius(radius);
     Configuration->getNeighbors();
-    if(ui->softRepulsion->isChecked())
-        Configuration->setSoftRepulsion();
-//    vicsek = make_shared<sphericalVectorialVicsek>();
+    scalar temperature = 0.0;
+    NVT = make_shared<noseHooverNVT>(Configuration,temperature);
+    NVT->setDeltaT(dt);
+    N = Configuration->getNumberOfParticles();
+
+    sim = make_shared<Simulation>();
+    sim->setConfiguration(Configuration);
+    sim->addUpdater(NVT);
+    
     scalar3 zero; zero.x = zero.y= zero.z=0;
     int3 one; one.x = one.y=one.z=1;
     scalar rad = 1.0;
     ui->displayZone->addSphere(zero,rad);
     ui->displayZone->setSpheres(one);
-
-    N = Configuration->getNumberOfParticles();
-    printf("%f %f %f\n",eta,v0,dt);
- //   vicsek->setEta(eta);
- //   vicsek->setV0(v0);
- //   vicsek->setDeltaT(dt);
-    sim = make_shared<Simulation>();
-    sim->setConfiguration(Configuration);
- //   sim->addUpdater(vicsek,Configuration);
 }
 
 void MainWindow::on_resetSystemButton_released()
@@ -277,13 +274,8 @@ void MainWindow::on_drawStuffButton_released()
                     start.y = p.data[ii][1]/radius;
                     end.x = p.data[neighbor][0]/radius;
                     end.y = p.data[neighbor][1]/radius;
-#if DIMENSION == 3
                     start.z = p.data[ii][2]/radius;
                     end.z = p.data[neighbor][2]/radius;
-#else
-                    start.z = 0;
-                    end.z=0;
-#endif
                     scalar len = norm(p.data[neighbor]-p.data[ii]);
                     connections.push_back(start);
                     connections.push_back(end);
@@ -293,27 +285,9 @@ void MainWindow::on_drawStuffButton_released()
             }
 
         }
-//    printf("n connections = %i\n",connections.size());
     ui->displayZone->setConnections(connections,zero);
 
     ui->displayZone->update();
-    /*
-
-
-    bool goodVisualization = ui->builtinBoundaryVisualizationBox->isChecked();
-    if(goodVisualization)
-        {
-        ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
-        ui->displayZone->drawBoundaries = true;
-        }
-    else
-        {
-        on_builtinBoundaryVisualizationBox_released();
-        };
-    QString printable3 = QStringLiteral("drawing stuff ");
-    ui->testingBox->setText(printable3);
-    ui->displayZone->update();
-    */
 }
 
 void MainWindow::on_xRotSlider_valueChanged(int value)
@@ -334,43 +308,6 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     //on_builtinBoundaryVisualizationBox_released();
     on_drawStuffButton_released();
 }
-
-/*
-void MainWindow::on_addSphereButton_released()
-{
-
-    scalar3 spherePos;
-    spherePos.x = ui->xSpherePosBox->text().toDouble()*BoxX;
-    spherePos.y = ui->ySpherePosBox->text().toDouble()*BoxX;
-    spherePos.z = ui->zSpherePosBox->text().toDouble()*BoxX;
-    scalar rad = ui->sphereRadiusBox->text().toDouble()*BoxX;
-
-
-    scalar W0 = ui->boundaryEnergyBox->text().toDouble();
-    scalar s0b = ui->boundaryS0Box->text().toDouble();
-
-    QString homeotropic ="homeotropic anchoring";
-    QString planarDegenerate="planar degenerate anchoring";
-    if(ui->anchoringComboBox->currentText() ==homeotropic)
-        {
-        boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
-        sim->createSphericalColloid(spherePos,rad,homeotropicBoundary);
-        //Configuration->createSimpleSpherialColloid(spherePos,rad, homeotropicBoundary);
-        }
-    else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
-        {
-        boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
-        sim->createSphericalColloid(spherePos,rad,planarDegenerateBoundary);
-        //Configuration->createSimpleSpherialColloid(spherePos,rad, planarDegenerateBoundary);
-        }
-    spherePositions.push_back(spherePos);
-    sphereRadii.push_back(rad);
-    QString printable1 = QStringLiteral("sphere added ");
-    ui->testingBox->setText(printable1);
-    ui->displayZone->addSphere(spherePos,rad);
-
-}
-  */
 
 void MainWindow::on_actionReset_the_system_triggered()
 {
@@ -424,19 +361,6 @@ void MainWindow::on_computeEnergyButton_released()
     QString energyString = QStringLiteral("This button doesn't do anything at the moment. But thanks for checking");
     ui->testingBox->setText(energyString);
     ui->progressBar->setValue(100);
-    /*
-     ui->progressBar->setValue(0);
-    landauLCForce->computeEnergy();
-     ui->progressBar->setValue(90);
-    scalar totalEnergy = 0.0;
-    for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
-        totalEnergy+=landauLCForce->energyComponents[ii];
-    QString energyString = QStringLiteral("Total energy: %1, components (phase, distortion, anchoring, E, H):  ").arg(totalEnergy);
-    for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
-        energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
-    ui->testingBox->setText(energyString);
-    ui->progressBar->setValue(100);
-    */
 }
 
 

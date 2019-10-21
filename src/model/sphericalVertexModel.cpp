@@ -82,6 +82,12 @@ void sphericalVertexModel::computeGeometryCPU()
         printf("total area = %f\n",totalArea);
     }
 
+void sphericalVertexModel::computeGeometryGPU()
+    {
+    }
+void sphericalVertexModel::computeForceGPU()
+    {
+    }
 void sphericalVertexModel::computeForceCPU()
     {
     }

@@ -19,18 +19,22 @@ class sphericalVertexModel : public sphericalModel
             else
                 computeGeometryCPU();
             };
-        virtual void computeForce()
+        virtual void computeForces(bool zeroOutForces)
             {
             if(useGPU)
+                {
                 computeForceGPU();
+                }
             else
+                {
                 computeForceCPU();
+                }
             };
         virtual void computeForceCPU();
-        virtual void computeForceGPU(){};
+        virtual void computeForceGPU();
 
         virtual void computeGeometryCPU();
-        virtual void computeGeometryGPU(){};
+        virtual void computeGeometryGPU();
         convexHullCGALInterface convexHuller;
         Index2D cellNeighborIndex;
         GPUArray<unsigned int> cellNumberOfNeighbors;
