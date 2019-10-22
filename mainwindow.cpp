@@ -102,10 +102,11 @@ void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
 
 void MainWindow::on_setParametersButton_released()
 {
-
     scalar preferredP = ui->p0Box_2->text().toDouble();
     scalar preferredA = ui->a0Box_2->text().toDouble();
+    scalar Kr = ui->KrBox_2->text().toDouble();
     Configuration->setPreferredParameters(preferredA,preferredP);
+    Configuration->setScalarModelParameter(Kr);
     dt =ui->initialDtSet->text().toDouble();
     sim->setIntegrationTimestep(dt);
     scalar initialT = ui->initialTSet->text().toDouble();
@@ -113,22 +114,24 @@ void MainWindow::on_setParametersButton_released()
 
     ui->evolutionParametersWidget->hide();
     ui->initialDt->setText(ui->initialDtSet->text());
-
 }
 
 void MainWindow::simulationInitialize()
 {
     scalar preferredP = ui->p0Box->text().toDouble();
     scalar preferredA = ui->a0Box->text().toDouble();
+    scalar Kr = ui->KrBox->text().toDouble();
     scalar initialT = ui->initialT->text().toDouble();
     ui->initialTSet->setText( ui->initialT->text());
     ui->initialMuSet->setText( ui->initialMu->text());
     ui->initialDtSet->setText( ui->initialDt->text());
+    ui->KrBox_2->setText(ui->KrBox->text());
     ui->a0Box_2->setText( ui->a0Box->text());
     ui->p0Box_2->setText( ui->p0Box->text());
 
 
     Configuration = make_shared<sphericalVertexModel>(N,noise,preferredA,preferredP,false,true);
+    Configuration->setScalarModelParameter(Kr);
     scalar temperature = initialT;
     BD = make_shared<brownianDynamics>();
     BD->setT(temperature);
@@ -204,7 +207,7 @@ void MainWindow::on_addIterationsButton_released()
 void MainWindow::on_drawStuffButton_released()
 {
     ArrayHandle<dVec> p(Configuration->returnPositions(),access_location::host,access_mode::read);
-    ArrayHandle<dVec> v(Configuration->returnDirectors(),access_location::host,access_mode::read);
+    ArrayHandle<dVec> v(Configuration->returnForces(),access_location::host,access_mode::read);
     scalar scale = ui->directorScaleBox->text().toDouble();
     vector<scalar3> lineSegments;
     vector<scalar3> defects;

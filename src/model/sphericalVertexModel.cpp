@@ -48,7 +48,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
 
     printf("(a0,p0)=%f\t%f\n",_area,_perimeter);
     setPreferredParameters(_area,_perimeter);
-
+    setScalarModelParameter(1.0);
     computeGeometry();
     };
 
@@ -199,9 +199,9 @@ void sphericalVertexModel::computeForceCPU()
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
             sphere.dGeodesicDistanceDVertex(vCur,vLast,tempVar);
-            f -= 2.0*perimeterDifference*tempVar;
+            f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.dGeodesicDistanceDVertex(vCur,vNext,tempVar);
-            f -= 2.0*perimeterDifference*tempVar;
+            f -= 2.0*Kr*perimeterDifference*tempVar;
 
             sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
 //            printf("vertex %i, cell %i, area force (%f,%f,%f)\n",vertexIndex, cc,tempVar[0],tempVar[1],tempVar[2]);
