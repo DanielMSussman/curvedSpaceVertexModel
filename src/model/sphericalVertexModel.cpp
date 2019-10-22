@@ -47,6 +47,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     areaPerimeterPreference.resize(nCells);
 
     {
+    printf("(a0,p0)=%f\t%f\n",_area,_perimeter);
     ArrayHandle<scalar2> app(areaPerimeterPreference);
     scalar2 prefs; prefs.x = _area; prefs.y = _perimeter;
     for (int cc = 0; cc < nCells; ++cc)
@@ -96,6 +97,7 @@ void sphericalVertexModel::computeGeometryCPU()
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
     ArrayHandle<scalar2> ap(areaPerimeter);
     scalar totalArea = 0;
+    scalar totalPerimeter = 0.;
 
     for (int cc = 0; cc < nCells; ++cc)
         {
@@ -149,9 +151,11 @@ void sphericalVertexModel::computeGeometryCPU()
         ap.data[cc].x = area;
         ap.data[cc].y = perimeter;
         totalArea += area;
+        totalPerimeter += perimeter;
 //        printf("%i, n=%i: %f\t%f\n",cc,neighs,area,perimeter);
         }
-        printf("total area = %f\n",totalArea);
+        scalar excessArea = totalArea - 4.0*PI*sphere.radius*sphere.radius;
+        printf("excess area = %g\t total peri = %f \n",excessArea,totalPerimeter);
     }
 
 void sphericalVertexModel::computeGeometryGPU()

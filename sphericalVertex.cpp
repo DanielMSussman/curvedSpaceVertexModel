@@ -51,8 +51,8 @@ int main(int argc, char*argv[])
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
-    scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
-    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
+    ValueArg<scalar> p0SwitchArg("p","p0","preferred perimeter",false,3.78,"double",cmd);
+    ValueArg<scalar> a0SwitchArg("a","a0","preferred area per cell",false,1.0,"double",cmd);
     ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
     ValueArg<scalar> dtSwitchArg("e","dt","timestep",false,0.001,"double",cmd);
     ValueArg<scalar> v0SwitchArg("v","v0","v0",false,0.5,"double",cmd);
@@ -64,10 +64,11 @@ int main(int argc, char*argv[])
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
-    scalar phi = phiSwitchArg.getValue();
     scalar rho = rhoSwitchArg.getValue();
     scalar dt = dtSwitchArg.getValue();
     scalar v0 = v0SwitchArg.getValue();
+    scalar p0 = p0SwitchArg.getValue();
+    scalar a0 = a0SwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
@@ -94,7 +95,8 @@ int main(int argc, char*argv[])
 
     int dim =DIMENSION;
     noiseSource noise(true);
-    shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,GPU,!GPU);
+    shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
+    
     shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(true);
 
     printf("sphere size  = %f\n",Configuration->sphere.radius);
