@@ -149,6 +149,7 @@ void sphericalVertexModel::computeForceCPU()
     ArrayHandle<scalar2> ap(areaPerimeter);
     ArrayHandle<scalar2> app(areaPerimeterPreference);
     
+    scalar forceNorm = 0.0;
     dVec vLast,vCur,vNext,cPos,tempVar;
     for (int vertexIndex = 0; vertexIndex < N; ++vertexIndex)
         {
@@ -169,12 +170,14 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*perimeterDifference*tempVar;
 
             sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
-            printf("vertex %i, cell %i, area force (%f,%f,%f)\n",vertexIndex, cc,tempVar[0],tempVar[1],tempVar[2]);
+//            printf("vertex %i, cell %i, area force (%f,%f,%f)\n",vertexIndex, cc,tempVar[0],tempVar[1],tempVar[2]);
 
-            f-= 2.0*areaDifference*tempVar;
+            f -= 2.0*areaDifference*tempVar;
             };
         force.data[vertexIndex] = f;
-        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
+        forceNorm += dot(f,f);
+//        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
+    printf("total force norm =  %f\n",forceNorm);
     }
