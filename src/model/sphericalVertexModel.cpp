@@ -208,5 +208,5 @@ void sphericalVertexModel::computeForceCPU()
 //        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
-    printf("total force norm =  %f\n",forceNorm/N);
+    printf("total force norm =  %g\n",forceNorm/N);
     }

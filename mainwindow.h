@@ -62,7 +62,7 @@ private slots:
 
     void on_setParametersButton_released();
 
-    void on_boxNTotalSize_selectionChanged();
+    void on_boxNTotalSize_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;

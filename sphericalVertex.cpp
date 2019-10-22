@@ -108,8 +108,6 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
 
-    Configuration->computeForces(true);
-
     for (int ii = 0; ii <maximumIterations; ++ii)
         sim->performTimestep();
 //

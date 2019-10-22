@@ -89,12 +89,16 @@ void MainWindow::on_boxDensity_textEdited(const QString &arg1)
         ui->boxRadius->setText(valueAsString);
 }
 
-void MainWindow::on_boxNTotalSize_selectionChanged()
+
+
+void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
 {
-     N = ui->boxNTotalSize->text().toInt();
-     radius = sqrt(N/(4.0*PI));
-     QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
-     ui->boxDensity->setText(valueAsString2);
+    N = ui->boxNTotalSize->text().toInt();
+    radius = sqrt(N/(4.0*PI));
+    QString valueAsString2 = QString::number(N/(4.0*PI*radius*radius));
+    ui->boxDensity->setText(valueAsString2);
+    QString valueAsString = QString::number(radius);
+    ui->boxRadius->setText(valueAsString);
 }
 
 void MainWindow::on_setParametersButton_released()
@@ -114,17 +118,17 @@ void MainWindow::on_setParametersButton_released()
 
 void MainWindow::simulationInitialize()
 {
-    Configuration = make_shared<sphericalVertexModel>(N,noise);
-    //Configuration->setRadius(radius);
-    //Configuration->getNeighbors();
-    scalar temperature = 0.01;
+    Configuration = make_shared<sphericalVertexModel>(N,noise,false,true);
+    scalar temperature = 0.0;
     BD = make_shared<brownianDynamics>();
+    BD->setT(temperature);
     N = Configuration->getNumberOfParticles();
 
     sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
+    sim->setCPUOperation(true);
     
     scalar3 zero; zero.x = zero.y= zero.z=0;
     int3 one; one.x = one.y=one.z=1;

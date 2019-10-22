@@ -8,7 +8,7 @@
 class sphericalVertexModel : public sphericalModel
     {
     public:
-        sphericalVertexModel(int n, noiseSource &_noise, scalar _area = 1.0, scalar _perimeter = 4.0, bool _useGPU=false, bool _neverGPU = true);
+        sphericalVertexModel(int n, noiseSource &_noise, scalar _area = 1.0, scalar _perimeter = 3.8, bool _useGPU=false, bool _neverGPU = true);
 
         virtual void getNeighbors(){};
 
