@@ -167,9 +167,14 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*perimeterDifference*tempVar;
             sphere.dGeodesicDistanceDVertex(vCur,vNext,tempVar);
             f -= 2.0*perimeterDifference*tempVar;
+
+            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
+            printf("vertex %i, cell %i, area force (%f,%f,%f)\n",vertexIndex, cc,tempVar[0],tempVar[1],tempVar[2]);
+
+            f-= 2.0*areaDifference*tempVar;
             };
         force.data[vertexIndex] = f;
-        //printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
+        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
     }

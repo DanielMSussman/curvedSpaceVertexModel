@@ -53,7 +53,7 @@ int main(int argc, char*argv[])
     scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
     ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
     ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
-    ValueArg<scalar> dtSwitchArg("e","dt","timestep",false,0.1,"double",cmd);
+    ValueArg<scalar> dtSwitchArg("e","dt","timestep",false,0.001,"double",cmd);
     ValueArg<scalar> v0SwitchArg("v","v0","v0",false,0.5,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
@@ -100,7 +100,7 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
     scalar temperature  =0.0;
     shared_ptr<noseHooverNVT> NVT = make_shared<noseHooverNVT>(Configuration,temperature);
-    sim->setIntegrationTimestep(0.001);
+    sim->setIntegrationTimestep(dt);
     sim->addUpdater(NVT,Configuration);
 
     if(gpuSwitch >=0)
