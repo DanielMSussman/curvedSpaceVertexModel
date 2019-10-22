@@ -38,12 +38,11 @@ void MainWindow::showControls()
 void MainWindow::on_initializeButton_released()
     {
     N = ui->boxNTotalSize->text().toInt();
-    v0 =ui->initialSpeed->text().toDouble();
-    eta =ui->initialEta->text().toDouble();
+
+    //eta =ui->initialEta->text().toDouble();
     dt =ui->initialDt->text().toDouble();
 
-    ui->initialSpeedSet->setText(ui->initialSpeed->text());
-    ui->initialEtaSet->setText(ui->initialEta->text());
+    //ui->initialEtaSet->setText(ui->initialEta->text());
     ui->initialDtSet->setText(ui->initialDt->text());
 
     radius = ui->boxRadius->text().toDouble();
@@ -103,23 +102,26 @@ void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
 
 void MainWindow::on_setParametersButton_released()
 {
-    v0 =ui->initialSpeedSet->text().toDouble();
-    eta =ui->initialEtaSet->text().toDouble();
+    //v0 =ui->initialSpeedSet->text().toDouble();
+    //eta =ui->initialEtaSet->text().toDouble();
     dt =ui->initialDtSet->text().toDouble();
     //vicsek->setEta(eta);
     //vicsek->setV0(v0);
     //vicsek->setDeltaT(dt);
     ui->evolutionParametersWidget->hide();
-    ui->initialSpeed->setText(ui->initialSpeedSet->text());
-    ui->initialEta->setText(ui->initialEtaSet->text());
+    //ui->initialSpeed->setText(ui->initialSpeedSet->text());
+    //ui->initialEta->setText(ui->initialEtaSet->text());
     ui->initialDt->setText(ui->initialDtSet->text());
 
 }
 
 void MainWindow::simulationInitialize()
 {
-    Configuration = make_shared<sphericalVertexModel>(N,noise,false,true);
-    scalar temperature = 0.0;
+    scalar preferredP = ui->p0Box->text().toDouble();
+    scalar preferredA = ui->a0Box->text().toDouble();
+    scalar initialT = ui->initialT->text().toDouble();
+    Configuration = make_shared<sphericalVertexModel>(N,noise,preferredA,preferredP,false,true);
+    scalar temperature = initialT;
     BD = make_shared<brownianDynamics>();
     BD->setT(temperature);
     N = Configuration->getNumberOfParticles();
