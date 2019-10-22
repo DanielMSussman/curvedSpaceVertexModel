@@ -130,10 +130,10 @@ class simpleModel
         //!particle types
         GPUArray<int> types;
 
+    public:
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 
-    public:
         bool neverGPU;
 
     };

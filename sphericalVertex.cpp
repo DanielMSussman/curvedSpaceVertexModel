@@ -15,6 +15,7 @@
 #include "energyMinimizerFIRE.h"
 #include "velocityVerlet.h"
 #include "noseHooverNVT.h"
+#include "brownianDynamics.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
 #include "lennardJones6_12.h"
@@ -94,14 +95,13 @@ int main(int argc, char*argv[])
     int dim =DIMENSION;
     noiseSource noise(true);
     shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,GPU,!GPU);
+    shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(true);
 
     printf("sphere size  = %f\n",Configuration->sphere.radius);
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    scalar temperature  =0.0;
-    shared_ptr<noseHooverNVT> NVT = make_shared<noseHooverNVT>(Configuration,temperature);
+    sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
-    sim->addUpdater(NVT,Configuration);
 
     if(gpuSwitch >=0)
         {

@@ -11,7 +11,7 @@ add_library(updater
     noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
     energyMinimizerAdam.cpp
-    brownianParticleDynamics.cpp
+    brownianDynamics.cpp
     )
 cuda_add_library(updaterGPU
     velocityVerlet.cu

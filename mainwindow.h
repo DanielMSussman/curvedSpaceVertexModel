@@ -8,6 +8,7 @@
 #include "sphericalVertexModel.h"
 #include "sphericalVectorialVicsek.h"
 #include "noseHooverNVT.h"
+#include "brownianDynamics.h"
 #include "simulation.h"
 
 namespace Ui {
@@ -88,6 +89,7 @@ public:
     shared_ptr<simpleModel> Configuration;
     shared_ptr<Simulation> sim;
     shared_ptr<noseHooverNVT> NVT;
+    shared_ptr<brownianDynamics> BD;
     shared_ptr<vectorialVicsek> vicsek;
 //    shared_ptr<landauDeGennesLC> landauLCForce;
  //   shared_ptr<energyMinimizerFIRE> fire;

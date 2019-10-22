@@ -56,6 +56,33 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     computeGeometry();
     };
 
+void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
+    {
+    if(scale == 1.)
+        {
+        ArrayHandle<dVec> p(positions);
+        ArrayHandle<dVec> V(displacements);
+        for(int ii = 0; ii < N; ++ii)
+            {
+            sphere.move(p.data[ii],V.data[ii]);
+        //    sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+            }
+        }
+    else
+        {
+        ArrayHandle<dVec> p(positions);
+        ArrayHandle<dVec> V(displacements);
+        for(int ii = 0; ii < N; ++ii)
+            {
+            sphere.move(p.data[ii],scale*V.data[ii]);
+        //    sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+            }
+        }
+    enforceTopology();
+    };
+
+
+
 void sphericalVertexModel::computeGeometryCPU()
     {
     ArrayHandle<dVec> p(positions);
@@ -174,10 +201,12 @@ void sphericalVertexModel::computeForceCPU()
 
             f -= 2.0*areaDifference*tempVar;
             };
+        //only allow forces in the tangent plane?
+        sphere.projectToTangentPlane(f,vCur);
         force.data[vertexIndex] = f;
         forceNorm += dot(f,f);
 //        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
-    printf("total force norm =  %f\n",forceNorm);
+    printf("total force norm =  %f\n",forceNorm/N);
     }

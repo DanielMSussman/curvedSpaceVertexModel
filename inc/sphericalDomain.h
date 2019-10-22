@@ -57,35 +57,6 @@ void sphericalDomain::geodesicDistance(dVec &p1, dVec &p2, scalar &dist)
     dist = radius*acos(dot(pt1,pt2));
     }
 
-void sphericalDomain::dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative)
-    {
-    pt1 = p1;
-    pt2 = p2;
-    pt3 = p3;
-    putInBoxVirtual(pt1);
-    putInBoxVirtual(pt2);
-    putInBoxVirtual(pt3);
-    scalar p1Dotp2 = dot(pt1,pt2);
-    scalar p1Dotp3 = dot(pt1,pt3);
-    scalar p2Dotp3 = dot(pt2,pt3);
-
-    derivative[0] = -(((pt3[0]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[0]) - pt2[0]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[0]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[0] - pt2[0]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[0]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[0] - pt3[0]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[0]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
-    derivative[1]=-(((pt3[1]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[1]) - pt2[1]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[1]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[1] - pt2[1]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[1]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[1] - pt3[1]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[1]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
-    derivative[2]=-(((pt3[2]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[2]) - pt2[2]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[2] - pt2[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[2] - pt3[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[2]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
-
-    derivative = radius*radius*derivative;
-    }
-
-void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative)
-    {
-    pt1 = p;
-    pt2 = other;
-    putInBoxVirtual(pt1);
-    putInBoxVirtual(pt2);
-    scalar denomInverse = -1.*radius/sqrt(1-dot(pt1,pt2));
-    derivative = pt2*denomInverse;
-    }
-
 void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area)
     {
     pt1 = p1;
@@ -119,6 +90,7 @@ void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar
 */
     }
 
+//!Change vec so that only the component in the tangent plane to normal remains
 void sphericalDomain::projectToTangentPlane(dVec &vec, const dVec &normal)
     {
     pt = normal*(1.0/norm(normal));
@@ -154,6 +126,7 @@ void sphericalDomain::move(dVec &p1, dVec &velocityDirection, scalar magnitude)
     putInBoxReal(p1);
     }
 
+//!Project velocit to tangent plane and displace
 void sphericalDomain::move(dVec &p1, const dVec &velocityDirection)
     {
     disp = velocityDirection;
@@ -163,4 +136,33 @@ void sphericalDomain::move(dVec &p1, const dVec &velocityDirection)
     }
 
 #undef HOSTDEVICE
+void sphericalDomain::dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative)
+    {
+    pt1 = p1;
+    pt2 = p2;
+    pt3 = p3;
+    putInBoxVirtual(pt1);
+    putInBoxVirtual(pt2);
+    putInBoxVirtual(pt3);
+    scalar p1Dotp2 = dot(pt1,pt2);
+    scalar p1Dotp3 = dot(pt1,pt3);
+    scalar p2Dotp3 = dot(pt2,pt3);
+
+    derivative[0] = -(((pt3[0]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[0]) - pt2[0]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[0]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[0] - pt2[0]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[0]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[0] - pt3[0]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[0]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
+    derivative[1]=-(((pt3[1]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[1]) - pt2[1]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[1]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[1] - pt2[1]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[1]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[1] - pt3[1]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[1]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
+    derivative[2]=-(((pt3[2]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[2]) - pt2[2]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[2] - pt2[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[2] - pt3[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[2]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
+
+    derivative = radius*radius*derivative;
+    }
+
+void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative)
+    {
+    pt1 = p;
+    pt2 = other;
+    putInBoxVirtual(pt1);
+    putInBoxVirtual(pt2);
+    scalar denomInverse = -1.*radius/sqrt(1-dot(pt1,pt2));
+    derivative = pt2*denomInverse;
+    }
+
 #endif

@@ -118,12 +118,12 @@ void MainWindow::simulationInitialize()
     //Configuration->setRadius(radius);
     //Configuration->getNeighbors();
     scalar temperature = 0.01;
-    NVT = make_shared<noseHooverNVT>(Configuration,temperature);
+    BD = make_shared<brownianDynamics>();
     N = Configuration->getNumberOfParticles();
 
     sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    sim->addUpdater(NVT,Configuration);
+    sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
     
     scalar3 zero; zero.x = zero.y= zero.z=0;
