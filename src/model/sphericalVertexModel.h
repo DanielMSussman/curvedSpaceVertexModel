@@ -53,5 +53,6 @@ class sphericalVertexModel : public sphericalModel
         int nCells;
         int maxVNeighs;
 
+        virtual void setPreferredParameters(scalar _a0, scalar _p0);
     };
 #endif

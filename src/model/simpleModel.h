@@ -131,6 +131,7 @@ class simpleModel
         GPUArray<int> types;
 
     public:
+        virtual void setPreferredParameters(scalar _a0, scalar _p0){};
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 

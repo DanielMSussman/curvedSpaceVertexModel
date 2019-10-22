@@ -46,16 +46,19 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     areaPerimeter.resize(nCells);
     areaPerimeterPreference.resize(nCells);
 
-    {
     printf("(a0,p0)=%f\t%f\n",_area,_perimeter);
-    ArrayHandle<scalar2> app(areaPerimeterPreference);
-    scalar2 prefs; prefs.x = _area; prefs.y = _perimeter;
-    for (int cc = 0; cc < nCells; ++cc)
-        app.data[cc] = prefs;
-    }
+    setPreferredParameters(_area,_perimeter);
 
     computeGeometry();
     };
+
+void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
+    {
+    ArrayHandle<scalar2> app(areaPerimeterPreference);
+    scalar2 prefs; prefs.x = _a0; prefs.y = _p0;
+    for (int cc = 0; cc < nCells; ++cc)
+        app.data[cc] = prefs;
+    }
 
 void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
     {

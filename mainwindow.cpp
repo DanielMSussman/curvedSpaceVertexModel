@@ -102,15 +102,16 @@ void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
 
 void MainWindow::on_setParametersButton_released()
 {
-    //v0 =ui->initialSpeedSet->text().toDouble();
-    //eta =ui->initialEtaSet->text().toDouble();
+
+    scalar preferredP = ui->p0Box_2->text().toDouble();
+    scalar preferredA = ui->a0Box_2->text().toDouble();
+    Configuration->setPreferredParameters(preferredA,preferredP);
     dt =ui->initialDtSet->text().toDouble();
-    //vicsek->setEta(eta);
-    //vicsek->setV0(v0);
-    //vicsek->setDeltaT(dt);
+    sim->setIntegrationTimestep(dt);
+    scalar initialT = ui->initialTSet->text().toDouble();
+    BD->setT(initialT);
+
     ui->evolutionParametersWidget->hide();
-    //ui->initialSpeed->setText(ui->initialSpeedSet->text());
-    //ui->initialEta->setText(ui->initialEtaSet->text());
     ui->initialDt->setText(ui->initialDtSet->text());
 
 }
@@ -120,6 +121,13 @@ void MainWindow::simulationInitialize()
     scalar preferredP = ui->p0Box->text().toDouble();
     scalar preferredA = ui->a0Box->text().toDouble();
     scalar initialT = ui->initialT->text().toDouble();
+    ui->initialTSet->setText( ui->initialT->text());
+    ui->initialMuSet->setText( ui->initialMu->text());
+    ui->initialDtSet->setText( ui->initialDt->text());
+    ui->a0Box_2->setText( ui->a0Box->text());
+    ui->p0Box_2->setText( ui->p0Box->text());
+
+
     Configuration = make_shared<sphericalVertexModel>(N,noise,preferredA,preferredP,false,true);
     scalar temperature = initialT;
     BD = make_shared<brownianDynamics>();
