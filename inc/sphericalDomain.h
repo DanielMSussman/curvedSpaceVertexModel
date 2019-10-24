@@ -30,8 +30,8 @@ class sphericalDomain
         HOSTDEVICE void sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area);
         HOSTDEVICE void dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
 
-        HOSTDEVICE void dGeodesicDistanceDVertex2(dVec &p, dVec &other, dVec &derivative);
-        HOSTDEVICE void dSphericalTriangleAreaDVertex2(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
+        HOSTDEVICE void dChordDistanceDVertex(dVec &p, dVec &other, dVec &derivative);
+        HOSTDEVICE void dTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
         HOSTDEVICE scalar normCross(dVec &p1, dVec &p2);
         scalar radius=1.0;
         scalar inverseRadius = 1.0;
@@ -166,17 +166,17 @@ void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &deriv
     derivative = pt2*denomInverse;
     }
 
-void sphericalDomain::dSphericalTriangleAreaDVertex2(dVec &p1, dVec &p2, dVec &p3, dVec &derivative)
+void sphericalDomain::dTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative)
     {
     pt1 = p1;
     pt2 = p2;
     pt3 = p3;
-    derivative.x = (2*(pt2[1] - pt3[1])*(-(pt2[1]*pt3[0]) + pt1[1]*(-pt2[0] + pt3[0]) + pt1[0]*(pt2[1] - pt3[1]) + pt2[0]*pt3[1]) + 2*(pt2[2] - pt3[2])*(-(pt2[2]*pt3[0]) + pt1[2]*(-pt2[0] + pt3[0]) + pt1[0]*(pt2[2] - pt3[2]) + pt2[0]*pt3[2]))/(4.*sqrt(pow(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1]),2) + pow(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2]),2) + pow(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2]),2)));
-    derivative.y = (2*(pt2[0] - pt3[0])*(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1])) + 2*(pt2[2] - pt3[2])*(-(pt2[2]*pt3[1]) + pt1[2]*(-pt2[1] + pt3[1]) + pt1[1]*(pt2[2] - pt3[2]) + pt2[1]*pt3[2]))/(4.*sqrt(pow(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1]),2) + pow(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2]),2) + pow(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2]),2)));
-    derivative.z = (2*(pt2[0] - pt3[0])*(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2])) + 2*(pt2[1] - pt3[1])*(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2])))/(4.*sqrt(pow(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1]),2) + pow(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2]),2) + pow(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2]),2)));
+    derivative[0] = (2*(pt2[1] - pt3[1])*(-(pt2[1]*pt3[0]) + pt1[1]*(-pt2[0] + pt3[0]) + pt1[0]*(pt2[1] - pt3[1]) + pt2[0]*pt3[1]) + 2*(pt2[2] - pt3[2])*(-(pt2[2]*pt3[0]) + pt1[2]*(-pt2[0] + pt3[0]) + pt1[0]*(pt2[2] - pt3[2]) + pt2[0]*pt3[2]))/(4.*sqrt(pow(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1]),2) + pow(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2]),2) + pow(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2]),2)));
+    derivative[1] = (2*(pt2[0] - pt3[0])*(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1])) + 2*(pt2[2] - pt3[2])*(-(pt2[2]*pt3[1]) + pt1[2]*(-pt2[1] + pt3[1]) + pt1[1]*(pt2[2] - pt3[2]) + pt2[1]*pt3[2]))/(4.*sqrt(pow(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1]),2) + pow(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2]),2) + pow(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2]),2)));
+    derivative[2] = (2*(pt2[0] - pt3[0])*(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2])) + 2*(pt2[1] - pt3[1])*(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2])))/(4.*sqrt(pow(pt1[1]*(pt2[0] - pt3[0]) + pt2[1]*pt3[0] - pt2[0]*pt3[1] + pt1[0]*(-pt2[1] + pt3[1]),2) + pow(pt1[2]*(pt2[0] - pt3[0]) + pt2[2]*pt3[0] - pt2[0]*pt3[2] + pt1[0]*(-pt2[2] + pt3[2]),2) + pow(pt1[2]*(pt2[1] - pt3[1]) + pt2[2]*pt3[1] - pt2[1]*pt3[2] + pt1[1]*(-pt2[2] + pt3[2]),2)));
     }
 
-void sphericalDomain::dGeodesicDistanceDVertex2(dVec &p, dVec &other, dVec &derivative)
+void sphericalDomain::dChordDistanceDVertex(dVec &p, dVec &other, dVec &derivative)
     {
     pt1 = p;
     pt2 = other;

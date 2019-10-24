@@ -199,6 +199,14 @@ void sphericalVertexModel::computeForceCPU()
             vNext = nextVert.data[neighborIndex(cc,vertexIndex)];
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
+            sphere.dChordDistanceDVertex(vCur,vLast,tempVar);
+            f -= 2.0*Kr*perimeterDifference*tempVar;
+            sphere.dChordDistanceDVertex(vCur,vNext,tempVar);
+            f -= 2.0*Kr*perimeterDifference*tempVar;
+
+            sphere.dTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
+            f -= 2.0*areaDifference*tempVar;
+/*
             sphere.dGeodesicDistanceDVertex(vCur,vLast,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.dGeodesicDistanceDVertex(vCur,vNext,tempVar);
@@ -206,7 +214,6 @@ void sphericalVertexModel::computeForceCPU()
 
             sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
-/*
             sphere.dSphericalTriangleAreaDVertex(vCur,vLast,cPos,tempVar);
             f -= 2.0*areaDifference*tempVar;
             sphere.dSphericalTriangleAreaDVertex(vCur,cPos,vNext,tempVar);
