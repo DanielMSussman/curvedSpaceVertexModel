@@ -105,6 +105,7 @@ int main(int argc, char*argv[])
     sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
 
+    sim->computeForces();
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);

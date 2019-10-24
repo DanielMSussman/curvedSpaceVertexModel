@@ -185,6 +185,7 @@ void sphericalVertexModel::computeForceCPU()
     
     scalar forceNorm = 0.0;
     dVec vLast,vCur,vNext,cPos,tempVar;
+    dVec meanForce(0.0);
     for (int vertexIndex = 0; vertexIndex < N; ++vertexIndex)
         {
         dVec f(0.0);
@@ -204,16 +205,21 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*Kr*perimeterDifference*tempVar;
 
             sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
-//            printf("vertex %i, cell %i, area force (%f,%f,%f)\n",vertexIndex, cc,tempVar[0],tempVar[1],tempVar[2]);
-
             f -= 2.0*areaDifference*tempVar;
+/*
+            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,cPos,tempVar);
+            f -= 2.0*areaDifference*tempVar;
+            sphere.dSphericalTriangleAreaDVertex(vCur,cPos,vNext,tempVar);
+            f -= 2.0*areaDifference*tempVar;
+*/
             };
         //only allow forces in the tangent plane?
         sphere.projectToTangentPlane(f,vCur);
         force.data[vertexIndex] = f;
+        meanForce = meanForce + f;
         forceNorm += dot(f,f);
 //        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
-    printf("total force norm =  %g\n",forceNorm/N);
+    printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);
     }

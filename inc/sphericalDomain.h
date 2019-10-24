@@ -30,6 +30,8 @@ class sphericalDomain
         HOSTDEVICE void sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area);
         HOSTDEVICE void dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
 
+        HOSTDEVICE void dGeodesicDistanceDVertex2(dVec &p, dVec &other, dVec &derivative);
+        HOSTDEVICE void dSphericalTriangleAreaDVertex2(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
         HOSTDEVICE scalar normCross(dVec &p1, dVec &p2);
         scalar radius=1.0;
         scalar inverseRadius = 1.0;
@@ -135,7 +137,6 @@ void sphericalDomain::move(dVec &p1, const dVec &velocityDirection)
     putInBoxReal(p1);
     }
 
-#undef HOSTDEVICE
 void sphericalDomain::dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative)
     {
     pt1 = p1;
@@ -165,4 +166,20 @@ void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &deriv
     derivative = pt2*denomInverse;
     }
 
+void sphericalDomain::dSphericalTriangleAreaDVertex2(dVec &p1, dVec &p2, dVec &p3, dVec &derivative)
+    {
+    pt1 = p1;
+    pt2 = p2;
+    pt3 = p3;
+    derivative = radius*radius*derivative;
+    }
+
+void sphericalDomain::dGeodesicDistanceDVertex2(dVec &p, dVec &other, dVec &derivative)
+    {
+    pt1 = p;
+    pt2 = other;
+    scalar denomInverse = norm(pt1-pt2);
+    derivative=denomInverse*(pt1-pt2);
+    }
+#undef HOSTDEVICE
 #endif
