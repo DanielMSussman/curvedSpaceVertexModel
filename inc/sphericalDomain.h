@@ -218,23 +218,12 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     d12 = cos(t1)*cos(p1-p2)*sin(t2) - cos(t2)*sin(t1);
     d13 = cos(t1)*cos(p1-p3)*sin(t3) - cos(t3)*sin(t1);
     d23 = cos(t2)*cos(p2-p3)*sin(t3) - cos(t3)*sin(t2);
-    tempNum = -1+s12*s12+s13*s13 -2.*s12*s13*s23+s23*s23;
-    denom1 = pow(1.-s12*s12,1.5)*sqrt(1.-s23*s23)*sqrt(-tempNum/((-1.+s12*s12)*(-1.+s23*s23)));
-    denom2 = pow(1.-s13*s13,1.5)*sqrt(1.-s23*s23)*sqrt(-tempNum/((-1.+s13*s13)*(-1.+s23*s23)));
-    denom3 = pow(1.-s12*s12,1.5)*pow(1.-s13*s13,1.5)*sqrt(-tempNum/((-1.+s12*s12)*(-1.+s13*s13)));
 
-    scalar gradTheta = 0;
-    gradTheta += (d13*(1.-s12*s12)+d12*(s23-s12*s13))/denom1;
-    gradTheta += (d12*(1.-s13*s13)+d13*(s23-s12*s13))/denom2;
-    gradTheta += -(d12*(1.-s13*s13)*(s13-s12*s23)+d13*(1.-s12*s12)*(s12-s13*s23))/denom3;
-    gradTheta *= r1;
+    scalar gradTheta = ((d13*(-1 + pow(s12,2)) + d12*(-(s12*s13) + s23))/(pow(1 - pow(s12,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s23,2)))))) + (d12*(-1 + pow(s13,2)) + d13*(-(s12*s13) + s23))/(pow(1 - pow(s13,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s13,2))*(-1 + pow(s23,2)))))) + (-(d12*(-1 + pow(s13,2))*(s13 - s12*s23)) - d13*(-1 + pow(s12,2))*(s12 - s13*s23))/(pow(1 - pow(s12,2),1.5)*pow(1 - pow(s13,2),1.5)*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2)))))));
+    gradTheta *= radius;
 
-    scalar gradPhi = 0;
-    gradPhi += ((s12*s13-s23)*sin(t2)*sin(p1-p2)-(1.-s12*s12)*sin(t3)*sin(p1-p3))/denom1;
-    gradPhi += ((1.-s13*s13)*sin(t2)*sin(p1-p2)+(s12*s13-s23)*sin(t3)*sin(p1-p3))/denom2;
-    gradPhi += ((s13*s13-1)*(s13-s12*s23)*sin(t2)*sin(p1-p2)+(s12*s12-1.)*(s12-s13*s23)*sin(t3)*sin(p1-p3))/denom3;
-    gradPhi *=r1;
-
+    scalar gradPhi =((s12*s13 - s23)*sin(p1 - p2)*sin(t2) - (-1 + pow(s12,2))*sin(p1 - p3)*sin(t3))/(pow(1 - pow(s12,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s23,2)))))) - ((-1 + pow(s13,2))*sin(p1 - p2)*sin(t2) + (-(s12*s13) + s23)*sin(p1 - p3)*sin(t3))/(pow(1 - pow(s13,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s13,2))*(-1 + pow(s23,2)))))) + ((-1 + pow(s13,2))*(s13 - s12*s23)*sin(p1 - p2)*sin(t2) + (-1 + pow(s12,2))*(s12 - s13*s23)*sin(p1 - p3)*sin(t3))/(pow(1 - pow(s12,2),1.5)*pow(1 - pow(s13,2),1.5)*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2))))));
+    gradPhi *=radius;
 
     dVec thetaHat, phiHat;
     cartesianSphericalBasisChange(t1,p1,thetaHat,phiHat);
