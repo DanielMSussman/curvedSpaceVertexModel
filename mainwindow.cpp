@@ -165,9 +165,9 @@ void MainWindow::on_addIterationsButton_released()
     int additionalIterations = ui->addIterationsBox->text().toInt();
 
 
-    int stepsPerSubdivision = 1 / dt;
+    int stepsPerSubdivision = 50;// 1/dt;
 
-    int subdivisions = additionalIterations/stepsPerSubdivision;
+    int subdivisions = additionalIterations / 10;//additionalIterations/stepsPerSubdivision;
     profiler prof1("drawing");
     profiler prof2("evolving");
     for (int ii = 0; ii < subdivisions; ++ii)
@@ -347,8 +347,9 @@ void MainWindow::on_saveFileNowButton_released()
 
 void MainWindow::on_computeEnergyButton_released()
 {
-    QString energyString = QStringLiteral("This button doesn't do anything at the moment. But thanks for checking");
+    QString energyString = QStringLiteral("This button doesn't do what you think it should at the moment... a force calculation has been written, so we'll temporarily just do that");
     ui->testingBox->setText(energyString);
+    sim->computeForces();
     ui->progressBar->setValue(100);
 }
 

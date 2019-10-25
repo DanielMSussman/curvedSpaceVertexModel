@@ -199,6 +199,7 @@ void sphericalVertexModel::computeForceCPU()
             vNext = nextVert.data[neighborIndex(cc,vertexIndex)];
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
+/*
             sphere.dChordDistanceDVertex(vCur,vLast,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.dChordDistanceDVertex(vCur,vNext,tempVar);
@@ -206,22 +207,30 @@ void sphericalVertexModel::computeForceCPU()
 
             sphere.dTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
+*/
 /*
             sphere.dGeodesicDistanceDVertex(vCur,vLast,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.dGeodesicDistanceDVertex(vCur,vNext,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
-
-            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
-            f -= 2.0*areaDifference*tempVar;
-            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,cPos,tempVar);
-            f -= 2.0*areaDifference*tempVar;
-            sphere.dSphericalTriangleAreaDVertex(vCur,cPos,vNext,tempVar);
-            f -= 2.0*areaDifference*tempVar;
 */
+            sphere.gradientGeodesicDistance(vCur,vLast,tempVar);
+            f -= 2.0*Kr*perimeterDifference*tempVar;
+            sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
+            f -= 2.0*Kr*perimeterDifference*tempVar;
+
+//            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
+//            f -= 2.0*areaDifference*tempVar;
+
+//            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,cPos,tempVar);
+//            f -= 2.0*areaDifference*tempVar;
+//            sphere.dSphericalTriangleAreaDVertex(vCur,cPos,vNext,tempVar);
+//            f -= 2.0*areaDifference*tempVar;
             };
         //only allow forces in the tangent plane?
+        //printf("%f,%f,%f\t",f[0],f[1],f[2]);
         sphere.projectToTangentPlane(f,vCur);
+        //printf("%f,%f,%f\n",f[0],f[1],f[2]);
         force.data[vertexIndex] = f;
         meanForce = meanForce + f;
         forceNorm += dot(f,f);

@@ -25,8 +25,14 @@ class sphericalDomain
 
         HOSTDEVICE void changeRadius(scalar _r){radius = _r; inverseRadius = 1.0/_r;};
 
+        HOSTDEVICE void cartesianSphericalBasisChange(scalar t, scalar p, dVec &thetaHat, dVec &phiHat); 
+
         HOSTDEVICE void geodesicDistance(dVec &p1, dVec &p2, scalar &dist);
         HOSTDEVICE void dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative);
+        
+        //!take the gradient in spherical coordinates, even though p1 and p3 are 3-vectors, then project back. Grad is definitionally in the tangent plane
+        HOSTDEVICE void gradientGeodesicDistance(dVec &p, dVec &other, dVec &derivative);
+
         HOSTDEVICE void sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area);
         HOSTDEVICE void dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
 
@@ -154,6 +160,42 @@ void sphericalDomain::dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3
     derivative[2]=-(((pt3[2]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[2]) - pt2[2]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[2] - pt2[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[2] - pt3[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[2]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
 
     derivative = radius*radius*derivative;
+    }
+
+void sphericalDomain::cartesianSphericalBasisChange(scalar t, scalar p, dVec &thetaHat, dVec &phiHat)
+    {
+    thetaHat[0] = cos(t)*cos(p);
+    thetaHat[1] = cos(t)*sin(p);
+    thetaHat[2] = -sin(t);
+    phiHat[0] = -sin(p);
+    phiHat[1] = cos(p);
+    phiHat[2] = 0;
+    }
+
+//Optimizations are obviously possible... but first, let's get the math transcribed
+void sphericalDomain::gradientGeodesicDistance(dVec &p, dVec &other, dVec &derivative)
+    {
+    pt1 = p;
+    pt2 = other;
+    scalar r1 = sqrt(dot(pt1,pt1));
+    scalar r2 = sqrt(dot(pt2,pt2));
+    scalar t1 = acos(pt1[2]/r1);
+    scalar t2 = acos(pt2[2]/r2);
+    scalar ph1 = atan2(pt1[1],pt1[0]);
+    scalar ph2 = atan2(pt2[1],pt2[0]);
+
+    scalar denomPart = cos(t1)*cos(t2) + cos(fabs(ph1-ph2))*sin(t1)*sin(t2);
+    scalar denom = sqrt(1-denomPart*denomPart);
+
+    scalar gradTheta = -1.0*(-cos(t2)*sin(t1)+cos(t1)*cos(fabs(ph1-ph2))*sin(t2))/denom;
+    scalar gradPhi = sin(t2)*sin(fabs(ph1-ph2)) / denom;
+    //implement sign function
+    if(ph2>ph1)
+        gradPhi = -gradPhi;
+
+    dVec thetaHat, phiHat;
+    cartesianSphericalBasisChange(t1,ph1,thetaHat,phiHat);
+    derivative = gradTheta*thetaHat + gradPhi*phiHat;
     }
 
 void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative)
