@@ -156,10 +156,28 @@ HOSTDEVICE int dot(const iVec &p1, const iVec &p2)
     return ans;
     };
 
+//!Only use if DIMENSIOn ==3
+HOSTDEVICE dVec cross(dVec &p1, dVec &p2)
+    {
+    dVec ans;
+    ans[0] = p1[1]*p2[2]-p1[2]*p2[1];
+    ans[1] = p1[2]*p2[0]-p1[0]*p2[2];
+    ans[2] = p1[0]*p2[1]-p1[1]*p2[0];
+    return ans;
+    }
+
 //!The norm of a d-Dimensional vector
 HOSTDEVICE scalar norm(const dVec &p)
     {
     return sqrt(dot(p,p));
+    };
+
+HOSTDEVICE void rodriguesRotation(dVec &v, dVec &k, scalar theta)
+    {
+    dVec ans(0);
+    dVec cp = cross(k,v);
+    ans = cos(theta)*v + sin(theta)*cp + (1.0-cos(theta))*dot(k,v)*k;
+    v = ans;
     };
 
 HOSTDEVICE scalar3 operator-(const scalar3 &a, const scalar3 &b)
