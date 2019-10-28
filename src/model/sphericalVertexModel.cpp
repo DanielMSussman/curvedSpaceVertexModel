@@ -97,7 +97,7 @@ scalar sphericalVertexModel::computeEnergy()
         {
         energy += (ap.data[i].x-app.data[i].x)*(ap.data[i].x-app.data[i].x) + Kr*(ap.data[i].y-app.data[i].y)*(ap.data[i].y-app.data[i].y);
         }
-    printf("current energy = %f\n",energy);
+    printf("current energy = %g\n",energy);
     return energy;
     }
 

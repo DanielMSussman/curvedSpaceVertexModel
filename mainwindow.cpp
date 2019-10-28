@@ -152,9 +152,12 @@ void MainWindow::simulationInitialize()
 
 void MainWindow::on_resetSystemButton_released()
 {
-    Configuration->setParticlePositionsRandomly(noise);
-    Configuration->getNeighbors();
-    on_drawStuffButton_released();
+    on_initializeButton_released();
+    //Configuration->setParticlePositionsRandomly(noise);
+    //int nC = ui->boxNTotalSize->text().toInt();  
+    //Configuration->initialize(nC);
+    //Configuration->getNeighbors();
+    //on_drawStuffButton_released();
 }
 
 void MainWindow::on_addIterationsButton_released()
