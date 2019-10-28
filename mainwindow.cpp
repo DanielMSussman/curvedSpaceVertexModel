@@ -167,10 +167,14 @@ void MainWindow::on_addIterationsButton_released()
 
     int additionalIterations = ui->addIterationsBox->text().toInt();
 
+    int stepsPerSubdivision = 1/dt;
+    int subdivisions = additionalIterations/stepsPerSubdivision;
+    if (subdivisions == 0)
+        {
+        stepsPerSubdivision = 50;
+        subdivisions = additionalIterations / 10;
+        }
 
-    int stepsPerSubdivision = 50;// 1/dt;
-
-    int subdivisions = additionalIterations / 10;//additionalIterations/stepsPerSubdivision;
     profiler prof1("drawing");
     profiler prof2("evolving");
     for (int ii = 0; ii < subdivisions; ++ii)

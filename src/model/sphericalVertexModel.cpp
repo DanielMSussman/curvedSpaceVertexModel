@@ -227,11 +227,11 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
+
             sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
             f -= 2.0*areaDifference*tempVar;
             sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
-
 
             };
         //only allow forces in the tangent plane? Taken care of automatically
