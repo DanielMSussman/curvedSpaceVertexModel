@@ -88,6 +88,18 @@ void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar s
     enforceTopology();
     };
 
+scalar sphericalVertexModel::computeEnergy()
+    {
+    ArrayHandle<scalar2> ap(areaPerimeter);
+    ArrayHandle<scalar2> app(areaPerimeterPreference);
+    energy = 0.0;
+    for (int i = 0; i < nCells; ++i)
+        {
+        energy += (ap.data[i].x-app.data[i].x)*(ap.data[i].x-app.data[i].x) + Kr*(ap.data[i].y-app.data[i].y)*(ap.data[i].y-app.data[i].y);
+        }
+    printf("current energy = %f\n",energy);
+    return energy;
+    }
 
 
 void sphericalVertexModel::computeGeometryCPU()
@@ -161,7 +173,8 @@ void sphericalVertexModel::computeGeometryCPU()
 //        printf("%i, n=%i: %f\t%f\n",cc,neighs,area,perimeter);
         }
         scalar excessArea = totalArea - 4.0*PI*sphere.radius*sphere.radius;
-        printf("excess area = %g\t total peri = %f \n",excessArea,totalPerimeter);
+        if(excessArea > 1e-6)
+            printf("excess area = %g\t total peri = %f \n",excessArea,totalPerimeter);
     }
 
 void sphericalVertexModel::computeGeometryGPU()
@@ -172,7 +185,7 @@ void sphericalVertexModel::computeForceGPU()
     }
 void sphericalVertexModel::computeForceCPU()
     {
-    printf("computing forces\n");
+    //printf("computing forces\n");
     computeGeometry();
     ArrayHandle<dVec> cp(cellPositions);
     ArrayHandle<dVec> p(positions);
@@ -233,9 +246,9 @@ void sphericalVertexModel::computeForceCPU()
 //        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
-    printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);
-    getMeanForce(meanForce);
-    printf("projected mean force = (%f,%f,%f)\n",meanForce[0],meanForce[1],meanForce[2]);
+//    printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);
+//    getMeanForce(meanForce);
+//    printf("projected mean force = (%f,%f,%f)\n",meanForce[0],meanForce[1],meanForce[2]);
     }
 
 void sphericalVertexModel::enforceTopology()

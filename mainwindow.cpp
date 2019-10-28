@@ -215,37 +215,39 @@ void MainWindow::on_drawStuffButton_released()
     QString printable1 = QStringLiteral("finding vectors ");
     ui->testingBox->setText(printable1);
     double factor = sqrt(2./N)/pow(radius,.25);
-    for (int ii = 0; ii < N; ++ii)
-        {
-        scalar3 pos;
-        pos.x = p.data[ii].x[0]/radius;
-        pos.y = p.data[ii].x[1]/radius;
-#if DIMENSION == 3
-        pos.z = p.data[ii].x[2]/radius;
-        director.z=v.data[ii].x[2];
-#else
-        pos.z = 0.;
-        director.z=0.;
-#endif
-        director.x=v.data[ii].x[0];
-        director.y=v.data[ii].x[1];
-
-        scalar3 lineSegment1;
-        scalar3 lineSegment2;
-
-        lineSegment1.x = pos.x;
-        lineSegment2.x = pos.x+factor*scale*director.x;
-        lineSegment1.y = pos.y;
-        lineSegment2.y = pos.y+factor*scale*director.y;
-        lineSegment1.z = pos.z;
-        lineSegment2.z = pos.z+factor*scale*director.z;
-
-        lineSegments.push_back(lineSegment1);
-        lineSegments.push_back(lineSegment2);
-    }
     int3 zero; zero.x=1;zero.y=1;zero.z=1;
-    ui->displayZone->setLines(lineSegments,zero);
+    if(ui->showForceCheckbox->isChecked())
+        {
+        for (int ii = 0; ii < N; ++ii)
+            {
+            scalar3 pos;
+            pos.x = p.data[ii].x[0]/radius;
+            pos.y = p.data[ii].x[1]/radius;
+#if DIMENSION == 3
+            pos.z = p.data[ii].x[2]/radius;
+            director.z=v.data[ii].x[2];
+#else
+            pos.z = 0.;
+            director.z=0.;
+#endif
+            director.x=v.data[ii].x[0];
+            director.y=v.data[ii].x[1];
 
+            scalar3 lineSegment1;
+            scalar3 lineSegment2;
+
+            lineSegment1.x = pos.x;
+            lineSegment2.x = pos.x+factor*scale*director.x;
+            lineSegment1.y = pos.y;
+            lineSegment2.y = pos.y+factor*scale*director.y;
+            lineSegment1.z = pos.z;
+            lineSegment2.z = pos.z+factor*scale*director.z;
+
+            lineSegments.push_back(lineSegment1);
+            lineSegments.push_back(lineSegment2);
+            }
+        ui->displayZone->setLines(lineSegments,zero);
+        }
     ArrayHandle<unsigned int> nNeighs(Configuration->numberOfNeighbors);
     ArrayHandle<int> neighs(Configuration->neighbors);
     vector<scalar3> connections;
@@ -347,10 +349,11 @@ void MainWindow::on_saveFileNowButton_released()
 
 void MainWindow::on_computeEnergyButton_released()
 {
-    QString energyString = QStringLiteral("This button doesn't do what you think it should at the moment... a force calculation has been written, so we'll temporarily just do that");
-    ui->testingBox->setText(energyString);
     sim->computeForces();
+    scalar energy = sim->computeEnergy();
     ui->progressBar->setValue(100);
+    QString energyString = QStringLiteral("Energy =  %1").arg(energy);
+    ui->testingBox->setText(energyString);
 }
 
 

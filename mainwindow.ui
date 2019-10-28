@@ -425,7 +425,7 @@ color: black
       <string notr="true">border: red 1px solid</string>
      </property>
      <property name="text">
-      <string>3.8</string>
+      <string>3.5</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="a0Box">
@@ -1226,6 +1226,25 @@ color: black
      </property>
     </widget>
    </widget>
+   <widget class="QCheckBox" name="showForceCheckbox">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>440</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>show Force</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
    <zorder>fileSaveWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
@@ -1257,6 +1276,7 @@ color: black
    <zorder>computeEnergyButton_2</zorder>
    <zorder>evolutionParametersWidget</zorder>
    <zorder>initializationFrame</zorder>
+   <zorder>showForceCheckbox</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

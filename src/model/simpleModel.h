@@ -63,6 +63,8 @@ class simpleModel
         //!Set velocities via a temperature. The return value is the total kinetic energy
         scalar setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise);
 
+        //!compute the current PE
+        virtual scalar computeEnergy(){return 0;};
         //!compute the current KE
         virtual scalar computeKineticEnergy();
         //!compute the dimension-dependent instantaneous temperature

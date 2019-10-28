@@ -31,6 +31,8 @@ class sphericalVertexModel : public sphericalModel
                 }
             };
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
+        //!compute the current PE
+        virtual scalar computeEnergy();
 
         virtual void enforceTopology();
         virtual void computeForceCPU();
@@ -59,6 +61,7 @@ class sphericalVertexModel : public sphericalModel
 
         scalar Kr;
         scalar t1Threshold;
+        scalar energy;
         virtual void setPreferredParameters(scalar _a0, scalar _p0);
         virtual void setScalarModelParameter(scalar _param){Kr=_param;};
         //!Set the length threshold for T1 transitions
