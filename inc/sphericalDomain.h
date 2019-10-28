@@ -26,6 +26,7 @@ class sphericalDomain
         HOSTDEVICE void changeRadius(scalar _r){radius = _r; inverseRadius = 1.0/_r;};
 
         HOSTDEVICE void cartesianSphericalBasisChange(scalar t, scalar p, dVec &thetaHat, dVec &phiHat); 
+        HOSTDEVICE void cartesianSphericalBasisChange(dVec &cartesianPosition, dVec &thetaHat, dVec &phiHat); 
 
         HOSTDEVICE void geodesicDistance(dVec &p1, dVec &p2, scalar &dist);
         HOSTDEVICE void dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative);
@@ -161,6 +162,19 @@ void sphericalDomain::dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3
     derivative[2]=-(((pt3[2]*(p1Dotp3)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(sqrt(1 - pow(p1Dotp2,2))*pow(1 - pow(p1Dotp3,2),1.5)) + (-((p1Dotp2)*pt3[2]) - pt2[2]*(p1Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p1Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p2Dotp3 - (p1Dotp2)*(p1Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p1Dotp3,2))))/sqrt(1 - pow(p2Dotp3 - (p1Dotp2)*(p1Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p1Dotp3,2))))) - ((pt3[2] - pt2[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp2,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt2[2]*(p1Dotp2)*(p1Dotp3 - (p1Dotp2)*(p2Dotp3)))/(pow(1 - pow(p1Dotp2,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp3 - (p1Dotp2)*(p2Dotp3),2)/((1 - pow(p1Dotp2,2))*(1 - pow(p2Dotp3,2)))) - ((pt2[2] - pt3[2]*(p2Dotp3))/(sqrt(1 - pow(p1Dotp3,2))*sqrt(1 - pow(p2Dotp3,2))) + (pt3[2]*(p1Dotp3)*(p1Dotp2 - (p1Dotp3)*(p2Dotp3)))/(pow(1 - pow(p1Dotp3,2),1.5)*sqrt(1 - pow(p2Dotp3,2))))/sqrt(1 - pow(p1Dotp2 - (p1Dotp3)*(p2Dotp3),2)/((1 - pow(p1Dotp3,2))*(1 - pow(p2Dotp3,2))));
 
     derivative = radius*radius*derivative;
+    }
+
+void sphericalDomain::cartesianSphericalBasisChange(dVec &cartesianPosition, dVec &thetaHat, dVec &phiHat)
+    {
+    scalar r = sqrt(dot(cartesianPosition,cartesianPosition));
+    scalar t = acos(cartesianPosition[2]/r);
+    scalar p = atan2(cartesianPosition[1],cartesianPosition[0]);
+    thetaHat[0] = cos(t)*cos(p);
+    thetaHat[1] = cos(t)*sin(p);
+    thetaHat[2] = -sin(t);
+    phiHat[0] = -sin(p);
+    phiHat[1] = cos(p);
+    phiHat[2] = 0;
     }
 
 void sphericalDomain::cartesianSphericalBasisChange(scalar t, scalar p, dVec &thetaHat, dVec &phiHat)

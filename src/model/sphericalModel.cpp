@@ -109,3 +109,19 @@ void sphericalModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         }
     getNeighbors();
     };
+
+void sphericalModel::getMeanForce(dVec &meanForce)
+    {
+    ArrayHandle<dVec> f(forces,access_location::host,access_mode::read);
+    ArrayHandle<dVec> p(positions,access_location::host,access_mode::read);
+    dVec currentForce,tHat,pHat;
+    meanForce[0]=0;meanForce[1]=0;meanForce[2]=0;
+    for(int ii = 0; ii < N; ++ii)
+        {
+        currentForce = f.data[ii];
+        sphere.cartesianSphericalBasisChange(p.data[ii],tHat,pHat);
+        meanForce[1] += dot(currentForce,tHat);
+        meanForce[2] += dot(currentForce,pHat);
+        }
+    meanForce = (1.0/N)*meanForce;
+    }

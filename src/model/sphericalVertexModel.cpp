@@ -203,15 +203,6 @@ void sphericalVertexModel::computeForceCPU()
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 /*
-            sphere.dChordDistanceDVertex(vCur,vLast,tempVar);
-            f -= 2.0*Kr*perimeterDifference*tempVar;
-            sphere.dChordDistanceDVertex(vCur,vNext,tempVar);
-            f -= 2.0*Kr*perimeterDifference*tempVar;
-
-            sphere.dTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
-            f -= 2.0*areaDifference*tempVar;
-*/
-/*
             sphere.dGeodesicDistanceDVertex(vCur,vLast,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.dGeodesicDistanceDVertex(vCur,vNext,tempVar);
@@ -223,14 +214,12 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
-         //   sphere.gradientTriangleArea(vCur,vLast,vNext,tempVar);
-         //   f -= 2.0*areaDifference*tempVar;
+            sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
+            f -= 2.0*areaDifference*tempVar;
+            sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
+            f -= 2.0*areaDifference*tempVar;
 
 
-//            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,cPos,tempVar);
-//            f -= 2.0*areaDifference*tempVar;
-//            sphere.dSphericalTriangleAreaDVertex(vCur,cPos,vNext,tempVar);
-//            f -= 2.0*areaDifference*tempVar;
             };
         //only allow forces in the tangent plane? Taken care of automatically
         /*
@@ -245,6 +234,8 @@ void sphericalVertexModel::computeForceCPU()
         };
 
     printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);
+    getMeanForce(meanForce);
+    printf("projected mean force = (%f,%f,%f)\n",meanForce[0],meanForce[1],meanForce[2]);
     }
 
 void sphericalVertexModel::enforceTopology()

@@ -103,6 +103,7 @@ class simpleModel
         neighborList metricNeighbors;
 
         virtual void getMeanDirection(dVec &meanDir);
+        virtual void getMeanForce(dVec &meanForce){};
 
         Index2D neighborIndex;
         GPUArray<unsigned int> numberOfNeighbors;
