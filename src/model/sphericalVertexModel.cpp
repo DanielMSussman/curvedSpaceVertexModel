@@ -53,8 +53,44 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     setPreferredParameters(_area,_perimeter);
     setScalarModelParameter(1.0);
     computeGeometry();
+    preserveOrientatedFaces();
     };
 
+void sphericalVertexModel::preserveOrientatedFaces()
+    {
+    /*
+    ArrayHandle<int> cvn(cellNeighbors);
+    ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
+    ArrayHandle<dVec> cp(cellPositions);
+    ArrayHandle<dVec> curVert(currentVertexAroundCell);
+    ArrayHandle<dVec> lastVert(lastVertexAroundCell);
+    ArrayHandle<dVec> nextVert(nextVertexAroundCell);
+    scalar totalArea = 0;
+    scalar totalPerimeter = 0.;
+
+    for (int cc = 0; cc < nCells; ++cc)
+        {
+        int neighs = cnn.data[cc];
+        dVec CP = cp.data[cc];
+        for (int nn = 0; nn < neighs; ++nn)
+            {
+            int cni = cellNeighborIndex(nn,cc);
+            dVec pt1 = lastVert.data[cni];
+            dVec pt2 = curVert.data[cni];
+            dVec pt3 = nextVert.data[cni];
+            scalar determinant = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
+                        +pt1[1]*(pt2[2]*pt3[0]-pt2[0]*pt3[2])
+                        +pt1[2]*(pt2[0]*pt3[1]-pt2[1]*pt3[0]);
+            pt1 = CP;
+            scalar determinant2 = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
+                        +pt1[1]*(pt2[2]*pt3[0]-pt2[0]*pt3[2])
+                        +pt1[2]*(pt2[0]*pt3[1]-pt2[1]*pt3[0]);
+           // printf("%i\t%i\t%i\t%i\n",cc,nn,determinant > 0 ? 1:-1, determinant2 > 0 ? 1:-1);
+            };
+        };
+    */
+    }
+    
 void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
     {
     ArrayHandle<scalar2> app(areaPerimeterPreference);
@@ -154,7 +190,8 @@ void sphericalVertexModel::computeGeometryCPU()
             nextVertexPos = p.data[nextVertexIdx];
             sphere.geodesicDistance(lastVertexPos,curVertexPos,tempVal);
             perimeter += tempVal;
-            sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
+            //sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
+            sphere.includedAngle(lastVertexPos,curVertexPos,nextVertexPos,tempVal);
             area +=tempVal;
 
             curVert.data[forceSetIdx] = curVertexPos;
@@ -165,16 +202,16 @@ void sphericalVertexModel::computeGeometryCPU()
             curVertexIdx = nextVertexIdx;
             curVertexPos = nextVertexPos;
             }
-
+        area = (area-(neighs-2)*PI)*sphere.radius*sphere.radius;
         ap.data[cc].x = area;
         ap.data[cc].y = perimeter;
         totalArea += area;
         totalPerimeter += perimeter;
-//        printf("%i, n=%i: %f\t%f\n",cc,neighs,area,perimeter);
+        //printf("%i, n=%i: %f\t%f\n",cc,neighs,area,perimeter);
         }
         scalar excessArea = totalArea - 4.0*PI*sphere.radius*sphere.radius;
-        if(excessArea > 1e-6)
-            printf("excess area = %g\t total peri = %f \n",excessArea,totalPerimeter);
+        if(fabs(excessArea)> 1e-6)
+            printf("total area = %f excess area = %g\t total peri = %f \n",totalArea,excessArea,totalPerimeter);
     }
 
 void sphericalVertexModel::computeGeometryGPU()

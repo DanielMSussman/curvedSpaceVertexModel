@@ -35,6 +35,8 @@ class sphericalDomain
         HOSTDEVICE void gradientGeodesicDistance(dVec &p, dVec &other, dVec &derivative);
         HOSTDEVICE void gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &derivative);
 
+        //!given an ordered set of vertices (p1,p2,p3), what is the included angle?
+        HOSTDEVICE void includedAngle(dVec &p1, dVec &p2, dVec &p3, scalar &angle);
         HOSTDEVICE void sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area);
         HOSTDEVICE void dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3, dVec &derivative);
 
@@ -66,6 +68,28 @@ void sphericalDomain::geodesicDistance(dVec &p1, dVec &p2, scalar &dist)
     putInBoxVirtual(pt2);
     dist = radius*acos(dot(pt1,pt2));
     }
+
+void sphericalDomain::includedAngle(dVec &p1, dVec &p2, dVec &p3, scalar &angle)
+    {
+    pt1 = p1;
+    pt2 = p2;
+    pt3 = p3;
+
+    dVec crossI = cross(pt2,pt3);
+    dVec crossIm1 = cross(pt1,pt2);
+
+    scalar determinant = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
+                        +pt1[1]*(pt2[2]*pt3[0]-pt2[0]*pt3[2])
+                        +pt1[2]*(pt2[0]*pt3[1]-pt2[1]*pt3[0]);
+
+
+    angle = acos(-dot(crossI,crossIm1)/(norm(crossI)*norm(crossIm1)));
+    if(determinant > 0)
+        angle *= -1;
+    if(angle < 0)
+        angle += 2.*PI;
+    };
+
 
 void sphericalDomain::sphericalTriangleArea(dVec &p1, dVec &p2, dVec &p3, scalar &area)
     {

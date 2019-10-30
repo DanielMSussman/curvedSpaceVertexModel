@@ -68,6 +68,7 @@ class sphericalVertexModel : public sphericalModel
         virtual void setT1Threshold(scalar t1t){t1Threshold = t1t;};
 
     protected:
+        void preserveOrientatedFaces();
         //!Simple test for T1 transitions (edge length less than threshold) on the CPU
         void testAndPerformT1TransitionsCPU();
         //!Simple test for T1 transitions (edge length less than threshold) on the GPU...calls the following functions
