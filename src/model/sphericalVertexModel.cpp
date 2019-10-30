@@ -202,7 +202,11 @@ void sphericalVertexModel::computeGeometryCPU()
             curVertexIdx = nextVertexIdx;
             curVertexPos = nextVertexPos;
             }
-        area = (area-(neighs-2)*PI)*sphere.radius*sphere.radius;
+        area = (area-(neighs-2)*PI);
+        //int extraAngularArea = floor(area/(1.0*PI));
+        //if(extraAngularArea > 0)
+        //    area -= extraAngularArea*PI;
+        area = area * sphere.radius*sphere.radius; 
         ap.data[cc].x = area;
         ap.data[cc].y = perimeter;
         totalArea += area;
@@ -368,7 +372,7 @@ void sphericalVertexModel::testAndPerformT1TransitionsCPU()
                     rodriguesRotation(v1,midpoint,-0.5*PI);
                     rodriguesRotation(v2,midpoint,-0.5*PI);
 
-                    dVec diff = v1-v2;
+                    dVec diff = 0.5*(v1-v2);
                     v1 = v1 + diff;
                     v2 = v2 - diff;
                     sphere.putInBoxReal(v1);
