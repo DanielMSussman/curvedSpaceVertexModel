@@ -263,16 +263,16 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     scalar yOverX1 = pt1[1]/pt1[0];
     scalar yOverX2 = pt2[1]/pt2[0];
     scalar yOverX3 = pt3[1]/pt3[0];
-    scalar cosP1MinusP2 = (1.+yOverX1*yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
-    scalar cosP1MinusP3 = (1.+yOverX1*yOverX3)/sqrt((1+yOverX1*yOverX1)*(1+yOverX3*yOverX3));
-    scalar cosP2MinusP3 = (1.+yOverX2*yOverX3)/sqrt((1+yOverX2*yOverX2)*(1+yOverX3*yOverX3));
+    //scalar cosP1MinusP2 = (1.+yOverX1*yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
+    //scalar cosP1MinusP3 = (1.+yOverX1*yOverX3)/sqrt((1+yOverX1*yOverX1)*(1+yOverX3*yOverX3));
+    //scalar cosP2MinusP3 = (1.+yOverX2*yOverX3)/sqrt((1+yOverX2*yOverX2)*(1+yOverX3*yOverX3));
     scalar sinP1MinusP2 = (yOverX1-yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
     scalar sinP1MinusP3 = (yOverX1-yOverX3)/sqrt((1+yOverX1*yOverX1)*(1+yOverX3*yOverX3));
     scalar sinP2MinusP3 = (yOverX2-yOverX3)/sqrt((1+yOverX2*yOverX2)*(1+yOverX3*yOverX3));
     
-    //cosP1MinusP2 = cos(p1-p2);
-    //cosP1MinusP3 = cos(p1-p3);
-    //cosP2MinusP3 = cos(p2-p3);
+    scalar cosP1MinusP2 = cos(p1-p2);
+    scalar cosP1MinusP3 = cos(p1-p3);
+    scalar cosP2MinusP3 = cos(p2-p3);
 
     scalar s12,s13,s23,d12,d13,d23,denom1,denom2,denom3,tempNum;
     s12 = cosT1*cosT2+cosP1MinusP2*sinT1*sinT2;
