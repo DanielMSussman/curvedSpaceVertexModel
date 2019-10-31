@@ -133,7 +133,7 @@ scalar sphericalVertexModel::computeEnergy()
         {
         energy += (ap.data[i].x-app.data[i].x)*(ap.data[i].x-app.data[i].x) + Kr*(ap.data[i].y-app.data[i].y)*(ap.data[i].y-app.data[i].y);
         }
-    printf("current energy = %g\n",energy);
+    //printf("current energy = %g\n",energy);
     return energy;
     }
 
@@ -305,35 +305,31 @@ void sphericalVertexModel::computeForceCPU()
             vNext = nextVert.data[neighborIndex(cc,vertexIndex)];
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
-/*
-            sphere.dGeodesicDistanceDVertex(vCur,vLast,tempVar);
-            f -= 2.0*Kr*perimeterDifference*tempVar;
-            sphere.dGeodesicDistanceDVertex(vCur,vNext,tempVar);
-            f -= 2.0*Kr*perimeterDifference*tempVar;
-//            sphere.dSphericalTriangleAreaDVertex(vCur,vLast,vNext,tempVar);
-//            f -= 2.0*areaDifference*tempVar;
-*/
+
             sphere.gradientGeodesicDistance(vCur,vLast,tempVar);
+//if(isnan(tempVar[0])) {printf("peri nan \n");}
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
+//if(isnan(tempVar[0])) {printf("peri nan\n");}
             f -= 2.0*Kr*perimeterDifference*tempVar;
-
             sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
             f -= 2.0*areaDifference*tempVar;
+//if(isnan(tempVar[0])) {printf("area last nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vLast[0],vLast[1],vLast[2],cPos[0],cPos[1],cPos[2]);}
             sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
+//if(isnan(tempVar[0])) {printf("area next nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vNext[0],vNext[1],vNext[2],cPos[0],cPos[1],cPos[2]);}
 
             };
-        //only allow forces in the tangent plane? Taken care of automatically
-        /*
-        printf("%f,%f,%f\t",f[0],f[1],f[2]);
-        sphere.projectToTangentPlane(f,vCur);
-        printf("%f,%f,%f\n",f[0],f[1],f[2]);
-        */
+        //printf("%f,%f,%f\n",f[0],f[1],f[2]);
+        if(isnan(f[0]))
+            {
+            f = dVec(0);
+            printf("forceNan on vidx %i\n",vertexIndex);
+            }
         force.data[vertexIndex] = f;
         meanForce = meanForce + f;
         forceNorm += dot(f,f);
-//        printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
+        //printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
 //    printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);

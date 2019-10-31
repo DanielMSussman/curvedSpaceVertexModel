@@ -223,11 +223,15 @@ void sphericalDomain::gradientGeodesicDistance(dVec &p, dVec &other, dVec &deriv
     scalar ph1 = atan2(pt1[1],pt1[0]);
     scalar ph2 = atan2(pt2[1],pt2[0]);
 
-    scalar denomPart = cos(t1)*cos(t2) + cos(ph1-ph2)*sin(t1)*sin(t2);
+    scalar cosT1 = pt1[2]/r1;
+    scalar cosT2 = pt2[2]/r2;
+    scalar sinT1 = sqrt(1-pt1[2]*pt1[2]/(r1*r1));
+    scalar sinT2 = sqrt(1-pt2[2]*pt2[2]/(r1*r1));
+    scalar denomPart = cosT1*cosT2 + cos(ph1-ph2)*sinT1*sinT2;
     scalar denom = sqrt(1-denomPart*denomPart);
 
-    scalar gradTheta = -1.0*(-cos(t2)*sin(t1)+cos(t1)*cos(ph1-ph2)*sin(t2))/denom;
-    scalar gradPhi = sin(t2)*sin(ph1-ph2) / denom;
+    scalar gradTheta = -1.0*(-cosT2*sinT1+cosT1*cos(ph1-ph2)*sinT2)/denom;
+    scalar gradPhi = sinT2*sin(ph1-ph2) / denom;
 
     dVec thetaHat, phiHat;
     cartesianSphericalBasisChange(t1,ph1,thetaHat,phiHat);
@@ -249,13 +253,21 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     scalar p2 = atan2(pt2[1],pt2[0]);
     scalar p3 = atan2(pt3[1],pt3[0]);
 
+
+    scalar cosT1 = pt1[2]/r1;
+    scalar cosT2 = pt2[2]/r2;
+    scalar cosT3 = pt3[2]/r3;
+    scalar sinT1 = sqrt(1-pt1[2]*pt1[2]/(r1*r1));
+    scalar sinT2 = sqrt(1-pt2[2]*pt2[2]/(r1*r1));
+    scalar sinT3 = sqrt(1-pt3[2]*pt3[2]/(r1*r1));
+
     scalar s12,s13,s23,d12,d13,d23,denom1,denom2,denom3,tempNum;
-    s12 = cos(t1)*cos(t2)+cos(p1-p2)*sin(t1)*sin(t2);
-    s13 = cos(t1)*cos(t3)+cos(p1-p3)*sin(t1)*sin(t3);
-    s23 = cos(t2)*cos(t3)+cos(p2-p3)*sin(t2)*sin(t3);
-    d12 = cos(t1)*cos(p1-p2)*sin(t2) - cos(t2)*sin(t1);
-    d13 = cos(t1)*cos(p1-p3)*sin(t3) - cos(t3)*sin(t1);
-    d23 = cos(t2)*cos(p2-p3)*sin(t3) - cos(t3)*sin(t2);
+    s12 = cosT1*cosT2+cos(p1-p2)*sinT1*sinT2;
+    s13 = cosT1*cosT3+cos(p1-p3)*sinT1*sinT3;
+    s23 = cosT2*cosT3+cos(p2-p3)*sinT2*sinT3;
+    d12 = cosT1*cos(p1-p2)*sinT2 - cosT2*sinT1;
+    d13 = cosT1*cos(p1-p3)*sinT3 - cosT3*sinT1;
+    d23 = cosT2*cos(p2-p3)*sinT3 - cosT3*sinT2;
 
     scalar gradTheta = ((d13*(-1 + pow(s12,2)) + d12*(-(s12*s13) + s23))/(pow(1 - pow(s12,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s23,2)))))) + (d12*(-1 + pow(s13,2)) + d13*(-(s12*s13) + s23))/(pow(1 - pow(s13,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s13,2))*(-1 + pow(s23,2)))))) + (-(d12*(-1 + pow(s13,2))*(s13 - s12*s23)) - d13*(-1 + pow(s12,2))*(s12 - s13*s23))/(pow(1 - pow(s12,2),1.5)*pow(1 - pow(s13,2),1.5)*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2)))))));
     gradTheta *= radius;
@@ -266,6 +278,8 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     dVec thetaHat, phiHat;
     cartesianSphericalBasisChange(t1,p1,thetaHat,phiHat);
     derivative = gradTheta*thetaHat + gradPhi*phiHat;
+    if(isnan(gradTheta))
+        printf("gradTheta %f\t gradPhi %f\n (%f,%f,%f) (%f,%f,%f) (%f,%f,%f) \n %f %f %f %f %f %f  \n\n",gradTheta,gradPhi,  pt1[0],pt1[1],pt1[2],pt2[0],pt2[1],pt2[2],pt3[0],pt3[1],pt3[2], s12,s13,s23,d12,d13,d23);
     }
 
 void sphericalDomain::dGeodesicDistanceDVertex(dVec &p, dVec &other, dVec &derivative)

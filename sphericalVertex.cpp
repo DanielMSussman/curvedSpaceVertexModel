@@ -112,7 +112,11 @@ int main(int argc, char*argv[])
         };
 
     for (int ii = 0; ii <maximumIterations; ++ii)
+        {
+        scalar e = sim->computeEnergy();
         sim->performTimestep();
+//        printf("timestep %i energy %f\n",ii,e);
+        }
 //
 //The end of the tclap try
 //
