@@ -181,7 +181,7 @@ void sphericalVertexModel::recomputeAreasCPU()
         ap.data[cc].x = area;
         totalArea += area;
         }
-        printf("recomputed area = %f \n",totalArea);
+ //       printf("recomputed area = %f \n",totalArea);
     }
 
 void sphericalVertexModel::computeGeometryCPU()
@@ -262,7 +262,7 @@ void sphericalVertexModel::computeGeometryCPU()
         }//arrayHandle scope
         if(fabs(excessArea)> 1e-6)
             {
-            printf("excess area = %g\t total peri = %f ..recomputing area via triangles: ",excessArea,totalPerimeter);
+ //           printf("excess area = %g\t total peri = %f ..recomputing area via triangles: ",excessArea,totalPerimeter);
             recomputeAreasCPU();
             }
     }

@@ -260,19 +260,38 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     scalar sinT1 = sqrt(1-pt1[2]*pt1[2]/(r1*r1));
     scalar sinT2 = sqrt(1-pt2[2]*pt2[2]/(r1*r1));
     scalar sinT3 = sqrt(1-pt3[2]*pt3[2]/(r1*r1));
+    scalar yOverX1 = pt1[1]/pt1[0];
+    scalar yOverX2 = pt2[1]/pt2[0];
+    scalar yOverX3 = pt3[1]/pt3[0];
+    scalar cosP1MinusP2 = (1.+yOverX1*yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
+    scalar cosP1MinusP3 = (1.+yOverX1*yOverX3)/sqrt((1+yOverX1*yOverX1)*(1+yOverX3*yOverX3));
+    scalar cosP2MinusP3 = (1.+yOverX2*yOverX3)/sqrt((1+yOverX2*yOverX2)*(1+yOverX3*yOverX3));
+    scalar sinP1MinusP2 = (yOverX1-yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
+    scalar sinP1MinusP3 = (yOverX1-yOverX3)/sqrt((1+yOverX1*yOverX1)*(1+yOverX3*yOverX3));
+    scalar sinP2MinusP3 = (yOverX2-yOverX3)/sqrt((1+yOverX2*yOverX2)*(1+yOverX3*yOverX3));
+    
+    //cosP1MinusP2 = cos(p1-p2);
+    //cosP1MinusP3 = cos(p1-p3);
+    //cosP2MinusP3 = cos(p2-p3);
 
     scalar s12,s13,s23,d12,d13,d23,denom1,denom2,denom3,tempNum;
-    s12 = cosT1*cosT2+cos(p1-p2)*sinT1*sinT2;
-    s13 = cosT1*cosT3+cos(p1-p3)*sinT1*sinT3;
-    s23 = cosT2*cosT3+cos(p2-p3)*sinT2*sinT3;
-    d12 = cosT1*cos(p1-p2)*sinT2 - cosT2*sinT1;
-    d13 = cosT1*cos(p1-p3)*sinT3 - cosT3*sinT1;
-    d23 = cosT2*cos(p2-p3)*sinT3 - cosT3*sinT2;
+    s12 = cosT1*cosT2+cosP1MinusP2*sinT1*sinT2;
+    s13 = cosT1*cosT3+cosP1MinusP3*sinT1*sinT3;
+    s23 = cosT2*cosT3+cosP2MinusP3*sinT2*sinT3;
+    d12 = cosT1*cosP1MinusP2*sinT2 - cosT2*sinT1;
+    d13 = cosT1*cosP1MinusP3*sinT3 - cosT3*sinT1;
+    d23 = cosT2*cosP2MinusP3*sinT3 - cosT3*sinT2;
 
     scalar gradTheta = ((d13*(-1 + pow(s12,2)) + d12*(-(s12*s13) + s23))/(pow(1 - pow(s12,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s23,2)))))) + (d12*(-1 + pow(s13,2)) + d13*(-(s12*s13) + s23))/(pow(1 - pow(s13,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s13,2))*(-1 + pow(s23,2)))))) + (-(d12*(-1 + pow(s13,2))*(s13 - s12*s23)) - d13*(-1 + pow(s12,2))*(s12 - s13*s23))/(pow(1 - pow(s12,2),1.5)*pow(1 - pow(s13,2),1.5)*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2)))))));
     gradTheta *= radius;
 
-    scalar gradPhi =((s12*s13 - s23)*sin(p1 - p2)*sin(t2) - (-1 + pow(s12,2))*sin(p1 - p3)*sin(t3))/(pow(1 - pow(s12,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s23,2)))))) - ((-1 + pow(s13,2))*sin(p1 - p2)*sin(t2) + (-(s12*s13) + s23)*sin(p1 - p3)*sin(t3))/(pow(1 - pow(s13,2),1.5)*sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s13,2))*(-1 + pow(s23,2)))))) + ((-1 + pow(s13,2))*(s13 - s12*s23)*sin(p1 - p2)*sin(t2) + (-1 + pow(s12,2))*(s12 - s13*s23)*sin(p1 - p3)*sin(t3))/(pow(1 - pow(s12,2),1.5)*pow(1 - pow(s13,2),1.5)*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2))))));
+    scalar gradPhi =((s12*s13 - s23)*sinP1MinusP2*sin(t2) - (-1 + pow(s12,2))*sinP1MinusP3*sin(t3))/(pow(1 - pow(s12,2),1.5)*sqrt(1 - pow(s23,2))
+                    *sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s23,2)))))) - 
+                    ((-1 + pow(s13,2))*sinP1MinusP2*sin(t2) + (-(s12*s13) + s23)*sinP1MinusP3*sin(t3))/(pow(1 - pow(s13,2),1.5)*
+                    sqrt(1 - pow(s23,2))*sqrt(-((-1 + pow(s12,2) + pow(s13,2) - 2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s13,2))*
+                    (-1 + pow(s23,2)))))) + ((-1 + pow(s13,2))*(s13 - s12*s23)*sinP1MinusP2*sin(t2) + (-1 + pow(s12,2))*(s12 - s13*s23)*
+                    sinP1MinusP3*sin(t3))/(pow(1 - pow(s12,2),1.5)*pow(1 - pow(s13,2),1.5)*sqrt(-((-1 + pow(s12,2) + pow(s13,2) -
+                    2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2))))));
     gradPhi *=radius;
 
     dVec thetaHat, phiHat;
