@@ -38,7 +38,10 @@ class sphericalVertexModel : public sphericalModel
         virtual void computeForceCPU();
         virtual void computeForceGPU();
 
+        //! computes areas via included angles
         virtual void computeGeometryCPU();
+        //! if included angles are bad due to edge-crossings, approximate via triangles
+        virtual void recomputeAreasCPU();
         virtual void computeGeometryGPU();
         convexHullCGALInterface convexHuller;
         Index2D cellNeighborIndex;

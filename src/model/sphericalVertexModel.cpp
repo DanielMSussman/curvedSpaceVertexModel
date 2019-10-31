@@ -137,8 +137,7 @@ scalar sphericalVertexModel::computeEnergy()
     return energy;
     }
 
-
-void sphericalVertexModel::computeGeometryCPU()
+void sphericalVertexModel::recomputeAreasCPU()
     {
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> cp(cellPositions);
@@ -152,7 +151,55 @@ void sphericalVertexModel::computeGeometryCPU()
     ArrayHandle<scalar2> ap(areaPerimeter);
     scalar totalArea = 0;
     scalar totalPerimeter = 0.;
+    for (int cc = 0; cc < nCells; ++cc)
+        {
+        int neighs = cnn.data[cc];
+        dVec cellPos = cp.data[cc];;
 
+        int lastVertexIdx = cvn.data[cellNeighborIndex(neighs-2,cc)];
+        int curVertexIdx = cvn.data[cellNeighborIndex(neighs-1,cc)];
+        dVec lastVertexPos = p.data[lastVertexIdx];
+        dVec curVertexPos = p.data[curVertexIdx];
+        int nextVertexIdx;
+        dVec nextVertexPos;
+        scalar perimeter = 0;
+        scalar area = 0;
+        scalar tempVal;
+
+        for (int nn = 0; nn < neighs; ++nn)
+            {
+            int cni = cellNeighborIndex(nn,cc);
+            nextVertexIdx = cvn.data[cni];
+            nextVertexPos = p.data[nextVertexIdx];
+            sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
+            area +=tempVal;
+
+            lastVertexPos = curVertexPos;
+            curVertexIdx = nextVertexIdx;
+            curVertexPos = nextVertexPos;
+            }
+        ap.data[cc].x = area;
+        totalArea += area;
+        }
+        printf("recomputed area = %f \n",totalArea);
+    }
+
+void sphericalVertexModel::computeGeometryCPU()
+    {
+    scalar excessArea;
+    scalar totalArea = 0;
+    scalar totalPerimeter = 0.;
+    {//arrayHandle scope
+    ArrayHandle<dVec> p(positions);
+    ArrayHandle<dVec> cp(cellPositions);
+    ArrayHandle<int> cvn(cellNeighbors);
+    ArrayHandle<int> vcn(vertexCellNeighbors);
+    ArrayHandle<unsigned int> vcnn(numberOfNeighbors);
+    ArrayHandle<dVec> curVert(currentVertexAroundCell);
+    ArrayHandle<dVec> lastVert(lastVertexAroundCell);
+    ArrayHandle<dVec> nextVert(nextVertexAroundCell);
+    ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
+    ArrayHandle<scalar2> ap(areaPerimeter);
     for (int cc = 0; cc < nCells; ++cc)
         {
         int neighs = cnn.data[cc];
@@ -190,7 +237,6 @@ void sphericalVertexModel::computeGeometryCPU()
             nextVertexPos = p.data[nextVertexIdx];
             sphere.geodesicDistance(lastVertexPos,curVertexPos,tempVal);
             perimeter += tempVal;
-            //sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
             sphere.includedAngle(lastVertexPos,curVertexPos,nextVertexPos,tempVal);
             area +=tempVal;
 
@@ -203,19 +249,22 @@ void sphericalVertexModel::computeGeometryCPU()
             curVertexPos = nextVertexPos;
             }
         area = (area-(neighs-2)*PI);
-        //int extraAngularArea = floor(area/(1.0*PI));
-        //if(extraAngularArea > 0)
-        //    area -= extraAngularArea*PI;
+        int extraAngularArea = floor(area/(1.0*PI));
+        if(extraAngularArea > 0)
+            area -= extraAngularArea*PI;
         area = area * sphere.radius*sphere.radius; 
         ap.data[cc].x = area;
         ap.data[cc].y = perimeter;
         totalArea += area;
         totalPerimeter += perimeter;
-        //printf("%i, n=%i: %f\t%f\n",cc,neighs,area,perimeter);
         }
-        scalar excessArea = totalArea - 4.0*PI*sphere.radius*sphere.radius;
+        excessArea = totalArea - 4.0*PI*sphere.radius*sphere.radius;
+        }//arrayHandle scope
         if(fabs(excessArea)> 1e-6)
-            printf("total area = %f excess area = %g\t total peri = %f \n",totalArea,excessArea,totalPerimeter);
+            {
+            printf("excess area = %g\t total peri = %f ..recomputing area via triangles: ",excessArea,totalPerimeter);
+            recomputeAreasCPU();
+            }
     }
 
 void sphericalVertexModel::computeGeometryGPU()
