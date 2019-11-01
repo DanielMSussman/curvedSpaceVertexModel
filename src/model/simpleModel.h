@@ -141,6 +141,8 @@ class simpleModel
 
         bool neverGPU;
 
+        //!typically unused. In topological models it stops neighbor exchanges
+        bool restrictedMotion = false;
     };
 typedef shared_ptr<simpleModel> ConfigPtr;
 typedef weak_ptr<simpleModel> WeakConfigPtr;

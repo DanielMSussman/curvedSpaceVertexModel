@@ -64,6 +64,8 @@ private slots:
 
     void on_boxNTotalSize_textChanged(const QString &arg1);
 
+    void on_forbidNeighborExchanges_released();
+
 private:
     Ui::MainWindow *ui;
 

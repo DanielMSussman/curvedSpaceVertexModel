@@ -121,7 +121,8 @@ void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar s
         //    sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
             }
         }
-    enforceTopology();
+    if(!restrictedMotion)
+        enforceTopology();
     };
 
 scalar sphericalVertexModel::computeEnergy()

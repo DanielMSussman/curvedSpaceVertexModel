@@ -425,7 +425,7 @@ color: black
       <string notr="true">border: red 1px solid</string>
      </property>
      <property name="text">
-      <string>2.5</string>
+      <string>3.5</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="a0Box">
@@ -513,7 +513,7 @@ color: black
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>130</y>
+      <y>160</y>
       <width>171</width>
       <height>32</height>
      </rect>
@@ -744,7 +744,7 @@ color: black
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>130</y>
       <width>181</width>
       <height>20</height>
      </rect>
@@ -1242,6 +1242,22 @@ color: black
      <string>show Force</string>
     </property>
     <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="forbidNeighborExchanges">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Forbid neighbor exchanges</string>
+    </property>
+    <property name="checked">
      <bool>false</bool>
     </property>
    </widget>
@@ -1277,6 +1293,7 @@ color: black
    <zorder>evolutionParametersWidget</zorder>
    <zorder>initializationFrame</zorder>
    <zorder>showForceCheckbox</zorder>
+   <zorder>forbidNeighborExchanges</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

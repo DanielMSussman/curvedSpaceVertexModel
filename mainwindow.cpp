@@ -132,6 +132,7 @@ void MainWindow::simulationInitialize()
 
     Configuration = make_shared<sphericalVertexModel>(N,noise,preferredA,preferredP,false,true);
     Configuration->setScalarModelParameter(Kr);
+    on_forbidNeighborExchanges_released();
     scalar temperature = initialT;
     BD = make_shared<brownianDynamics>();
     BD->setT(temperature);
@@ -374,3 +375,9 @@ void MainWindow::on_cancelEvolutionParametersButton_pressed()
     ui->evolutionParametersWidget->hide();
 }
 
+
+void MainWindow::on_forbidNeighborExchanges_released()
+{
+    bool stopTopologyChanges = ui->forbidNeighborExchanges->isChecked();
+    Configuration->restrictedMotion = stopTopologyChanges;
+}
