@@ -8,6 +8,7 @@
 #include "sphericalVertexModel.h"
 #include "sphericalVectorialVicsek.h"
 #include "noseHooverNVT.h"
+#include "energyMinimizerFIRE.h"
 #include "brownianDynamics.h"
 #include "simulation.h"
 
@@ -93,8 +94,7 @@ public:
     shared_ptr<noseHooverNVT> NVT;
     shared_ptr<brownianDynamics> BD;
     shared_ptr<vectorialVicsek> vicsek;
-//    shared_ptr<landauDeGennesLC> landauLCForce;
- //   shared_ptr<energyMinimizerFIRE> fire;
+    shared_ptr<energyMinimizerFIRE> fire;
 
 };
 
