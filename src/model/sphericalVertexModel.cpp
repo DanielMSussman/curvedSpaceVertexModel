@@ -308,16 +308,15 @@ void sphericalVertexModel::computeForceCPU()
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 
             sphere.gradientGeodesicDistance(vCur,vLast,tempVar);
-//if(isnan(tempVar[0])) {printf("peri nan \n");}
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
-//if(isnan(tempVar[0])) {printf("peri nan\n");}
             f -= 2.0*Kr*perimeterDifference*tempVar;
-            sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
+            sphere.gradientTriangleArea(vCur,vNext,vLast,tempVar);
             f -= 2.0*areaDifference*tempVar;
 //if(isnan(tempVar[0])) {printf("area last nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vLast[0],vLast[1],vLast[2],cPos[0],cPos[1],cPos[2]);}
-            sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
-            f -= 2.0*areaDifference*tempVar;
+
+            //sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
+            //f -= 2.0*areaDifference*tempVar;
 //if(isnan(tempVar[0])) {printf("area next nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vNext[0],vNext[1],vNext[2],cPos[0],cPos[1],cPos[2]);}
 
             };

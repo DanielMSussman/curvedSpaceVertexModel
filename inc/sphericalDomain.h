@@ -294,9 +294,18 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
                     2*s12*s13*s23 + pow(s23,2))/((-1 + pow(s12,2))*(-1 + pow(s13,2))))));
     gradPhi *=radius;
 
+    scalar determinant = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
+                        +pt1[1]*(pt2[2]*pt3[0]-pt2[0]*pt3[2])
+                        +pt1[2]*(pt2[0]*pt3[1]-pt2[1]*pt3[0]);
+
     dVec thetaHat, phiHat;
     cartesianSphericalBasisChange(t1,p1,thetaHat,phiHat);
+
+    if(determinant > 0)
+        derivative = -1.*derivative;
     derivative = gradTheta*thetaHat + gradPhi*phiHat;
+
+
     if(isnan(gradTheta))
         printf("gradTheta %f\t gradPhi %f\n (%f,%f,%f) (%f,%f,%f) (%f,%f,%f) \n %f %f %f %f %f %f  \n\n",gradTheta,gradPhi,  pt1[0],pt1[1],pt1[2],pt2[0],pt2[1],pt2[2],pt3[0],pt3[1],pt3[2], s12,s13,s23,d12,d13,d23);
     }
