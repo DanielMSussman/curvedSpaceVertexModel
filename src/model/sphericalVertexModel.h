@@ -4,6 +4,7 @@
 #include "sphericalModel.h"
 #include "convexHullCGAL.h"
 
+
 //!set up a spherical vertex model. N is the number of CELLS, not vertices
 class sphericalVertexModel : public sphericalModel
     {
@@ -58,6 +59,7 @@ class sphericalVertexModel : public sphericalModel
         GPUArray<dVec> currentVertexAroundCell;
         GPUArray<dVec> lastVertexAroundCell;
         GPUArray<dVec> nextVertexAroundCell;
+        GPUArray<quadAngularPosition> vertexSetAroundCell;
         int nCells;
         int maxVNeighs;
         int maximumVerticesPerCell;

@@ -76,6 +76,44 @@ using namespace std;
 #define Ceil ceilf
 #endif
 
+//!for cuda memory alignment, it is convenient to define a class which holds sets of four positions specified by their (theta, phi) coordinates
+class quadAngularPosition
+    {
+    public:
+        HOSTDEVICE quadAngularPosition(){};
+        HOSTDEVICE quadAngularPosition(const double value)
+            {
+            for (int dd = 0; dd < 8; ++dd)
+                x[dd] = value;
+            };
+        HOSTDEVICE quadAngularPosition(const quadAngularPosition &other)
+            {
+            for (int dd = 0; dd < 8; ++dd)
+                x[dd] = other.x[dd];
+            };
+        double x[8];
+        HOSTDEVICE double& operator[](int i){return x[i];};
+        //mutating operators
+        HOSTDEVICE quadAngularPosition& operator=(const quadAngularPosition &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] = other.x[dd];
+            return *this;
+            }
+        HOSTDEVICE quadAngularPosition& operator-=(const quadAngularPosition &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] -= other.x[dd];
+            return *this;
+            }
+        HOSTDEVICE quadAngularPosition& operator+=(const quadAngularPosition &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] += other.x[dd];
+            return *this;
+            }
+    };
+
 #include "dDimensionalVectorTypes.h"
 #include "matrix.h"
 #include "structures.h"

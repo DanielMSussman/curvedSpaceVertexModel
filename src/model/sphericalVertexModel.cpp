@@ -311,7 +311,9 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
-            sphere.gradientTriangleArea(vCur,vNext,vLast,tempVar);
+            sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
+            f -= 2.0*areaDifference*tempVar;
+            sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
 //if(isnan(tempVar[0])) {printf("area last nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vLast[0],vLast[1],vLast[2],cPos[0],cPos[1],cPos[2]);}
 

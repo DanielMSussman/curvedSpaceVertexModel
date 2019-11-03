@@ -14,17 +14,20 @@ class sphericalDomain
     public:
         sphericalDomain(scalar _radius=1.0){radius = _radius; inverseRadius = 1.0/_radius;};
 
+        HOSTDEVICE void changeRadius(scalar _r){radius = _r; inverseRadius = 1.0/_r;};
+
         HOSTDEVICE void putInBoxVirtual(dVec &p);
         HOSTDEVICE void putInBoxReal(dVec &p);
+        
         //returns euclidean distance, not geodesic
         HOSTDEVICE void minDist(dVec &p1, dVec &p2, dVec &pans);
         HOSTDEVICE void move(dVec &p1, dVec &velocityDirection, scalar magnitude);
         HOSTDEVICE void move(dVec &p1, const dVec &velocityDirection);
+        
         HOSTDEVICE void projectToTangentPlane(dVec &vec, const dVec &normal);
         HOSTDEVICE void projectToTangentPlaneAndNormalize(dVec &vec, const dVec &normal);
 
-        HOSTDEVICE void changeRadius(scalar _r){radius = _r; inverseRadius = 1.0/_r;};
-
+        HOSTDEVICE void getAngularCoordinates(dVec &pos, scalar &radius, scalar &theta, scalar &phi);
         HOSTDEVICE void cartesianSphericalBasisChange(scalar t, scalar p, dVec &thetaHat, dVec &phiHat); 
         HOSTDEVICE void cartesianSphericalBasisChange(dVec &cartesianPosition, dVec &thetaHat, dVec &phiHat); 
 
@@ -188,11 +191,17 @@ void sphericalDomain::dSphericalTriangleAreaDVertex(dVec &p1, dVec &p2, dVec &p3
     derivative = radius*radius*derivative;
     }
 
+void sphericalDomain::getAngularCoordinates(dVec &pos, scalar &radius, scalar &theta, scalar &phi)
+    {
+    radius = sqrt(dot(pos,pos));
+    theta = acos(pos[2]/radius);
+    phi = atan2(pos[1],pos[0]);
+    }
+
 void sphericalDomain::cartesianSphericalBasisChange(dVec &cartesianPosition, dVec &thetaHat, dVec &phiHat)
     {
-    scalar r = sqrt(dot(cartesianPosition,cartesianPosition));
-    scalar t = acos(cartesianPosition[2]/r);
-    scalar p = atan2(cartesianPosition[1],cartesianPosition[0]);
+    scalar r,t,p;
+    getAngularCoordinates(cartesianPosition,r,t,p);
     thetaHat[0] = cos(t)*cos(p);
     thetaHat[1] = cos(t)*sin(p);
     thetaHat[2] = -sin(t);
@@ -216,12 +225,9 @@ void sphericalDomain::gradientGeodesicDistance(dVec &p, dVec &other, dVec &deriv
     {
     pt1 = p;
     pt2 = other;
-    scalar r1 = sqrt(dot(pt1,pt1));
-    scalar r2 = sqrt(dot(pt2,pt2));
-    scalar t1 = acos(pt1[2]/r1);
-    scalar t2 = acos(pt2[2]/r2);
-    scalar ph1 = atan2(pt1[1],pt1[0]);
-    scalar ph2 = atan2(pt2[1],pt2[0]);
+    scalar r1,t1,ph1,r2,t2,ph2;
+    getAngularCoordinates(pt1 ,r1,t1,ph1);
+    getAngularCoordinates(pt2 ,r2,t2,ph2);
 
     scalar cosT1 = pt1[2]/r1;
     scalar cosT2 = pt2[2]/r2;
@@ -243,16 +249,10 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     pt1 = v1;
     pt2 = v2;
     pt3 = v3;
-    scalar r1 = sqrt(dot(pt1,pt1));
-    scalar r2 = sqrt(dot(pt2,pt2));
-    scalar r3 = sqrt(dot(pt3,pt3));
-    scalar t1 = acos(pt1[2]/r1);
-    scalar t2 = acos(pt2[2]/r2);
-    scalar t3 = acos(pt3[2]/r3);
-    scalar p1 = atan2(pt1[1],pt1[0]);
-    scalar p2 = atan2(pt2[1],pt2[0]);
-    scalar p3 = atan2(pt3[1],pt3[0]);
-
+    scalar r1,r2,r3,t1,t2,t3,p1,p2,p3;
+    getAngularCoordinates(pt1 ,r1,t1,p1);
+    getAngularCoordinates(pt2 ,r2,t2,p2);
+    getAngularCoordinates(pt3 ,r3,t3,p3);
 
     scalar cosT1 = pt1[2]/r1;
     scalar cosT2 = pt2[2]/r2;
