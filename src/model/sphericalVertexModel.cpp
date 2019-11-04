@@ -447,8 +447,16 @@ void sphericalVertexModel::testAndPerformT1TransitionsCPU()
                     //Rotate the vertices in the edge and set them at twice their original distance
                     dVec midpoint = 0.5*(v1+v2);
                     sphere.putInBoxVirtual(midpoint);
-                    rodriguesRotation(v1,midpoint,-0.5*PI);
-                    rodriguesRotation(v2,midpoint,-0.5*PI);
+                    //chose the angle of rotation based on whether the edges are currently crossed...
+                    dVec vC = h_v.data[vertexSet.z];
+    
+    scalar determinant = vC[0]*(v1[1]*v2[2]-v1[2]*v2[1])
+                        +vC[1]*(v1[2]*v2[0]-v1[0]*v2[2])
+                        +vC[2]*(v1[0]*v2[1]-v1[1]*v2[0]);
+                    determinant = determinant > 0 ? 1. : -1. ;
+
+                    rodriguesRotation(v1,midpoint,-0.5*determinant*PI);
+                    rodriguesRotation(v2,midpoint,-0.5*determinant*PI);
 
                     dVec diff = 0.5*(v1-v2);
                     v1 = v1 + diff;
