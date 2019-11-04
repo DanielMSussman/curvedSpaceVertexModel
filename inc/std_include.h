@@ -96,19 +96,19 @@ class quadAngularPosition
         //mutating operators
         HOSTDEVICE quadAngularPosition& operator=(const quadAngularPosition &other)
             {
-            for (int dd = 0; dd < DIMENSION; ++dd)
+            for (int dd = 0; dd < 8; ++dd)
                 this->x[dd] = other.x[dd];
             return *this;
             }
         HOSTDEVICE quadAngularPosition& operator-=(const quadAngularPosition &other)
             {
-            for (int dd = 0; dd < DIMENSION; ++dd)
+            for (int dd = 0; dd < 8; ++dd)
                 this->x[dd] -= other.x[dd];
             return *this;
             }
         HOSTDEVICE quadAngularPosition& operator+=(const quadAngularPosition &other)
             {
-            for (int dd = 0; dd < DIMENSION; ++dd)
+            for (int dd = 0; dd < 8; ++dd)
                 this->x[dd] += other.x[dd];
             return *this;
             }

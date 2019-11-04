@@ -18,6 +18,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
 
     int cnnArraySize = vertexCellNeighbors.getNumElements();
     currentVertexAroundCell.resize(cnnArraySize);
+    vertexSetAroundCell.resize(cnnArraySize);
     lastVertexAroundCell.resize(cnnArraySize);
     nextVertexAroundCell.resize(cnnArraySize);
     int nVertices = positions.getNumElements();
@@ -199,6 +200,9 @@ void sphericalVertexModel::computeGeometryCPU()
     ArrayHandle<dVec> curVert(currentVertexAroundCell);
     ArrayHandle<dVec> lastVert(lastVertexAroundCell);
     ArrayHandle<dVec> nextVert(nextVertexAroundCell);
+
+    ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
+
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
     ArrayHandle<scalar2> ap(areaPerimeter);
     for (int cc = 0; cc < nCells; ++cc)
@@ -212,12 +216,20 @@ void sphericalVertexModel::computeGeometryCPU()
         sphere.putInBoxReal(cellPos);
         cp.data[cc]=cellPos;
 
-        int lastVertexIdx = cvn.data[cellNeighborIndex(neighs-2,cc)];
-        int curVertexIdx = cvn.data[cellNeighborIndex(neighs-1,cc)];
+        int vIdxMinus2 = neighs - 4;
+        if(vIdxMinus2 < 0)
+            vIdxMinus2 += neighs;
+        vIdxMinus2 = cvn.data[cellNeighborIndex(vIdxMinus2,cc)];
+        int lastVertexIdx = cvn.data[cellNeighborIndex(neighs-3,cc)];
+        int curVertexIdx = cvn.data[cellNeighborIndex(neighs-2,cc)];
+        int nextVertexIdx = cvn.data[cellNeighborIndex(neighs-1,cc)];
+        dVec negative2VertexPos = p.data[vIdxMinus2];
         dVec lastVertexPos = p.data[lastVertexIdx];
         dVec curVertexPos = p.data[curVertexIdx];
-        int nextVertexIdx;
-        dVec nextVertexPos;
+        dVec nextVertexPos = p.data[nextVertexIdx];
+        quadAngularPosition currentQuadAngle;
+        int vIdxPlus2;
+        dVec positive2VertexPos;
         scalar perimeter = 0;
         scalar area = 0;
         scalar tempVal;
@@ -234,8 +246,9 @@ void sphericalVertexModel::computeGeometryCPU()
                 if(vcn.data[newIdx] == cc)
                     forceSetIdx = newIdx;
                 }
-            nextVertexIdx = cvn.data[cni];
-            nextVertexPos = p.data[nextVertexIdx];
+            vIdxPlus2 = cvn.data[cni];
+            positive2VertexPos = p.data[vIdxPlus2];
+
             sphere.geodesicDistance(lastVertexPos,curVertexPos,tempVal);
             perimeter += tempVal;
             sphere.includedAngle(lastVertexPos,curVertexPos,nextVertexPos,tempVal);
@@ -245,9 +258,18 @@ void sphericalVertexModel::computeGeometryCPU()
             lastVert.data[forceSetIdx] = lastVertexPos;
             nextVert.data[forceSetIdx] = nextVertexPos;
 
+            sphere.getAngularCoordinates(negative2VertexPos,tempVal,currentQuadAngle[0],currentQuadAngle[1]);
+            sphere.getAngularCoordinates(lastVertexPos,tempVal,currentQuadAngle[2],currentQuadAngle[3]);
+            sphere.getAngularCoordinates(nextVertexPos,tempVal,currentQuadAngle[4],currentQuadAngle[5]);
+            sphere.getAngularCoordinates(positive2VertexPos,tempVal,currentQuadAngle[6],currentQuadAngle[7]);
+            vsac.data[forceSetIdx] = currentQuadAngle;
+
+            negative2VertexPos = lastVertexPos;
             lastVertexPos = curVertexPos;
             curVertexIdx = nextVertexIdx;
             curVertexPos = nextVertexPos;
+            nextVertexIdx = vIdxPlus2;
+            nextVertexPos = positive2VertexPos;
             }
         area = (area-(neighs-2)*PI);
         int extraAngularArea = floor(area/(1.0*PI));
@@ -284,6 +306,7 @@ void sphericalVertexModel::computeForceCPU()
     ArrayHandle<int> vcn(vertexCellNeighbors);
     ArrayHandle<unsigned int> vcnn(numberOfNeighbors);
     ArrayHandle<dVec> curVert(currentVertexAroundCell);
+    ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
     ArrayHandle<dVec> lastVert(lastVertexAroundCell);
     ArrayHandle<dVec> nextVert(nextVertexAroundCell);
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
@@ -292,6 +315,7 @@ void sphericalVertexModel::computeForceCPU()
     
     scalar forceNorm = 0.0;
     dVec vLast,vCur,vNext,cPos,tempVar;
+    quadAngularPosition angleSet;
     dVec meanForce(0.0);
     for (int vertexIndex = 0; vertexIndex < N; ++vertexIndex)
         {
@@ -304,6 +328,7 @@ void sphericalVertexModel::computeForceCPU()
             vLast = lastVert.data[neighborIndex(cc,vertexIndex)];
             vCur = curVert.data[neighborIndex(cc,vertexIndex)];
             vNext = nextVert.data[neighborIndex(cc,vertexIndex)];
+            angleSet = vsac.data[neighborIndex(cc,vertexIndex)];
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 
@@ -311,10 +336,16 @@ void sphericalVertexModel::computeForceCPU()
             f -= 2.0*Kr*perimeterDifference*tempVar;
             sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
+
             sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
             f -= 2.0*areaDifference*tempVar;
             sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
+
+    /*
+            sphere.gradientIncludedAngleSet(vCur,angleSet,tempVar);
+            f -= 2.0*areaDifference*tempVar;
+    */
 //if(isnan(tempVar[0])) {printf("area last nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vLast[0],vLast[1],vLast[2],cPos[0],cPos[1],cPos[2]);}
 
             //sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
