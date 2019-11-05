@@ -24,6 +24,7 @@
 #include "neighborList.h"
 #include "poissonDiskSampling.h"
 #include "sphericalVoronoi.h"
+#include "vectorValueNetCDF.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -117,6 +118,13 @@ int main(int argc, char*argv[])
         sim->performTimestep();
 //        printf("timestep %i energy %f\n",ii,e);
         }
+
+    vector<double> testVec(8);
+    for (int ii = 0; ii < testVec.size(); ++ii)
+        testVec[ii] = ii*2+3;
+    vectorValueNetCDF vvdat("temp.nc",testVec.size(),NcFile::Replace);
+    vvdat.writeState(testVec,1.0);
+
 //
 //The end of the tclap try
 //

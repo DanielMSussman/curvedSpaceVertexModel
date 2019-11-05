@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -g -frounding-math")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -frounding-math -O3 -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -frounding-math -O3 -std=c++11 -L/usr/local/Cellar/netcdf/4.4.1.1_4/lib -lnetcdf -lnetcdf_c++")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         -arch=sm_30
                                         -gencode=arch=compute_30,code=sm_30
@@ -38,7 +38,7 @@ add_definitions( ${QT_DEFINITIONS} )
 
 find_package(CUDA REQUIRED)
 find_package(CGAL REQUIRED)
-
+find_package(NetCDF REQUIRED)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     add_definitions(-DDEBUGFLAGUP)
@@ -47,7 +47,7 @@ endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL src src/utilities src/simulation src/model src/forces src/updaters /usr/include/GL)
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL src src/utilities src/simulation src/model src/forces src/updaters src/databases /usr/include/GL ${NETCDF_INCLUDES})
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -60,8 +60,13 @@ set(myLibs
     modelGPU
     utility
     utilityGPU
+    database
     )
+
 message("libraries = " "${myLibs}")
+message("libraries = " "${NETCDF_LIBRARIES}")
+message("libraries = " "${NETCDF_LIBRARIES_CXX}")
+message("libraries = " "${NETCDF_LIBRARIES_C}")
 
 qt5_wrap_ui(UI_HEADERS mainwindow.ui)
 set(SOURCES mainwindow.cpp oglwidget.cpp)
@@ -73,7 +78,7 @@ set(HEADERS
 # list the names of cpp files corresponding to linked executables you'd like...
 foreach(ARG guiVersion sphericalVertex)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
-target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
+target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES} ${NETCDF_LIBRARIES} ${NETCDF_LIBRARIES_CXX} ${NETCDF_LIBRARIES_C}
     Qt5::Widgets
     Qt5::Core
     Qt5::Gui
