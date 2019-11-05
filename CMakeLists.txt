@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(sphericalFlocks)
+project(sphericalCells)
 
 add_definitions(-DDIMENSION=3)
 

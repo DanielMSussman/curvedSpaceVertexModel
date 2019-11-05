@@ -25,6 +25,7 @@
 #include "poissonDiskSampling.h"
 #include "sphericalVoronoi.h"
 #include "vectorValueNetCDF.h"
+#include "simpleUtilities.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -112,18 +113,37 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
 
-    for (int ii = 0; ii <maximumIterations; ++ii)
+    int stepsPerTau = floor(1./dt);
+    //initialize
+    for (int ii = 0; ii < min(maximumIterations,100*stepsPerTau); ++ii)
         {
-        scalar e = sim->computeEnergy();
         sim->performTimestep();
-//        printf("timestep %i energy %f\n",ii,e);
         }
 
-    vector<double> testVec(8);
-    for (int ii = 0; ii < testVec.size(); ++ii)
-        testVec[ii] = ii*2+3;
-    vectorValueNetCDF vvdat("temp.nc",testVec.size(),NcFile::Replace);
-    vvdat.writeState(testVec,1.0);
+
+    logSpacedIntegers lsi(0,0.05);
+
+    char fname[50];
+    sprintf(fname,"test_n%i_dt%f_p%f.nc",N,dt,p0);
+    string outFile(fname);
+
+    vectorValueNetCDF vvdat(outFile,N*3,NcFile::Replace);
+    vector<scalar> cellPositions(3*N);
+    for (int ii = 0; ii <maximumIterations; ++ii)
+        {
+        if(ii == lsi.nextSave)
+            {
+            scalar e = sim->computeEnergy();
+            ArrayHandle<dVec> cp(Configuration->cellPositions);
+            lsi.update();
+            for(int cc = 0; cc < N; ++cc)
+                for (int dd=0;dd<3;++dd)
+                    cellPositions[3*cc+dd] = cp.data[cc][dd];
+            vvdat.writeState(cellPositions,e);
+            }
+        sim->performTimestep();
+        }
+
 
 //
 //The end of the tclap try

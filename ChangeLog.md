@@ -2,7 +2,9 @@
 
 ### Changes in progress
 
-* implement lattice calculations, where d-dimensional objects live on a 3D cubic lattice
+### sphericalVertexModel version 0.5
+
+### sphericalVoronoiModel version 0.2
 
 ### dDimensionalSimulation version 0.1
 
