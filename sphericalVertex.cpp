@@ -26,6 +26,7 @@
 #include "sphericalVoronoi.h"
 #include "vectorValueNetCDF.h"
 #include "simpleUtilities.h"
+#include "analysisPackage.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -107,6 +108,7 @@ int main(int argc, char*argv[])
     sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
 
+    sim->setReproducible(false);
     sim->computeForces();
     if(gpuSwitch >=0)
         {
@@ -115,31 +117,48 @@ int main(int argc, char*argv[])
 
     int stepsPerTau = floor(1./dt);
     //initialize
-    for (int ii = 0; ii < min(maximumIterations,100*stepsPerTau); ++ii)
+    cout << "initialization..." << endl;
+    for (int ii = 0; ii < min(maximumIterations,1000*stepsPerTau); ++ii)
         {
         sim->performTimestep();
         }
 
-
+    dynamicalFeatures dynFeat(Configuration->cellPositions,Configuration->sphere);
     logSpacedIntegers lsi(0,0.05);
+    lsi.update();
 
-    char fname[50];
-    sprintf(fname,"test_n%i_dt%f_p%f.nc",N,dt,p0);
+    char fname[256];
+    sprintf(fname,"cellPositions_n%i_dt%f_p%f.nc",N,dt,p0);
     string outFile(fname);
+    sprintf(fname,"msd_n%i_dt%f_p%f.nc",N,dt,p0);
+    string outFile2(fname);
+    sprintf(fname,"overlap_n%i_dt%f_p%f.nc",N,dt,p0);
+    string outFile3(fname);
 
     vectorValueNetCDF vvdat(outFile,N*3,NcFile::Replace);
+    vectorValueNetCDF msddat(outFile2,2,NcFile::Replace);
+    vectorValueNetCDF overlapdat(outFile3,2,NcFile::Replace);
+    vector<scalar> outputVec(2);
     vector<scalar> cellPositions(3*N);
     for (int ii = 0; ii <maximumIterations; ++ii)
         {
         if(ii == lsi.nextSave)
             {
+            lsi.update();
             scalar e = sim->computeEnergy();
             ArrayHandle<dVec> cp(Configuration->cellPositions);
-            lsi.update();
             for(int cc = 0; cc < N; ++cc)
                 for (int dd=0;dd<3;++dd)
                     cellPositions[3*cc+dd] = cp.data[cc][dd];
             vvdat.writeState(cellPositions,e);
+            scalar msd = dynFeat.computeMSD(Configuration->cellPositions);
+            scalar overlap = dynFeat.computeOverlapFunction(Configuration->cellPositions);
+            outputVec[0] = ii*dt;
+            outputVec[1] = msd;
+            msddat.writeState(outputVec,ii);
+            outputVec[1] = overlap;
+            overlapdat.writeState(outputVec,ii);
+            cout << "wrote state at timestep " << ii << endl;
             }
         sim->performTimestep();
         }

@@ -2,6 +2,7 @@
 #define sphericalDomain_H
 
 #include "std_include.h"
+#include "functions.h"
 
 #ifdef NVCC
 #define HOSTDEVICE __host__ __device__ inline

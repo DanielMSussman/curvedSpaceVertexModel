@@ -47,7 +47,7 @@ endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL src src/utilities src/simulation src/model src/forces src/updaters src/databases /usr/include/GL ${NETCDF_INCLUDES})
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL src src/utilities src/simulation src/model src/forces src/updaters src/databases src/analysis /usr/include/GL ${NETCDF_INCLUDES})
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -61,6 +61,7 @@ set(myLibs
     utility
     utilityGPU
     database
+    analysis
     )
 
 message("libraries = " "${myLibs}")
