@@ -50,6 +50,7 @@ int main(int argc, char*argv[])
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,0,"int",cmd);
+    ValueArg<int> fileIdxSwitch("f","file","file Index",false,0,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
@@ -63,6 +64,7 @@ int main(int argc, char*argv[])
     cmd.parse( argc, argv );
 
     int programSwitch = programSwitchArg.getValue();
+    int fIdx = fileIdxSwitch.getValue();
     int N = nSwitchArg.getValue();
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
@@ -78,42 +80,24 @@ int main(int argc, char*argv[])
     if(gpuSwitch >=0)
         GPU = chooseGPU(gpuSwitch);
 
-    /*
-    if(phi >0)
-        {
-        L = pow(N*sphereVolume(.5,DIMENSION) / phi,(1.0/(scalar) DIMENSION));
-        rho = N/pow(L,(scalar)DIMENSION);
-        }
-    else
-        phi = N*sphereVolume(.5,DIMENSION) / pow(L,(scalar)DIMENSION);
-
-    if(rho >0)
-        {
-        L = pow(((scalar)N/rho),(1.0/(scalar) DIMENSION));
-        phi = rho * sphereVolume(.5,DIMENSION);
-        }
-    else
-        rho = N/pow(L,(scalar)DIMENSION);
-    */
-
     int dim =DIMENSION;
-    noiseSource noise(true);
+    bool reproducible = fIdx ==0 ? true : false;
+    noiseSource noise(reproducible);
     shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
-    
-    shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(true);
-
     printf("sphere size  = %f\n",Configuration->sphere.radius);
+    
+    shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(reproducible);
+    BD->setT(Temperature);
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
 
-    sim->setReproducible(false);
-    sim->computeForces();
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);
         };
+    sim->setReproducible(reproducible);
 
     int stepsPerTau = floor(1./dt);
     //initialize
@@ -128,11 +112,11 @@ int main(int argc, char*argv[])
     lsi.update();
 
     char fname[256];
-    sprintf(fname,"cellPositions_n%i_dt%f_p%f.nc",N,dt,p0);
+    sprintf(fname,"cellPositions_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
     string outFile(fname);
-    sprintf(fname,"msd_n%i_dt%f_p%f.nc",N,dt,p0);
+    sprintf(fname,"msd_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
     string outFile2(fname);
-    sprintf(fname,"overlap_n%i_dt%f_p%f.nc",N,dt,p0);
+    sprintf(fname,"overlap_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
     string outFile3(fname);
 
     vectorValueNetCDF vvdat(outFile,N*3,NcFile::Replace);

@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -g -frounding-math")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -frounding-math -O3 -std=c++11 -L/usr/local/Cellar/netcdf/4.4.1.1_4/lib -lnetcdf -lnetcdf_c++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -frounding-math -O3 -std=c++11")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         -arch=sm_30
                                         -gencode=arch=compute_30,code=sm_30
@@ -76,14 +76,23 @@ set(HEADERS
        oglwidget.h
     )
 
-# list the names of cpp files corresponding to linked executables you'd like...
-foreach(ARG guiVersion sphericalVertex)
+# list the names of cpp files corresponding to linked executables you'd like...NON-GUI
+foreach(ARG sphericalVertex)
+add_executable("${ARG}.out" "${ARG}.cpp" )
+target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${NETCDF_LIBRARIES} ${NETCDF_LIBRARIES_CXX} ${NETCDF_LIBRARIES_C}
+    CGAL::CGAL
+    -lnetcdf -lnetcdf_c++
+    )
+endforeach()
+# list the names of cpp files corresponding to linked executables you'd like... GUI
+foreach(ARG guiVersion)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES} ${NETCDF_LIBRARIES} ${NETCDF_LIBRARIES_CXX} ${NETCDF_LIBRARIES_C}
     Qt5::Widgets
     Qt5::Core
     Qt5::Gui
     CGAL::CGAL
+    -lnetcdf -lnetcdf_c++
     )
 qt5_use_modules("${ARG}.out" Widgets)
 endforeach()
