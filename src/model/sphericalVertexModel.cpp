@@ -301,10 +301,45 @@ void sphericalVertexModel::computeGeometryCPU()
 
 void sphericalVertexModel::computeGeometryGPU()
     {
+        {//arrayHandle scope
+        ArrayHandle<dVec> p(positions,access_location::device,access_mode::read);
+        ArrayHandle<dVec> cp(cellPositions,access_location::device,access_mode::read);
+        ArrayHandle<int> cvn(cellNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<int> vcn(vertexCellNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<unsigned int> vcnn(numberOfNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<dVec> curVert(currentVertexAroundCell,access_location::device,access_mode::read);
+        ArrayHandle<dVec> lastVert(lastVertexAroundCell,access_location::device,access_mode::read);
+        ArrayHandle<dVec> nextVert(nextVertexAroundCell,access_location::device,access_mode::read);
+        //ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
+        ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<scalar2> ap(areaPerimeter,access_location::device,access_mode::overwrite);
+        gpu_spherical_vertex_model_geometry(p.data,cp.data,cvn.data,vcn.data,vcnn.data,curVert.data,
+                        lastVert.data,nextVert.data,cnn.data,ap.data,
+                        cellNeighborIndex, neighborIndex,nCells);
+        }
     }
+
 void sphericalVertexModel::computeForceGPU()
     {
+    computeGeometry();
+        {//arrayHandle
+        ArrayHandle<dVec> cp(cellPositions,access_location::device,access_mode::read);
+        ArrayHandle<dVec> p(positions,access_location::device,access_mode::read);
+        ArrayHandle<dVec> force(forces,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> vcn(vertexCellNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<unsigned int> vcnn(numberOfNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<dVec> curVert(currentVertexAroundCell,access_location::device,access_mode::read);
+        ArrayHandle<dVec> lastVert(lastVertexAroundCell,access_location::device,access_mode::read);
+        ArrayHandle<dVec> nextVert(nextVertexAroundCell,access_location::device,access_mode::read);
+        ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<scalar2> ap(areaPerimeter,access_location::device,access_mode::read);
+        ArrayHandle<scalar2> app(areaPerimeterPreference,access_location::device,access_mode::read);
+
+        gpu_quadratic_spherical_cellular_force(cp.data,p.data,force.data,vcn.data,vcnn.data,curVert.data,
+                                            lastVert.data,nextVert.data,cnn.data,ap.data,app.data,neighborIndex,Kr,N);
+        }
     }
+
 void sphericalVertexModel::computeForceCPU()
     {
     //printf("computing forces\n");
