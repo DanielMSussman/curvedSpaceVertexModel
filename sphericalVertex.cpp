@@ -106,9 +106,7 @@ int main(int argc, char*argv[])
         {
         sim->performTimestep();
         }
-DEBUGCODEHELPER;
     dynamicalFeatures dynFeat(Configuration->cellPositions,Configuration->sphere);
-DEBUGCODEHELPER;
     logSpacedIntegers lsi(0,0.05);
     lsi.update();
 
