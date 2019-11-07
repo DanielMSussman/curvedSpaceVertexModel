@@ -7,6 +7,9 @@
 #include "sphericalVoronoi.h"
 #include "sphericalVertexModel.h"
 #include "sphericalVectorialVicsek.h"
+#include "noseHooverNVT.h"
+#include "energyMinimizerFIRE.h"
+#include "brownianDynamics.h"
 #include "simulation.h"
 
 namespace Ui {
@@ -42,19 +45,11 @@ private slots:
 
     void on_actionReset_the_system_triggered();
 
-
-
     void on_reprodicbleRNGBox_stateChanged(int arg1);
-
-
 
     void on_saveFileNowButton_released();
 
-
     void on_computeEnergyButton_released();
-
-
-    void on_boxNTotalSize_textChanged(const QString &arg1);
 
     void on_boxRadius_textEdited(const QString &arg1);
 
@@ -68,11 +63,9 @@ private slots:
 
     void on_setParametersButton_released();
 
-    void on_resetSystemBandButton_released();
+    void on_boxNTotalSize_textChanged(const QString &arg1);
 
-    void on_boxPackingFraction_textEdited(const QString &arg1);
-
-    void on_sphericalModel_released();
+    void on_forbidNeighborExchanges_released();
 
 private:
     Ui::MainWindow *ui;
@@ -98,9 +91,10 @@ public:
 
     shared_ptr<simpleModel> Configuration;
     shared_ptr<Simulation> sim;
+    shared_ptr<noseHooverNVT> NVT;
+    shared_ptr<brownianDynamics> BD;
     shared_ptr<vectorialVicsek> vicsek;
-//    shared_ptr<landauDeGennesLC> landauLCForce;
- //   shared_ptr<energyMinimizerFIRE> fire;
+    shared_ptr<energyMinimizerFIRE> fire;
 
 };
 

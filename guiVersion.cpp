@@ -32,7 +32,7 @@ int main(int argc, char*argv[])
 
     w.move(x,y);
 
-    QTimer::singleShot(500,splash,SLOT(close()));
+    QTimer::singleShot(750,splash,SLOT(close()));
 
     QTimer::singleShot(750,&w,SLOT(show()));
 

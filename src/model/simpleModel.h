@@ -63,6 +63,8 @@ class simpleModel
         //!Set velocities via a temperature. The return value is the total kinetic energy
         scalar setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise);
 
+        //!compute the current PE
+        virtual scalar computeEnergy(){return 0;};
         //!compute the current KE
         virtual scalar computeKineticEnergy();
         //!compute the dimension-dependent instantaneous temperature
@@ -103,6 +105,7 @@ class simpleModel
         neighborList metricNeighbors;
 
         virtual void getMeanDirection(dVec &meanDir);
+        virtual void getMeanForce(dVec &meanForce){};
 
         Index2D neighborIndex;
         GPUArray<unsigned int> numberOfNeighbors;
@@ -130,12 +133,16 @@ class simpleModel
         //!particle types
         GPUArray<int> types;
 
+    public:
+        virtual void setPreferredParameters(scalar _a0, scalar _p0){};
+        virtual void setScalarModelParameter(scalar _param){};
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 
-    public:
         bool neverGPU;
 
+        //!typically unused. In topological models it stops neighbor exchanges
+        bool restrictedMotion = false;
     };
 typedef shared_ptr<simpleModel> ConfigPtr;
 typedef weak_ptr<simpleModel> WeakConfigPtr;

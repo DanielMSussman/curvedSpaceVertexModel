@@ -81,6 +81,7 @@ void getFacetCenter(Polyhedron_3 &P, Polyhedron_3::Facet_iterator f, dVec &cente
 
 void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, int n, GPUArray<int> &allNeighs, GPUArray<unsigned int> &numNeighs, Index2D &nidx, GPUArray<dVec> &vertexPositions, GPUArray<int> &vertexNeighs, GPUArray<int> &vertexCellNeighs, GPUArray<unsigned int> &numVertexNeighs, Index2D &vnidx)
     {
+    double radius = sqrt(points[0].x[0]*points[0].x[0]+points[0].x[1]*points[0].x[1]+points[0].x[2]*points[0].x[2]);
     //first, sadly copyPaste the above routine to get the convex hull and cellNeighbor positions
     if(numNeighs.getNumElements() < n)
         numNeighs.resize(n);
@@ -117,6 +118,8 @@ void convexHullCGALInterface::sphericalConvexHullForVertexModel(dVec *points, in
     for(Polyhedron_3::Facet_iterator f = poly.facets_begin(); f != poly.facets_end();++f)
         {
         getFacetCenter(poly, f, vp.data[idx], vn);
+        double nrm = sqrt(vp.data[idx].x[0]*vp.data[idx].x[0] + vp.data[idx].x[1]*vp.data[idx].x[1] + vp.data[idx].x[2]*vp.data[idx].x[2]);
+        vp.data[idx] = (radius / nrm )*vp.data[idx];
         vns.data[idx] = vn;
         if(vn > maxVns)
             maxVns = vn;

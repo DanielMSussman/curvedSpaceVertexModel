@@ -15,6 +15,7 @@
 #include "energyMinimizerFIRE.h"
 #include "velocityVerlet.h"
 #include "noseHooverNVT.h"
+#include "brownianDynamics.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
 #include "lennardJones6_12.h"
@@ -23,6 +24,9 @@
 #include "neighborList.h"
 #include "poissonDiskSampling.h"
 #include "sphericalVoronoi.h"
+#include "vectorValueNetCDF.h"
+#include "simpleUtilities.h"
+#include "analysisPackage.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -45,15 +49,15 @@ int main(int argc, char*argv[])
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
-    ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
+    ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,0,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
-    scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
-    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
+    ValueArg<scalar> p0SwitchArg("p","p0","preferred perimeter",false,3.78,"double",cmd);
+    ValueArg<scalar> a0SwitchArg("a","a0","preferred area per cell",false,1.0,"double",cmd);
     ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
-    ValueArg<scalar> dtSwitchArg("e","dt","timestep",false,0.1,"double",cmd);
+    ValueArg<scalar> dtSwitchArg("e","dt","timestep",false,0.001,"double",cmd);
     ValueArg<scalar> v0SwitchArg("v","v0","v0",false,0.5,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
@@ -63,10 +67,11 @@ int main(int argc, char*argv[])
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
-    scalar phi = phiSwitchArg.getValue();
     scalar rho = rhoSwitchArg.getValue();
     scalar dt = dtSwitchArg.getValue();
     scalar v0 = v0SwitchArg.getValue();
+    scalar p0 = p0SwitchArg.getValue();
+    scalar a0 = a0SwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
@@ -93,17 +98,71 @@ int main(int argc, char*argv[])
 
     int dim =DIMENSION;
     noiseSource noise(true);
-    shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,GPU,!GPU);
+    shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
+    
+    shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(true);
 
     printf("sphere size  = %f\n",Configuration->sphere.radius);
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    //sim->addUpdater(vicsek,Configuration);
+    sim->addUpdater(BD,Configuration);
+    sim->setIntegrationTimestep(dt);
 
+    sim->setReproducible(false);
+    sim->computeForces();
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);
         };
+
+    int stepsPerTau = floor(1./dt);
+    //initialize
+    cout << "initialization..." << endl;
+    for (int ii = 0; ii < min(maximumIterations,1000*stepsPerTau); ++ii)
+        {
+        sim->performTimestep();
+        }
+
+    dynamicalFeatures dynFeat(Configuration->cellPositions,Configuration->sphere);
+    logSpacedIntegers lsi(0,0.05);
+    lsi.update();
+
+    char fname[256];
+    sprintf(fname,"cellPositions_n%i_dt%f_p%f.nc",N,dt,p0);
+    string outFile(fname);
+    sprintf(fname,"msd_n%i_dt%f_p%f.nc",N,dt,p0);
+    string outFile2(fname);
+    sprintf(fname,"overlap_n%i_dt%f_p%f.nc",N,dt,p0);
+    string outFile3(fname);
+
+    vectorValueNetCDF vvdat(outFile,N*3,NcFile::Replace);
+    vectorValueNetCDF msddat(outFile2,2,NcFile::Replace);
+    vectorValueNetCDF overlapdat(outFile3,2,NcFile::Replace);
+    vector<scalar> outputVec(2);
+    vector<scalar> cellPositions(3*N);
+    for (int ii = 0; ii <maximumIterations; ++ii)
+        {
+        if(ii == lsi.nextSave)
+            {
+            lsi.update();
+            scalar e = sim->computeEnergy();
+            ArrayHandle<dVec> cp(Configuration->cellPositions);
+            for(int cc = 0; cc < N; ++cc)
+                for (int dd=0;dd<3;++dd)
+                    cellPositions[3*cc+dd] = cp.data[cc][dd];
+            vvdat.writeState(cellPositions,e);
+            scalar msd = dynFeat.computeMSD(Configuration->cellPositions);
+            scalar overlap = dynFeat.computeOverlapFunction(Configuration->cellPositions);
+            outputVec[0] = ii*dt;
+            outputVec[1] = msd;
+            msddat.writeState(outputVec,ii);
+            outputVec[1] = overlap;
+            overlapdat.writeState(outputVec,ii);
+            cout << "wrote state at timestep " << ii << endl;
+            }
+        sim->performTimestep();
+        }
+
 
 //
 //The end of the tclap try
