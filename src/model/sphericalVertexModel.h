@@ -31,7 +31,15 @@ class sphericalVertexModel : public sphericalModel
                 computeForceCPU();
                 }
             };
-        virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
+        virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.)
+            {
+            if(useGPU)
+                moveParticlesGPU(displacements,scale);
+            else
+                moveParticlesCPU(displacements,scale);
+            };
+        virtual void moveParticlesCPU(GPUArray<dVec> &displacements,scalar scale = 1.);
+        virtual void moveParticlesGPU(GPUArray<dVec> &displacements,scalar scale = 1.);
         //!compute the current PE
         virtual scalar computeEnergy();
 

@@ -37,7 +37,7 @@ void sphericalVectorialVicsek::integrateEOMCPU()
         spherePoint.x[1] = 1.0*sin(theta)*sin(phi);
         spherePoint.x[2] = 1.0*cos(theta);
         //project it onto the tangent plane
-        voronoiModel->sphere.projectToTangentPlane(spherePoint,p.data[ii]);
+        voronoiModel->sphere->projectToTangentPlane(spherePoint,p.data[ii]);
         spherePoint = spherePoint*(1.0/norm(spherePoint));
         //average direction of neighbors?
         int m = nNeighs.data[ii];
@@ -51,13 +51,13 @@ void sphericalVectorialVicsek::integrateEOMCPU()
         scalar mi = 1.0/m;
         nDisp.data[ii] = nDisp.data[ii] * mi + spherePoint*Eta;
 
-        voronoiModel->sphere.projectToTangentPlaneAndNormalize(nDisp.data[ii],p.data[ii]);
+        voronoiModel->sphere->projectToTangentPlaneAndNormalize(nDisp.data[ii],p.data[ii]);
 
         }
     for (int ii = 0; ii < Ndof; ++ii)
         {
         n.data[ii] += (deltaT/tau)*(nDisp.data[ii] - n.data[ii]);
-        voronoiModel->sphere.projectToTangentPlane(n.data[ii],p.data[ii]);
+        voronoiModel->sphere->projectToTangentPlane(n.data[ii],p.data[ii]);
         n.data[ii] = n.data[ii]*(1.0/norm(n.data[ii]));
 //        n.data[ii] = nDisp.data[ii];
         };

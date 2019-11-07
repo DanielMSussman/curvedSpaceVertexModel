@@ -4,9 +4,10 @@
 #include "functions.h"
 /*! \file dynamicalFeatures.cpp */
 
-dynamicalFeatures::dynamicalFeatures(GPUArray<dVec> &initialPos, sphericalDomain _sphere, scalar fractionAnalyzed)
+dynamicalFeatures::dynamicalFeatures(GPUArray<dVec> &initialPos, shared_ptr<sphericalDomain> _sphere, scalar fractionAnalyzed)
     {
-    sphere.changeRadius(_sphere.radius);
+    sphere = _sphere;
+    cout << "dynamical analysis package pointing at sphere of radius" << sphere->radius << endl; cout.flush();
     copyGPUArrayData(initialPos,iPos);
     N = iPos.size();
     if(fractionAnalyzed < 1)
@@ -23,7 +24,7 @@ scalar dynamicalFeatures::computeMSD(GPUArray<dVec> &currentPos)
         {
         cur = fPos.data[ii];
         init = iPos[ii];
-        sphere.geodesicDistance(init,cur,disp);
+        sphere->geodesicDistance(init,cur,disp);
         msd += disp*disp;
         };
     msd = msd / N;
@@ -40,7 +41,7 @@ scalar dynamicalFeatures::computeOverlapFunction(GPUArray<dVec> &currentPos, sca
         {
         cur = fPos.data[ii];
         init = iPos[ii];
-        sphere.geodesicDistance(init,cur,disp);
+        sphere->geodesicDistance(init,cur,disp);
         if(disp < cutoff)
             overlap += 1;
         };

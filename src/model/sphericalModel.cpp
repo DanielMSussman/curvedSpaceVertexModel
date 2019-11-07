@@ -4,23 +4,21 @@
 sphericalModel::sphericalModel(int n, noiseSource &_noise, bool _useGPU, bool _neverGPU) : simpleModel(n,_useGPU, _neverGPU)
     {
     //set random positions on the sphere of radius 1
+    setRadius(1.);
     setParticlePositionsRandomly(_noise);
     }
 
 void sphericalModel::setRadius(scalar _r)
     {
-    sphere.changeRadius(_r);
-    inverseRadius = 1.0/sphere.radius;
+    sphere = make_shared<sphericalDomain>(_r);
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> V(velocities);
     for (int ii = 0; ii < N; ++ii)
         {
-        sphere.putInBoxReal(p.data[ii]);
-        sphere.putInBoxVirtual(V.data[ii]);
+        sphere->putInBoxReal(p.data[ii]);
+        sphere->putInBoxVirtual(V.data[ii]);
         }
-
-    metricNeighbors.setBasics(1.0,sphere.radius+2.5);
-    getNeighbors();
+    metricNeighbors.setBasics(1.0,sphere->radius+2.5);
     };
 
 
@@ -37,7 +35,7 @@ void sphericalModel::setParticlePositionsRandomly(noiseSource &noise)
         p.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
         p.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
         p.data[ii].x[2] = 1.0*cos(theta);
-        sphere.putInBoxReal(p.data[ii]);
+        sphere->putInBoxReal(p.data[ii]);
         }
     for (int ii = 0; ii < N; ++ii)
         {
@@ -49,7 +47,7 @@ void sphericalModel::setParticlePositionsRandomly(noiseSource &noise)
         n.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
         n.data[ii].x[2] = 1.0*cos(theta);
         //project the velocity onto the tangent plane
-        sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+        sphere->projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
         }
     //printf("%f %f %f\n", n.data[0][0],n.data[0][1],n.data[0][2]);
     }
@@ -66,7 +64,7 @@ void sphericalModel::setParticlePositionsBandedRandomly(noiseSource &noise, scal
         p.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
         p.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
         p.data[ii].x[2] = 1.0*cos(theta);
-        sphere.putInBoxReal(p.data[ii]);
+        sphere->putInBoxReal(p.data[ii]);
         }
     for (int ii = 0; ii < N; ++ii)
         {
@@ -78,7 +76,7 @@ void sphericalModel::setParticlePositionsBandedRandomly(noiseSource &noise, scal
         n.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
         n.data[ii].x[2] = 1.0*cos(theta);
         //project the velocity onto the tangent plane
-        sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+        sphere->projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
         }
     //printf("%f %f %f\n", n.data[0][0],n.data[0][1],n.data[0][2]);
     }
@@ -92,8 +90,8 @@ void sphericalModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         ArrayHandle<dVec> n(directors);
         for(int ii = 0; ii < N; ++ii)
             {
-            sphere.move(p.data[ii],V.data[ii]);
-            sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+            sphere->move(p.data[ii],V.data[ii]);
+            sphere->projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
             }
         }
     else
@@ -103,8 +101,8 @@ void sphericalModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         ArrayHandle<dVec> n(directors);
         for(int ii = 0; ii < N; ++ii)
             {
-            sphere.move(p.data[ii],scale*V.data[ii]);
-            sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+            sphere->move(p.data[ii],scale*V.data[ii]);
+            sphere->projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
             }
         }
     getNeighbors();
@@ -119,7 +117,7 @@ void sphericalModel::getMeanForce(dVec &meanForce)
     for(int ii = 0; ii < N; ++ii)
         {
         currentForce = f.data[ii];
-        sphere.cartesianSphericalBasisChange(p.data[ii],tHat,pHat);
+        sphere->cartesianSphericalBasisChange(p.data[ii],tHat,pHat);
         meanForce[1] += dot(currentForce,tHat);
         meanForce[2] += dot(currentForce,pHat);
         }

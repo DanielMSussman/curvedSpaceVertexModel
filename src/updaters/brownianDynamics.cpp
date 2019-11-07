@@ -1,4 +1,5 @@
 #include "brownianDynamics.h"
+#include "brownianDynamics.cuh"
 
 brownianDynamics::brownianDynamics(bool _reproducible)
     {
@@ -11,7 +12,15 @@ brownianDynamics::brownianDynamics(bool _reproducible)
 
 void brownianDynamics::integrateEOMGPU()
     {
-    UNWRITTENCODE("no brownian gpu yet");
+    sim->computeForces();
+    {
+    ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
+    ArrayHandle<dVec> d_disp(displacement,access_location::device,access_mode::overwrite);
+    ArrayHandle<curandState> d_RNG(noise.RNGs,access_location::device,access_mode::readwrite);
+    gpu_brownian_eom_integration(d_f.data,d_disp.data,d_RNG.data,
+                               Ndof,deltaT,mu,temperature);
+    }
+    sim->moveParticles(displacement);
     };
 
 void brownianDynamics::integrateEOMCPU()

@@ -1,4 +1,5 @@
 #include "sphericalVertexModel.h"
+#include "sphericalVertexModel.cuh"
 
 sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _area, scalar _perimeter, bool _useGPU, bool _neverGPU) : sphericalModel(n,_noise,_useGPU,_neverGPU)
     {
@@ -100,7 +101,7 @@ void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
         app.data[cc] = prefs;
     }
 
-void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar scale)
+void sphericalVertexModel::moveParticlesCPU(GPUArray<dVec> &displacements, scalar scale)
     {
     if(scale == 1.)
         {
@@ -108,8 +109,7 @@ void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar s
         ArrayHandle<dVec> V(displacements);
         for(int ii = 0; ii < N; ++ii)
             {
-            sphere.move(p.data[ii],V.data[ii]);
-        //    sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+            sphere->move(p.data[ii],V.data[ii]);
             }
         }
     else
@@ -118,9 +118,19 @@ void sphericalVertexModel::moveParticles(GPUArray<dVec> &displacements, scalar s
         ArrayHandle<dVec> V(displacements);
         for(int ii = 0; ii < N; ++ii)
             {
-            sphere.move(p.data[ii],scale*V.data[ii]);
-        //    sphere.projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+            sphere->move(p.data[ii],scale*V.data[ii]);
             }
+        }
+    if(!restrictedMotion)
+        enforceTopology();
+    };
+
+void sphericalVertexModel::moveParticlesGPU(GPUArray<dVec> &displacements, scalar scale)
+    {
+        {//arrayhandle scope
+        ArrayHandle<dVec> p(positions,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> disp(displacements,access_location::device,access_mode::read);
+        gpu_move_particles_on_sphere(p.data,disp.data,*(sphere),scale, N);
         }
     if(!restrictedMotion)
         enforceTopology();
@@ -135,7 +145,6 @@ scalar sphericalVertexModel::computeEnergy()
         {
         energy += (ap.data[i].x-app.data[i].x)*(ap.data[i].x-app.data[i].x) + Kr*(ap.data[i].y-app.data[i].y)*(ap.data[i].y-app.data[i].y);
         }
-    //printf("current energy = %g\n",energy);
     return energy;
     }
 
@@ -173,7 +182,7 @@ void sphericalVertexModel::recomputeAreasCPU()
             int cni = cellNeighborIndex(nn,cc);
             nextVertexIdx = cvn.data[cni];
             nextVertexPos = p.data[nextVertexIdx];
-            sphere.sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
+            sphere->sphericalTriangleArea(cellPos,lastVertexPos,curVertexPos,tempVal);
             area +=tempVal;
 
             lastVertexPos = curVertexPos;
@@ -213,7 +222,7 @@ void sphericalVertexModel::computeGeometryCPU()
             {
             cellPos = cellPos + p.data[cvn.data[cellNeighborIndex(nn,cc)]];
             }
-        sphere.putInBoxReal(cellPos);
+        sphere->putInBoxReal(cellPos);
         cp.data[cc]=cellPos;
 
         int vIdxMinus2 = neighs - 4;
@@ -249,19 +258,19 @@ void sphericalVertexModel::computeGeometryCPU()
             vIdxPlus2 = cvn.data[cni];
             positive2VertexPos = p.data[vIdxPlus2];
 
-            sphere.geodesicDistance(lastVertexPos,curVertexPos,tempVal);
+            sphere->geodesicDistance(lastVertexPos,curVertexPos,tempVal);
             perimeter += tempVal;
-            sphere.includedAngle(lastVertexPos,curVertexPos,nextVertexPos,tempVal);
+            sphere->includedAngle(lastVertexPos,curVertexPos,nextVertexPos,tempVal);
             area +=tempVal;
 
             curVert.data[forceSetIdx] = curVertexPos;
             lastVert.data[forceSetIdx] = lastVertexPos;
             nextVert.data[forceSetIdx] = nextVertexPos;
 
-            sphere.getAngularCoordinates(negative2VertexPos,tempVal,currentQuadAngle[0],currentQuadAngle[1]);
-            sphere.getAngularCoordinates(lastVertexPos,tempVal,currentQuadAngle[2],currentQuadAngle[3]);
-            sphere.getAngularCoordinates(nextVertexPos,tempVal,currentQuadAngle[4],currentQuadAngle[5]);
-            sphere.getAngularCoordinates(positive2VertexPos,tempVal,currentQuadAngle[6],currentQuadAngle[7]);
+            sphere->getAngularCoordinates(negative2VertexPos,tempVal,currentQuadAngle[0],currentQuadAngle[1]);
+            sphere->getAngularCoordinates(lastVertexPos,tempVal,currentQuadAngle[2],currentQuadAngle[3]);
+            sphere->getAngularCoordinates(nextVertexPos,tempVal,currentQuadAngle[4],currentQuadAngle[5]);
+            sphere->getAngularCoordinates(positive2VertexPos,tempVal,currentQuadAngle[6],currentQuadAngle[7]);
             vsac.data[forceSetIdx] = currentQuadAngle;
 
             negative2VertexPos = lastVertexPos;
@@ -275,13 +284,13 @@ void sphericalVertexModel::computeGeometryCPU()
         int extraAngularArea = floor(area/(1.0*PI));
         if(extraAngularArea > 0)
             area -= extraAngularArea*PI;
-        area = area * sphere.radius*sphere.radius; 
+        area = area * sphere->radius*sphere->radius; 
         ap.data[cc].x = area;
         ap.data[cc].y = perimeter;
         totalArea += area;
         totalPerimeter += perimeter;
         }
-        excessArea = totalArea - 4.0*PI*sphere.radius*sphere.radius;
+        excessArea = totalArea - 4.0*PI*sphere->radius*sphere->radius;
         }//arrayHandle scope
         if(fabs(excessArea)> 1e-6)
             {
@@ -332,23 +341,23 @@ void sphericalVertexModel::computeForceCPU()
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 
-            sphere.gradientGeodesicDistance(vCur,vLast,tempVar);
+            sphere->gradientGeodesicDistance(vCur,vLast,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
-            sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
+            sphere->gradientGeodesicDistance(vCur,vNext,tempVar);
             f -= 2.0*Kr*perimeterDifference*tempVar;
 
-            sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
+            sphere->gradientTriangleArea(vCur,vLast,cPos,tempVar);
             f -= 2.0*areaDifference*tempVar;
-            sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
+            sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar);
             f -= 2.0*areaDifference*tempVar;
 
     /*
-            sphere.gradientIncludedAngleSet(vCur,angleSet,tempVar);
+            sphere->gradientIncludedAngleSet(vCur,angleSet,tempVar);
             f -= 2.0*areaDifference*tempVar;
     */
 //if(isnan(tempVar[0])) {printf("area last nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vLast[0],vLast[1],vLast[2],cPos[0],cPos[1],cPos[2]);}
 
-            //sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
+            //sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar);
             //f -= 2.0*areaDifference*tempVar;
 //if(isnan(tempVar[0])) {printf("area next nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vNext[0],vNext[1],vNext[2],cPos[0],cPos[1],cPos[2]);}
 
@@ -428,7 +437,7 @@ void sphericalVertexModel::testAndPerformT1TransitionsCPU()
             if(vertex1 < vertex2)
                 {
                 v2 = h_v.data[vertex2];
-                sphere.geodesicDistance(v1,v2,arcLength);
+                sphere->geodesicDistance(v1,v2,arcLength);
                 if(arcLength < t1Threshold)
                     {
                     bool growCellVertexList = false;
@@ -446,7 +455,7 @@ void sphericalVertexModel::testAndPerformT1TransitionsCPU()
 
                     //Rotate the vertices in the edge and set them at twice their original distance
                     dVec midpoint = 0.5*(v1+v2);
-                    sphere.putInBoxVirtual(midpoint);
+                    sphere->putInBoxVirtual(midpoint);
                     //chose the angle of rotation based on whether the edges are currently crossed...
                     dVec vC = h_v.data[vertexSet.z];
     
@@ -461,8 +470,8 @@ void sphericalVertexModel::testAndPerformT1TransitionsCPU()
                     dVec diff = 0.5*(v1-v2);
                     v1 = v1 + diff;
                     v2 = v2 - diff;
-                    sphere.putInBoxReal(v1);
-                    sphere.putInBoxReal(v2);
+                    sphere->putInBoxReal(v1);
+                    sphere->putInBoxReal(v2);
                     h_v.data[vertex1] = v1;
                     h_v.data[vertex2] = v2;
 

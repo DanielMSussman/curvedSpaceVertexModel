@@ -18,7 +18,7 @@ class sphericalModel : public simpleModel
         virtual void setParticlePositionsBandedRandomly(noiseSource &noise,scalar angularExtent);
         virtual void getMeanForce(dVec &meanForce);
 
-        sphericalDomain sphere;
+        shared_ptr<sphericalDomain> sphere;
         scalar inverseRadius;
     };
 #endif

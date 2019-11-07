@@ -107,7 +107,7 @@ void OGLWidget::draw()
     glBegin(GL_LINES);
     for (int ii = 0; ii < lines.size(); ++ii)
     {
-        glColor3f(1.0, 0.0, 0.0);
+        glColor3f(1.0, 0.0, .0);
         glVertex3f(lines[ii].x,lines[ii].y,lines[ii].z);
     }
     glEnd();
@@ -116,7 +116,7 @@ void OGLWidget::draw()
     glBegin(GL_LINES);
     for (int ii = 0; ii < connections.size(); ++ii)
     {
-        glColor4f(.0, 0.0, 1.,.99);
+        glColor4f(.0, 1.0, .0,.99);
         glVertex3f(connections[ii].x,connections[ii].y,connections[ii].z);
     }
 
@@ -160,11 +160,11 @@ void OGLWidget::drawSpheres()
     glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     for (int ii = 0; ii < spherePositions.size(); ++ii)
     {
-        glColor4f(0.,0.,0.7,0.3);
+        glColor4f(0.,0.,0.1,0.5);
         GLUquadric *quad;
         quad = gluNewQuadric();
         glTranslatef(spherePositions[ii].x,spherePositions[ii].y,spherePositions[ii].z);
-        gluSphere(quad,sphereRadii[ii],100,20);
+        gluSphere(quad,0.95*sphereRadii[ii],100,20);
         glTranslatef(-spherePositions[ii].x,-spherePositions[ii].y,-spherePositions[ii].z);
     }
     glDisable (GL_BLEND);

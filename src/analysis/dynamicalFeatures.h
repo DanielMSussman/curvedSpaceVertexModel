@@ -11,7 +11,7 @@ class dynamicalFeatures
     {
     public:
         //!The constructor takes in a defining set of boundary conditions
-        dynamicalFeatures(GPUArray<dVec> &initialPos, sphericalDomain _sphere, scalar fractionAnalyzed = 1.0);
+        dynamicalFeatures(GPUArray<dVec> &initialPos, shared_ptr<sphericalDomain> _sphere, scalar fractionAnalyzed = 1.0);
 
         //!Compute the mean squared displacement of the passed vector from the initial positions
         scalar computeMSD(GPUArray<dVec> &currentPos);
@@ -20,7 +20,7 @@ class dynamicalFeatures
         scalar computeOverlapFunction(GPUArray<dVec> &currentPos, scalar cutoff = 0.5);
     protected:
         //!the box defining the periodic domain
-        sphericalDomain sphere;
+        shared_ptr<sphericalDomain> sphere;
         //!the initial positions
         vector<dVec> iPos;
         //!the number of dVecs

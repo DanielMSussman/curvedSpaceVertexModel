@@ -84,7 +84,7 @@ int main(int argc, char*argv[])
     bool reproducible = fIdx ==0 ? true : false;
     noiseSource noise(reproducible);
     shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
-    printf("sphere size  = %f\n",Configuration->sphere.radius);
+    printf("sphere size  = %f\n",Configuration->sphere->radius);
     
     shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(reproducible);
     BD->setT(Temperature);
@@ -106,8 +106,9 @@ int main(int argc, char*argv[])
         {
         sim->performTimestep();
         }
-
+DEBUGCODEHELPER;
     dynamicalFeatures dynFeat(Configuration->cellPositions,Configuration->sphere);
+DEBUGCODEHELPER;
     logSpacedIntegers lsi(0,0.05);
     lsi.update();
 

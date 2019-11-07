@@ -344,7 +344,8 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     scalar cosP1MinusP3 = cos(p1-p3);
     scalar cosP2MinusP3 = cos(p2-p3);
 
-    double s12,s13,s23,d12,d13,d23,denom1,denom2,denom3,tempNum;
+    double s12,s13,s23,d12,d13,d23,denom1,denom2,denom3;
+    //double tempNum;
     s12 = cosT1*cosT2+cosP1MinusP2*sinT1*sinT2;
     s13 = cosT1*cosT3+cosP1MinusP3*sinT1*sinT3;
     s23 = cosT2*cosT3+cosP2MinusP3*sinT2*sinT3;

@@ -19,4 +19,5 @@ cuda_add_library(updaterGPU
     energyMinimizerAdam.cu
     energyMinimizerFIRE.cu
     noseHooverNVT.cu
+    brownianDynamics.cu
     )

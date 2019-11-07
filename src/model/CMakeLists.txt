@@ -12,4 +12,5 @@ add_library(model
     )
 cuda_add_library(modelGPU
     simpleModel.cu
+    sphericalVertexModel.cu
     )

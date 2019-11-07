@@ -29,7 +29,6 @@ Set a pointer to the configuration
 void Simulation::setConfiguration(ConfigPtr _config)
     {
     configuration = _config;
-    Box = _config->Box;
     };
 
 /*!
@@ -172,18 +171,4 @@ void Simulation::performTimestep()
         auto upd = updaters[u].lock();
         upd->Update(integerTimestep);
         };
-/*
-    //spatially sort as necessary
-    auto cellConf = cellConfiguration.lock();
-    //check if spatial sorting needs to occur
-    if (sortPeriod > 0 && integerTimestep % sortPeriod == 0)
-        {
-        cellConf->spatialSorting();
-        for (int u = 0; u < updaters.size(); ++u)
-            {
-            auto upd = updaters[u].lock();
-            upd->spatialSorting();
-            };
-        };
-*/
     };
