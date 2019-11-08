@@ -85,9 +85,8 @@ int main(int argc, char*argv[])
     noiseSource noise(reproducible);
     shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
     printf("sphere size  = %f\n",Configuration->sphere->radius);
-    
+
     shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(reproducible);
-    BD->setT(Temperature);
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->addUpdater(BD,Configuration);
@@ -101,6 +100,15 @@ int main(int argc, char*argv[])
 
     int stepsPerTau = floor(1./dt);
     //initialize
+    BD->setT(0);
+    Configuration->setPreferredParameters(1.0,3.0);
+    cout << "stabilization..." << endl;
+    for (int ii = 0; ii < 100*stepsPerTau; ++ii)
+        {
+        sim->performTimestep();
+        }
+    BD->setT(Temperature);
+    Configuration->setPreferredParameters(a0,p0);
     cout << "initialization..." << endl;
     for (int ii = 0; ii < min(maximumIterations,1000*stepsPerTau); ++ii)
         {

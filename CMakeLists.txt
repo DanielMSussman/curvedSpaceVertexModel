@@ -38,6 +38,8 @@ add_definitions( ${QT_DEFINITIONS} )
 
 find_package(CUDA REQUIRED)
 find_package(CGAL REQUIRED)
+set(CMAKE_MODULE_PATH "/home/user/")
+set(NETCDF_CXX "yes")
 find_package(NetCDF REQUIRED)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -81,7 +83,6 @@ foreach(ARG sphericalVertex)
 add_executable("${ARG}.out" "${ARG}.cpp" )
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${NETCDF_LIBRARIES} ${NETCDF_LIBRARIES_CXX} ${NETCDF_LIBRARIES_C}
     CGAL::CGAL
-    -lnetcdf -lnetcdf_c++
     )
 endforeach()
 # list the names of cpp files corresponding to linked executables you'd like... GUI
@@ -92,7 +93,6 @@ target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIE
     Qt5::Core
     Qt5::Gui
     CGAL::CGAL
-    -lnetcdf -lnetcdf_c++
     )
 qt5_use_modules("${ARG}.out" Widgets)
 endforeach()
