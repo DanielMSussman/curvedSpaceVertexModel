@@ -304,7 +304,7 @@ void sphericalDomain::gradientIncludedAngleSet(dVec &v1, quadAngularPosition &an
     derivative = gradTheta*thetaHat + gradPhi*phiHat;
 
 
-    if(isnan(gradTheta))
+    if(std::isnan(gradTheta))
         {
         printf("gradTheta %f\t gradPhi %f\n (%f,%f) (%f,%f) (%f,%f) \n %f %f %f \n",gradTheta,gradPhi,  t0,p0,tn1,pn1,t1,p1,  denom1,denom2,denom3);
         printf("angle set: %f %f %f %f %f %f %f %f\n",angleSet[0],angleSet[1],angleSet[2],angleSet[3],angleSet[4],angleSet[5],angleSet[6],angleSet[7]);
@@ -379,7 +379,7 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     derivative = gradTheta*thetaHat + gradPhi*phiHat;
 
 
-    if(isnan(gradTheta))
+    if(std::isnan(gradTheta))
         {
         printf("gradTheta %f\t gradPhi %f\n (%f,%f,%f) (%f,%f,%f) (%f,%f,%f) \n %.10f %.10f %.10f %.10f %.10f %.10f  \n",gradTheta,gradPhi,  pt1[0],pt1[1],pt1[2],pt2[0],pt2[1],pt2[2],pt3[0],pt3[1],pt3[2], s12,s13,s23,d12,d13,d23);
         printf("denoms: %g %g %g\n\n",denom1,denom2,denom3);
