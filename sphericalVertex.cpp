@@ -158,6 +158,12 @@ int main(int argc, char*argv[])
         sim->performTimestep();
         }
     stabProf.print();
+    Configuration->geoProf.setName("geometry");
+    Configuration->forceProf.setName("force");
+    Configuration->moveProf.setName("movement and topology");
+    Configuration->geoProf.print();
+    Configuration->forceProf.print();
+    Configuration->moveProf.print();
 
 
 //

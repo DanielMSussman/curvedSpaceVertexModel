@@ -3,6 +3,7 @@
 
 #include "sphericalModel.h"
 #include "convexHullCGAL.h"
+#include "profiler.h"
 
 
 //!set up a spherical vertex model. N is the number of CELLS, not vertices
@@ -79,6 +80,10 @@ class sphericalVertexModel : public sphericalModel
         virtual void setScalarModelParameter(scalar _param){Kr=_param;};
         //!Set the length threshold for T1 transitions
         virtual void setT1Threshold(scalar t1t){t1Threshold = t1t;};
+
+        profiler geoProf;
+        profiler forceProf;
+        profiler moveProf;
 
     protected:
         void preserveOrientatedFaces();

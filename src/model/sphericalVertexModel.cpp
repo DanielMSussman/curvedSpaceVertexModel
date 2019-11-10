@@ -103,6 +103,7 @@ void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
 
 void sphericalVertexModel::moveParticlesCPU(GPUArray<dVec> &displacements, scalar scale)
     {
+    moveProf.start();
     if(scale == 1.)
         {
         ArrayHandle<dVec> p(positions);
@@ -123,6 +124,7 @@ void sphericalVertexModel::moveParticlesCPU(GPUArray<dVec> &displacements, scala
         }
     if(!restrictedMotion)
         enforceTopology();
+    moveProf.end();
     };
 
 void sphericalVertexModel::moveParticlesGPU(GPUArray<dVec> &displacements, scalar scale)
@@ -197,6 +199,7 @@ void sphericalVertexModel::recomputeAreasCPU()
 
 void sphericalVertexModel::computeGeometryCPU()
     {
+    geoProf.start();
     scalar excessArea;
     scalar totalArea = 0;
     scalar totalPerimeter = 0.;
@@ -297,6 +300,7 @@ void sphericalVertexModel::computeGeometryCPU()
  //           printf("excess area = %g\t total peri = %f ..recomputing area via triangles: ",excessArea,totalPerimeter);
             recomputeAreasCPU();
             }
+    geoProf.end();
     }
 
 void sphericalVertexModel::computeGeometryGPU()
@@ -344,6 +348,9 @@ void sphericalVertexModel::computeForceCPU()
     {
     //printf("computing forces\n");
     computeGeometry();
+    
+    forceProf.start();
+    
     ArrayHandle<dVec> cp(cellPositions);
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> force(forces);
@@ -377,14 +384,19 @@ void sphericalVertexModel::computeForceCPU()
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 
-            sphere->gradientGeodesicDistance(vCur,vLast,tempVar);
+            dVec thetaHat, phiHat;
+            scalar r0, t0, p0;
+            sphere->getAngularCoordinates(vCur,r0,t0,p0);
+            sphere->cartesianSphericalBasisChange(t0,p0,thetaHat,phiHat);
+
+            sphere->gradientGeodesicDistance(vCur,vLast,tempVar,thetaHat,phiHat);
             fSet -= 2.0*Kr*perimeterDifference*tempVar;
-            sphere->gradientGeodesicDistance(vCur,vNext,tempVar);
+            sphere->gradientGeodesicDistance(vCur,vNext,tempVar,thetaHat,phiHat);
             fSet -= 2.0*Kr*perimeterDifference*tempVar;
 
-            sphere->gradientTriangleArea(vCur,vLast,cPos,tempVar);
+            sphere->gradientTriangleArea(vCur,vLast,cPos,tempVar,thetaHat,phiHat);
             fSet -= 2.0*areaDifference*tempVar;
-            sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar);
+            sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar,thetaHat,phiHat);
             fSet -= 2.0*areaDifference*tempVar;
 
     /*
@@ -411,6 +423,7 @@ void sphericalVertexModel::computeForceCPU()
 //    printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);
 //    getMeanForce(meanForce);
 //    printf("projected mean force = (%f,%f,%f)\n",meanForce[0],meanForce[1],meanForce[2]);
+    forceProf.end();
     }
 
 void sphericalVertexModel::enforceTopology()

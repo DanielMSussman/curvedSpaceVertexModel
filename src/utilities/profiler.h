@@ -8,6 +8,7 @@ using namespace std;
 class profiler
     {
     public:
+        profiler(){functionCalls = 0; timeTaken = 0;};
         profiler(string profilerName) : name(profilerName) {functionCalls = 0; timeTaken = 0;};
 
         void start()
@@ -35,6 +36,7 @@ class profiler
             cout << "profiler \"" << name << "\" took an average of " << timing() << " per call over " << functionCalls << " calls...total time = "<<timing()*functionCalls << endl;
             }
 
+        void setName(string _name){name=_name;};
         chrono::time_point<chrono::high_resolution_clock>  startTime;
         chrono::time_point<chrono::high_resolution_clock>  endTime;
         int functionCalls;
