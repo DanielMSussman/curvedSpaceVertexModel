@@ -5,6 +5,7 @@
 #include "cuda_profiler_api.h"
 
 #include "functions.h"
+#include "profiler.h"
 #include "gpuarray.h"
 #include "periodicBoundaryConditions.h"
 #include "simulation.h"
@@ -101,11 +102,14 @@ int main(int argc, char*argv[])
     int stepsPerTau = floor(1./dt);
     //initialize
     BD->setT(0);
-    Configuration->setPreferredParameters(1.0,3.0);
+    Configuration->setPreferredParameters(1.0,1.0);
+    profiler stabProf("stabilization");
     cout << "stabilization..." << endl;
     for (int ii = 0; ii < 100*stepsPerTau; ++ii)
         {
+        stabProf.start();
         sim->performTimestep();
+        stabProf.end();
         }
     BD->setT(Temperature);
     Configuration->setPreferredParameters(a0,p0);
@@ -153,6 +157,7 @@ int main(int argc, char*argv[])
             }
         sim->performTimestep();
         }
+    stabProf.print();
 
 
 //

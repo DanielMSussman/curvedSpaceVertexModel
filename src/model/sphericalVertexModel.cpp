@@ -315,7 +315,7 @@ void sphericalVertexModel::computeGeometryGPU()
         ArrayHandle<scalar2> ap(areaPerimeter,access_location::device,access_mode::overwrite);
         gpu_spherical_vertex_model_geometry(p.data,cp.data,cvn.data,vcn.data,vcnn.data,curVert.data,
                         lastVert.data,nextVert.data,cnn.data,ap.data,
-                        cellNeighborIndex, neighborIndex,nCells);
+                        cellNeighborIndex, neighborIndex,*(sphere), nCells);
         }
     }
 
@@ -336,7 +336,7 @@ void sphericalVertexModel::computeForceGPU()
         ArrayHandle<scalar2> app(areaPerimeterPreference,access_location::device,access_mode::read);
 
         gpu_quadratic_spherical_cellular_force(cp.data,p.data,force.data,vcn.data,vcnn.data,curVert.data,
-                                            lastVert.data,nextVert.data,cnn.data,ap.data,app.data,neighborIndex,Kr,N);
+                                            lastVert.data,nextVert.data,cnn.data,ap.data,app.data,neighborIndex,Kr,*(sphere),N);
         }
     }
 
@@ -367,6 +367,7 @@ void sphericalVertexModel::computeForceCPU()
         int vNeighs = vcnn.data[vertexIndex];
         for (int cc = 0; cc < vNeighs; ++cc)
             {
+            dVec fSet(0.0);
             int cellIndex = vcn.data[neighborIndex(cc,vertexIndex)];
             cPos = cp.data[cellIndex];
             vLast = lastVert.data[neighborIndex(cc,vertexIndex)];
@@ -377,14 +378,14 @@ void sphericalVertexModel::computeForceCPU()
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 
             sphere->gradientGeodesicDistance(vCur,vLast,tempVar);
-            f -= 2.0*Kr*perimeterDifference*tempVar;
+            fSet -= 2.0*Kr*perimeterDifference*tempVar;
             sphere->gradientGeodesicDistance(vCur,vNext,tempVar);
-            f -= 2.0*Kr*perimeterDifference*tempVar;
+            fSet -= 2.0*Kr*perimeterDifference*tempVar;
 
             sphere->gradientTriangleArea(vCur,vLast,cPos,tempVar);
-            f -= 2.0*areaDifference*tempVar;
+            fSet -= 2.0*areaDifference*tempVar;
             sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar);
-            f -= 2.0*areaDifference*tempVar;
+            fSet -= 2.0*areaDifference*tempVar;
 
     /*
             sphere->gradientIncludedAngleSet(vCur,angleSet,tempVar);
@@ -395,14 +396,12 @@ void sphericalVertexModel::computeForceCPU()
             //sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar);
             //f -= 2.0*areaDifference*tempVar;
 //if(isnan(tempVar[0])) {printf("area next nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vNext[0],vNext[1],vNext[2],cPos[0],cPos[1],cPos[2]);}
-
+            if(!isnan(fSet[0]))
+                f += fSet;
+            else
+                printf("forceNan on vidx %i\n",vertexIndex);
             };
         //printf("%f,%f,%f\n",f[0],f[1],f[2]);
-        if(isnan(f[0]))
-            {
-            f = dVec(0);
-            printf("forceNan on vidx %i\n",vertexIndex);
-            }
         force.data[vertexIndex] = f;
         meanForce = meanForce + f;
         forceNorm += dot(f,f);

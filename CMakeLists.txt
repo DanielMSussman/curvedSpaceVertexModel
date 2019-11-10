@@ -38,7 +38,7 @@ add_definitions( ${QT_DEFINITIONS} )
 
 find_package(CUDA REQUIRED)
 find_package(CGAL REQUIRED)
-set(CMAKE_MODULE_PATH "/home/user/")
+set(CMAKE_MODULE_PATH "/home/user/;/Users/dmsussma/")
 set(NETCDF_CXX "yes")
 find_package(NetCDF REQUIRED)
 

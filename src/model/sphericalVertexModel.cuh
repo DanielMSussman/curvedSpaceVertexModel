@@ -30,6 +30,7 @@ bool gpu_spherical_vertex_model_geometry(dVec *vertexPos,
                                          scalar2 *areaPerimeter,
                                          Index2D cellNeighborIndex,
                                          Index2D neighborIndex,
+                                         sphericalDomain &sphere,
                                          int nCells
                                          );
 
@@ -46,6 +47,7 @@ bool gpu_quadratic_spherical_cellular_force(dVec *cellPos,
                                             scalar2 *areaPerimeterPreference,
                                             Index2D neighborIndex,
                                             scalar Kr,
+                                            sphericalDomain &sphere,
                                             int N);
 
 /** @} */ //end of group declaration
