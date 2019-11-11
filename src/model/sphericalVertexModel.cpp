@@ -19,7 +19,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
 
     int cnnArraySize = vertexCellNeighbors.getNumElements();
     currentVertexAroundCell.resize(cnnArraySize);
-    vertexSetAroundCell.resize(cnnArraySize);
+    //vertexSetAroundCell.resize(cnnArraySize);
     lastVertexAroundCell.resize(cnnArraySize);
     nextVertexAroundCell.resize(cnnArraySize);
     int nVertices = positions.getNumElements();
@@ -357,7 +357,7 @@ void sphericalVertexModel::computeForceCPU()
     ArrayHandle<int> vcn(vertexCellNeighbors);
     ArrayHandle<unsigned int> vcnn(numberOfNeighbors);
     ArrayHandle<dVec> curVert(currentVertexAroundCell);
-    ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
+    //ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
     ArrayHandle<dVec> lastVert(lastVertexAroundCell);
     ArrayHandle<dVec> nextVert(nextVertexAroundCell);
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
@@ -375,12 +375,13 @@ void sphericalVertexModel::computeForceCPU()
         for (int cc = 0; cc < vNeighs; ++cc)
             {
             dVec fSet(0.0);
-            int cellIndex = vcn.data[neighborIndex(cc,vertexIndex)];
+            int cni = neighborIndex(cc,vertexIndex);
+            int cellIndex = vcn.data[cni];
             cPos = cp.data[cellIndex];
-            vLast = lastVert.data[neighborIndex(cc,vertexIndex)];
-            vCur = curVert.data[neighborIndex(cc,vertexIndex)];
-            vNext = nextVert.data[neighborIndex(cc,vertexIndex)];
-            angleSet = vsac.data[neighborIndex(cc,vertexIndex)];
+            vLast = lastVert.data[cni];
+            vCur = curVert.data[cni];
+            vNext = nextVert.data[cni];
+            //angleSet = vsac.data[cni];
             scalar areaDifference = ap.data[cellIndex].x - app.data[cellIndex].x;
             scalar perimeterDifference = ap.data[cellIndex].y - app.data[cellIndex].y;
 
