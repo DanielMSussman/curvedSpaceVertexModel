@@ -7,7 +7,7 @@
 dynamicalFeatures::dynamicalFeatures(GPUArray<dVec> &initialPos, shared_ptr<sphericalDomain> _sphere, scalar fractionAnalyzed)
     {
     sphere = _sphere;
-    cout << "dynamical analysis package pointing at sphere of radius" << sphere->radius << endl; cout.flush();
+    cout << "dynamical analysis package pointing at sphere of radius " << sphere->radius << endl; cout.flush();
     copyGPUArrayData(initialPos,iPos);
     N = iPos.size();
     if(fractionAnalyzed < 1)

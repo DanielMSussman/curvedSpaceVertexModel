@@ -213,7 +213,7 @@ void sphericalVertexModel::computeGeometryCPU()
     ArrayHandle<dVec> lastVert(lastVertexAroundCell);
     ArrayHandle<dVec> nextVert(nextVertexAroundCell);
 
-    ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
+    //ArrayHandle<quadAngularPosition> vsac(vertexSetAroundCell);
 
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
     ArrayHandle<scalar2> ap(areaPerimeter);
@@ -239,7 +239,7 @@ void sphericalVertexModel::computeGeometryCPU()
         dVec lastVertexPos = p.data[lastVertexIdx];
         dVec curVertexPos = p.data[curVertexIdx];
         dVec nextVertexPos = p.data[nextVertexIdx];
-        quadAngularPosition currentQuadAngle;
+        //quadAngularPosition currentQuadAngle;
         int vIdxPlus2;
         dVec positive2VertexPos;
         scalar perimeter = 0;
@@ -270,11 +270,11 @@ void sphericalVertexModel::computeGeometryCPU()
             lastVert.data[forceSetIdx] = lastVertexPos;
             nextVert.data[forceSetIdx] = nextVertexPos;
 
-            sphere->getAngularCoordinates(negative2VertexPos,tempVal,currentQuadAngle[0],currentQuadAngle[1]);
-            sphere->getAngularCoordinates(lastVertexPos,tempVal,currentQuadAngle[2],currentQuadAngle[3]);
-            sphere->getAngularCoordinates(nextVertexPos,tempVal,currentQuadAngle[4],currentQuadAngle[5]);
-            sphere->getAngularCoordinates(positive2VertexPos,tempVal,currentQuadAngle[6],currentQuadAngle[7]);
-            vsac.data[forceSetIdx] = currentQuadAngle;
+            //sphere->getAngularCoordinates(negative2VertexPos,tempVal,currentQuadAngle[0],currentQuadAngle[1]);
+            //sphere->getAngularCoordinates(lastVertexPos,tempVal,currentQuadAngle[2],currentQuadAngle[3]);
+            //sphere->getAngularCoordinates(nextVertexPos,tempVal,currentQuadAngle[4],currentQuadAngle[5]);
+            //sphere->getAngularCoordinates(positive2VertexPos,tempVal,currentQuadAngle[6],currentQuadAngle[7]);
+            //vsac.data[forceSetIdx] = currentQuadAngle;
 
             negative2VertexPos = lastVertexPos;
             lastVertexPos = curVertexPos;
