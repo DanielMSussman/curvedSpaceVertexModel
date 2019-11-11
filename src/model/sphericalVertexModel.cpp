@@ -17,7 +17,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
         convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
         };
     maximumVerticesPerCell = cellNeighborIndex.getW();
-
+    
     int cnnArraySize = vertexCellNeighbors.getNumElements();
     currentVertexAroundCell.resize(cnnArraySize);
     //vertexSetAroundCell.resize(cnnArraySize);
@@ -27,6 +27,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     int nVertices = positions.getNumElements();
     maxVNeighs = cnnArraySize / nVertices;
 
+    N=nVertices;
     initializeEdgeFlipLists();
     growCellVertexListAssist.resize(1);
     {
@@ -36,7 +37,6 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     printf("initialized a system with %i cells and %i vertices\n",nCells, nVertices);
 
 
-    N=nVertices;
     //here is the set of data structures to be resized
     velocities.resize(nVertices);
     directors.resize(nVertices);
@@ -55,7 +55,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     fillGPUArrayWithVector(ones,masses);
     fillGPUArrayWithVector(zeroes,directors);
     //fillGPUArrayWithVector(halves,radii);
-    
+
     areaPerimeter.resize(nCells);
     areaPerimeterPreference.resize(nCells);
     cellEdgeFlips.resize(nCells);
@@ -70,7 +70,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
 
 void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
     {
-    ArrayHandle<scalar2> app(areaPerimeterPreference);
+    ArrayHandle<scalar2> app(areaPerimeterPreference,access_location::host, access_mode::overwrite);
     scalar2 prefs; prefs.x = _a0; prefs.y = _p0;
     for (int cc = 0; cc < nCells; ++cc)
         app.data[cc] = prefs;
@@ -806,7 +806,6 @@ void sphericalVertexModel::flipEdgesGPU()
             ArrayHandle<int> d_ffe(finishedFlippingEdges,access_location::device,access_mode::readwrite);
             ArrayHandle<int> d_ef(cellEdgeFlips,access_location::device,access_mode::readwrite);
             ArrayHandle<int4> d_cs(cellSets,access_location::device,access_mode::readwrite);
-
             gpu_zero_array(d_ef.data,nCells);
 
             gpu_vm_parse_multiple_flips(d_vflip.data,
@@ -833,7 +832,7 @@ void sphericalVertexModel::flipEdgesGPU()
             ArrayHandle<int> d_vcn(vertexCellNeighbors,access_location::device,access_mode::readwrite);
             ArrayHandle<int> d_ef(cellEdgeFlips,access_location::device,access_mode::readwrite);
             ArrayHandle<int4> d_cs(cellSets,access_location::device,access_mode::readwrite);
-            
+
             gpu_vm_flip_edges(d_vflipcur.data,
                                d_v.data,
                                d_vn.data,

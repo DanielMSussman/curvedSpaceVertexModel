@@ -107,7 +107,7 @@ __global__ void gpu_spherical_vertex_model_geometry_kernel(dVec *vertexPos,
     areaPerimeter[idx].x = area;
     areaPerimeter[idx].y = perimeter;
     };
-        
+
 bool gpu_spherical_vertex_model_geometry(dVec *vertexPos,
                                          dVec *cellPos,
                                          int *cellNeighbors,
@@ -229,7 +229,7 @@ __global__ void vm_simple_T1_test_kernel(dVec *d_vertexPositions,
                 int      *d_vertexCellNeighbors,
                 unsigned int      *d_cellVertexNum,
                 int      *d_cellVertices,
-                sphericalDomain &sphere,
+                sphericalDomain sphere,
                 scalar  T1THRESHOLD,
                 int      NvTimes3,
                 int      vertexMax,
@@ -244,7 +244,7 @@ __global__ void vm_simple_T1_test_kernel(dVec *d_vertexPositions,
     scalar arcLength;
     if(vertex1 < vertex2)
         {
-        sphere.geodesicDistance(d_vertexPositions[vertex1],d_vertexPositions[vertex2],arcLength);
+        sphere.geodesicDistance( d_vertexPositions[vertex1], d_vertexPositions[vertex2],arcLength);
         if(arcLength < T1THRESHOLD)
             {
             d_vertexEdgeFlips[idx]=1;
@@ -472,6 +472,11 @@ __global__ void vm_flip_edges_kernel(int *d_vertexEdgeFlipsCurrent,
 
     //classify cell1
     cneigh = d_cellVertexNum[cell1];
+    if(threadIdx.x == 80 || blockIdx.x ==1)
+        {
+        printf("cneigh, cell1 %i %i \n",cneigh, cell1);
+        printf("cni %i\n",cellNeighborIndex(cneigh-2,cell1));
+        }
     vlast = d_cellVertices[ cellNeighborIndex(cneigh-2,cell1) ];
     vcur = d_cellVertices[ cellNeighborIndex(cneigh-1,cell1) ];
     for (int cn = 0; cn < cneigh; ++cn)
@@ -584,7 +589,7 @@ __global__ void vm_flip_edges_kernel(int *d_vertexEdgeFlipsCurrent,
     sphere.putInBoxVirtual(midpoint);
     //chose the angle of rotation based on whether the edges are currently crossed...
     dVec vC = d_vertexPositions[vertexSet.y];//vSet.y is vSet.z
-    
+
     scalar determinant = vC[0]*(v1[1]*v2[2]-v1[2]*v2[1])
                         +vC[1]*(v1[2]*v2[0]-v1[0]*v2[2])
                         +vC[2]*(v1[0]*v2[1]-v1[1]*v2[0]);

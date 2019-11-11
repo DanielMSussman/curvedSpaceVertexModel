@@ -123,7 +123,7 @@ static void HandleError(cudaError_t err, const char *file, int line)
     {
     //as an additional debugging check, synchronize cuda threads after every kernel call
     #ifdef DEBUGFLAGUP
-    cudaThreadSynchronize();
+    cudaDeviceSynchronize();
     #endif
     if (err != cudaSuccess)
         {
@@ -145,11 +145,10 @@ inline bool fileExists(const std::string& name)
     ifstream f(name.c_str());
     return f.good();
     }
-
 static void nvtxProfPush(const char *message)
     {
     #ifdef DEBUGFLAGUP
-    nvtxRangePushA(message);
+//    nvtxRangePushA(message);
     printf("%s\n",message);
     #endif
     };
@@ -157,13 +156,12 @@ static void nvtxProfPush(const char *message)
 static void nvtxProfPop()
     {
     #ifdef DEBUGFLAGUP
-    nvtxRangePop();
+//    nvtxRangePop();
     #endif
     };
 
 #define NVTXPUSH(message) (nvtxProfPush(message))
 #define NVTXPOP(message) (nvtxProfPop())
-
 //A macro to wrap cuda calls
 #define HANDLE_ERROR(err) (HandleError( err, __FILE__,__LINE__ ))
 //A macro to say code needs to be written

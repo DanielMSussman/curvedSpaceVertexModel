@@ -461,8 +461,8 @@ bool gpu_zero_array(int *arr,
                     int N
                     )
     {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
+    unsigned int block_size = 256;
+    if (N < 265) block_size = 32;
     unsigned int nblocks  = N/block_size + 1;
 
     gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,
