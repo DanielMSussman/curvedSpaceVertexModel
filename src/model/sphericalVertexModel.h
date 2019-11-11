@@ -16,10 +16,12 @@ class sphericalVertexModel : public sphericalModel
 
         virtual void computeGeometry()
             {
+            geoProf.start();
             if(useGPU)
                 computeGeometryGPU();
             else
                 computeGeometryCPU();
+            geoProf.end();
             };
         virtual void computeForces(bool zeroOutForces)
             {

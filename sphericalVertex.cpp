@@ -51,7 +51,7 @@ int main(int argc, char*argv[])
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,0,"int",cmd);
-    ValueArg<int> fileIdxSwitch("f","file","file Index",false,0,"int",cmd);
+    ValueArg<int> fileIdxSwitch("f","file","file Index",false,-1,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
@@ -82,7 +82,7 @@ int main(int argc, char*argv[])
         GPU = chooseGPU(gpuSwitch);
 
     int dim =DIMENSION;
-    bool reproducible = fIdx ==0 ? true : false;
+    bool reproducible = fIdx <=0 ? true : false;
     noiseSource noise(reproducible);
     shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
     printf("sphere size  = %f\n",Configuration->sphere->radius);
@@ -114,10 +114,15 @@ int main(int argc, char*argv[])
     BD->setT(Temperature);
     Configuration->setPreferredParameters(a0,p0);
     cout << "initialization..." << endl;
+    profiler initProf("initialization ");
     for (int ii = 0; ii < min(maximumIterations,1000*stepsPerTau); ++ii)
         {
+        initProf.start();
         sim->performTimestep();
+        initProf.end();
         }
+    if(fIdx >= 0)
+    {
     dynamicalFeatures dynFeat(Configuration->cellPositions,Configuration->sphere);
     logSpacedIntegers lsi(0,0.05);
     lsi.update();
@@ -157,6 +162,7 @@ int main(int argc, char*argv[])
             }
         sim->performTimestep();
         }
+    };
     stabProf.print();
     Configuration->geoProf.setName("geometry");
     Configuration->forceProf.setName("force");
@@ -165,7 +171,7 @@ int main(int argc, char*argv[])
     Configuration->forceProf.print();
     Configuration->moveProf.print();
 
-
+    initProf.print();
 //
 //The end of the tclap try
 //

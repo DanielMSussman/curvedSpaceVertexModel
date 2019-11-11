@@ -199,7 +199,6 @@ void sphericalVertexModel::recomputeAreasCPU()
 
 void sphericalVertexModel::computeGeometryCPU()
     {
-    geoProf.start();
     scalar excessArea;
     scalar totalArea = 0;
     scalar totalPerimeter = 0.;
@@ -300,7 +299,6 @@ void sphericalVertexModel::computeGeometryCPU()
  //           printf("excess area = %g\t total peri = %f ..recomputing area via triangles: ",excessArea,totalPerimeter);
             recomputeAreasCPU();
             }
-    geoProf.end();
     }
 
 void sphericalVertexModel::computeGeometryGPU()
@@ -338,9 +336,11 @@ void sphericalVertexModel::computeForceGPU()
         ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors,access_location::device,access_mode::read);
         ArrayHandle<scalar2> ap(areaPerimeter,access_location::device,access_mode::read);
         ArrayHandle<scalar2> app(areaPerimeterPreference,access_location::device,access_mode::read);
+        forceProf.start();
 
         gpu_quadratic_spherical_cellular_force(cp.data,p.data,force.data,vcn.data,vcnn.data,curVert.data,
                                             lastVert.data,nextVert.data,cnn.data,ap.data,app.data,neighborIndex,Kr,*(sphere),N);
+        forceProf.end();
         }
     }
 
@@ -414,11 +414,13 @@ void sphericalVertexModel::computeForceCPU()
 void sphericalVertexModel::enforceTopology()
     {
         //see if vertex motion leads to T1 transitions
+        /*
     if(useGPU)
         {
         testAndPerformT1TransitionsGPU();
         }
     else
+        */
         {
         testAndPerformT1TransitionsCPU();
         };
