@@ -223,4 +223,49 @@ bool gpu_quadratic_spherical_cellular_force(dVec *cellPos,
     return cudaSuccess;
     };
 
+bool gpu_vm_test_edges_for_T1(dVec *d_vertexPositions,
+                int *d_vertexNeighbors,
+                int *d_vertexEdgeFlips,
+                int      *d_vertexCellNeighbors,
+                unsigned int      *d_cellVertexNum,
+                int      *d_cellVertices,
+                sphericalDomain &sphere,
+                scalar  T1THRESHOLD,
+                int      Nvertices,
+                int      vertexMax,
+                int      *d_grow,
+                Index2D  &cellNeighborIndex)
+    {
+    };
+
+bool gpu_vm_parse_multiple_flips(
+                    int      *d_vertexEdgeFlips,
+                    int      *d_vertexEdgeFlipsCurrent,
+                    int      *d_vertexNeighbors,
+                    int      *d_vertexCellNeighbors,
+                    unsigned int      *d_cellVertexNum,
+                    int      *d_cellVertices,
+                    int      *d_finishedFlippingEdges,
+                    int      *d_edgeFlips,
+                    int4     *d_cellSets,
+                    Index2D  &cellNeighborIndex,
+                    int      Ncells)
+    {
+    }
+
+bool gpu_vm_flip_edges(
+                    int      *d_vertexEdgeFlipsCurrent,
+                    dVec *d_vertexPositions,
+                    int      *d_vertexNeighbors,
+                    int      *d_vertexCellNeighbors,
+                    unsigned int      *d_cellVertexNum,
+                    int      *d_cellVertices,
+                    int      *d_edgeFlips,
+                    int4     *d_cellSets,
+                    sphericalDomain   &sphere,
+                    Index2D  &cellNeighborIndex,
+                    int      Nvertices,
+                    int      Ncells)
+    {
+    };
 /** @} */ //end of group declaration

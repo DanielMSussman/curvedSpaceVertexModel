@@ -88,7 +88,6 @@ class sphericalVertexModel : public sphericalModel
         profiler moveProf;
 
     protected:
-        void preserveOrientatedFaces();
         //!Simple test for T1 transitions (edge length less than threshold) on the CPU
         void testAndPerformT1TransitionsCPU();
         //!Simple test for T1 transitions (edge length less than threshold) on the GPU...calls the following functions
@@ -102,16 +101,19 @@ class sphericalVertexModel : public sphericalModel
 
         //!Initialize the data structures for edge flipping...should also be called if Nvertices changes
         void initializeEdgeFlipLists();
-        //! data structure to help with cell-vertex list
-        GPUArray<int> growCellVertexListAssist;
-
         //!test the edges for a T1 event, and grow the cell-vertex list if necessary
         void testEdgesForT1GPU();
         //!perform the edge flips found in the previous step
         void flipEdgesGPU();
+
+        //! data structure to help with cell-vertex list
+        GPUArray<int> growCellVertexListAssist;
         //! data structure to help with not simultaneously trying to flip nearby edges
         GPUArray<int> finishedFlippingEdges;
-
+        //! keep track of vertex edge flip list
+        GPUArray<int> vertexEdgeFlips;
+        //! keep track of current vertex edge flip list
+        GPUArray<int> vertexEdgeFlipsCurrent;
         //! data structure per cell for not simulataneously flipping nearby edges
         GPUArray<int> cellEdgeFlips;
         //! data structure per cell for not simulataneously flipping nearby edges

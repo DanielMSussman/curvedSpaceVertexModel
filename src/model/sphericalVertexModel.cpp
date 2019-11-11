@@ -1,5 +1,6 @@
 #include "sphericalVertexModel.h"
 #include "sphericalVertexModel.cuh"
+#include "utilities.cuh"
 
 sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _area, scalar _perimeter, bool _useGPU, bool _neverGPU) : sphericalModel(n,_noise,_useGPU,_neverGPU)
     {
@@ -25,6 +26,12 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     int nVertices = positions.getNumElements();
     maxVNeighs = cnnArraySize / nVertices;
 
+    initializeEdgeFlipLists();
+    growCellVertexListAssist.resize(1);
+    {
+    ArrayHandle<int> h_grow(growCellVertexListAssist,access_location::host,access_mode::overwrite);
+    h_grow.data[0]=0;
+    };
     printf("initialized a system with %i cells and %i vertices\n",nCells, nVertices);
 
 
@@ -50,49 +57,16 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     
     areaPerimeter.resize(nCells);
     areaPerimeterPreference.resize(nCells);
+    cellEdgeFlips.resize(nCells);
+    vector<int> ncz(nCells,0);
+    fillGPUArrayWithVector(ncz,cellEdgeFlips);
 
     printf("(a0,p0)=%f\t%f\n",_area,_perimeter);
     setPreferredParameters(_area,_perimeter);
     setScalarModelParameter(1.0);
     computeGeometry();
-    preserveOrientatedFaces();
     };
 
-void sphericalVertexModel::preserveOrientatedFaces()
-    {
-    /*
-    ArrayHandle<int> cvn(cellNeighbors);
-    ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
-    ArrayHandle<dVec> cp(cellPositions);
-    ArrayHandle<dVec> curVert(currentVertexAroundCell);
-    ArrayHandle<dVec> lastVert(lastVertexAroundCell);
-    ArrayHandle<dVec> nextVert(nextVertexAroundCell);
-    scalar totalArea = 0;
-    scalar totalPerimeter = 0.;
-
-    for (int cc = 0; cc < nCells; ++cc)
-        {
-        int neighs = cnn.data[cc];
-        dVec CP = cp.data[cc];
-        for (int nn = 0; nn < neighs; ++nn)
-            {
-            int cni = cellNeighborIndex(nn,cc);
-            dVec pt1 = lastVert.data[cni];
-            dVec pt2 = curVert.data[cni];
-            dVec pt3 = nextVert.data[cni];
-            scalar determinant = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
-                        +pt1[1]*(pt2[2]*pt3[0]-pt2[0]*pt3[2])
-                        +pt1[2]*(pt2[0]*pt3[1]-pt2[1]*pt3[0]);
-            pt1 = CP;
-            scalar determinant2 = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
-                        +pt1[1]*(pt2[2]*pt3[0]-pt2[0]*pt3[2])
-                        +pt1[2]*(pt2[0]*pt3[1]-pt2[1]*pt3[0]);
-           // printf("%i\t%i\t%i\t%i\n",cc,nn,determinant > 0 ? 1:-1, determinant2 > 0 ? 1:-1);
-            };
-        };
-    */
-    }
-    
 void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
     {
     ArrayHandle<scalar2> app(areaPerimeterPreference);
@@ -754,7 +728,8 @@ void sphericalVertexModel::growCellVerticesList(int newVertexMax)
 
 void sphericalVertexModel::testAndPerformT1TransitionsGPU()
     {
-    UNWRITTENCODE("t1 unfinished");
+    testEdgesForT1GPU();
+    flipEdgesGPU();
     /*
         GPUArray<int> growCellVertexListAssist;
 
@@ -767,16 +742,124 @@ void sphericalVertexModel::testAndPerformT1TransitionsGPU()
         */
     }
 
+/*!
+ Initialize the auxilliary edge flip data structures to zero
+ */
 void sphericalVertexModel::initializeEdgeFlipLists()
     {
-    UNWRITTENCODE("t1 unfinished");
+    vertexEdgeFlips.resize(3*N);
+    vertexEdgeFlipsCurrent.resize(3*N);
+    ArrayHandle<int> h_vflip(vertexEdgeFlips,access_location::host,access_mode::overwrite);
+    ArrayHandle<int> h_vflipc(vertexEdgeFlipsCurrent,access_location::host,access_mode::overwrite);
+    for (int i = 0; i < 3*N; ++i)
+        {
+        h_vflip.data[i]=0;
+        h_vflipc.data[i]=0;
+        }
+
+    finishedFlippingEdges.resize(2);
+    ArrayHandle<int> h_ffe(finishedFlippingEdges,access_location::host,access_mode::overwrite);
+    h_ffe.data[0]=0;
+    h_ffe.data[1]=0;
     }
+
 void sphericalVertexModel::testEdgesForT1GPU()
     {
-    UNWRITTENCODE("t1 unfinished");
+        {//provide scope for array handles
+        ArrayHandle<dVec> d_v(positions,access_location::device,access_mode::read);
+        ArrayHandle<int> d_vn(neighbors,access_location::device,access_mode::read);
+        ArrayHandle<int> d_vflip(vertexEdgeFlips,access_location::device,access_mode::overwrite);
+        ArrayHandle<unsigned int> d_cvn(cellNumberOfNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<int> d_cv(cellNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<int> d_vcn(vertexCellNeighbors,access_location::device,access_mode::read);
+        ArrayHandle<int> d_grow(growCellVertexListAssist,access_location::device,access_mode::readwrite);
+
+        //first, test every edge, and check if the cellVertices list needs to be grown
+        gpu_vm_test_edges_for_T1(d_v.data,
+                              d_vn.data,
+                              d_vflip.data,
+                              d_vcn.data,
+                              d_cvn.data,
+                              d_cv.data,
+                              *(sphere),
+                              t1Threshold,
+                              N,
+                              maximumVerticesPerCell,
+                              d_grow.data,
+                              cellNeighborIndex);
+        }
+    ArrayHandle<int> h_grow(growCellVertexListAssist,access_location::host,access_mode::readwrite);
+    if(h_grow.data[0] ==1)
+        {
+        h_grow.data[0]=0;
+        growCellVerticesList(maximumVerticesPerCell+1);
+        };
     }
+
 void sphericalVertexModel::flipEdgesGPU()
     {
-    UNWRITTENCODE("t1 unfinished");
+    bool keepFlipping = true;
+    //By construction, this loop must always run at least twice...save one of the memory transfers
+    int iterations = 0;
+    while(keepFlipping)
+        {
+            {//provide scope for ArrayHandles in the multiple-flip-parsing stage
+            ArrayHandle<int> d_vn(neighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_vflip(vertexEdgeFlips,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_vflipcur(vertexEdgeFlipsCurrent,access_location::device,access_mode::readwrite);
+            ArrayHandle<unsigned int> d_cvn(cellNumberOfNeighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_cv(cellNeighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_vcn(vertexCellNeighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_ffe(finishedFlippingEdges,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_ef(cellEdgeFlips,access_location::device,access_mode::readwrite);
+            ArrayHandle<int4> d_cs(cellSets,access_location::device,access_mode::readwrite);
+
+            gpu_zero_array(d_ef.data,nCells);
+
+            gpu_vm_parse_multiple_flips(d_vflip.data,
+                               d_vflipcur.data,
+                               d_vn.data,
+                               d_vcn.data,
+                               d_cvn.data,
+                               d_cv.data,
+                               d_ffe.data,
+                               d_ef.data,
+                               d_cs.data,
+                               cellNeighborIndex,
+                               nCells);
+            };
+        //do we need to flip edges? Loop additional times?
+        ArrayHandle<int> h_ffe(finishedFlippingEdges,access_location::host,access_mode::readwrite);
+        if(h_ffe.data[0] != 0)
+            {
+            ArrayHandle<dVec> d_v(positions,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_vn(neighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_vflipcur(vertexEdgeFlipsCurrent,access_location::device,access_mode::readwrite);
+            ArrayHandle<unsigned int> d_cvn(cellNumberOfNeighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_cv(cellNeighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_vcn(vertexCellNeighbors,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> d_ef(cellEdgeFlips,access_location::device,access_mode::readwrite);
+            ArrayHandle<int4> d_cs(cellSets,access_location::device,access_mode::readwrite);
+            
+            gpu_vm_flip_edges(d_vflipcur.data,
+                               d_v.data,
+                               d_vn.data,
+                               d_vcn.data,
+                               d_cvn.data,
+                               d_cv.data,
+                               d_ef.data,
+                               d_cs.data,
+                               *(sphere),
+                               cellNeighborIndex,
+                               N,
+                               nCells);
+            iterations += 1;
+            };
+        if(h_ffe.data[1]==0)
+            keepFlipping = false;
+
+        h_ffe.data[0]=0;
+        h_ffe.data[1]=0;
+        };//end while loop
     }
 
