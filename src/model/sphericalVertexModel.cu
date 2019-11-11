@@ -223,6 +223,57 @@ bool gpu_quadratic_spherical_cellular_force(dVec *cellPos,
     return cudaSuccess;
     };
 
+__global__ void vm_simple_T1_test_kernel(dVec *d_vertexPositions,
+                int *d_vertexNeighbors,
+                int *d_vertexEdgeFlips,
+                int      *d_vertexCellNeighbors,
+                unsigned int      *d_cellVertexNum,
+                int      *d_cellVertices,
+                sphericalDomain &sphere,
+                scalar  T1THRESHOLD,
+                int      NvTimes3,
+                int      vertexMax,
+                int      *d_grow,
+                Index2D  &cellNeighborIndex)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= NvTimes3)
+        return;
+    int vertex1 = idx/3;
+    int vertex2 = d_vertexNeighbors[idx];
+    scalar arcLength;
+    if(vertex1 < vertex2)
+        {
+        sphere.geodesicDistance(d_vertexPositions[vertex1],d_vertexPositions[vertex2],arcLength);
+        if(norm(edge) < T1THRESHOLD)
+            {
+            d_vertexEdgeFlips[idx]=1;
+
+            //test the number of neighbors of the cells connected to v1 and v2 to see if the
+            //cell list should grow. This is kind of slow, and I wish I could optimize it away,
+            //or at least not test for it during every time step. The latter seems pretty doable.
+            //But this is boring, so we'll revisit if optimizations require it
+            if(d_cellVertexNum[d_vertexCellNeighbors[3*vertex1]] == vertexMax)
+                d_grow[0] = 1;
+            if(d_cellVertexNum[d_vertexCellNeighbors[3*vertex1+1]] == vertexMax)
+                d_grow[0] = 1;
+            if(d_cellVertexNum[d_vertexCellNeighbors[3*vertex1+2]] == vertexMax)
+                d_grow[0] = 1;
+            if(d_cellVertexNum[d_vertexCellNeighbors[3*vertex2]] == vertexMax)
+                d_grow[0] = 1;
+            if(d_cellVertexNum[d_vertexCellNeighbors[3*vertex2+1]] == vertexMax)
+                d_grow[0] = 1;
+            if(d_cellVertexNum[d_vertexCellNeighbors[3*vertex2+2]] == vertexMax)
+                d_grow[0] = 1;
+            }
+        else
+            d_vertexEdgeFlips[idx]=0;
+        }
+    else
+        d_vertexEdgeFlips[idx] = 0;
+    };
+
+//!Test every edge for a potential T1 event; see if vertexMax needs to increase
 bool gpu_vm_test_edges_for_T1(dVec *d_vertexPositions,
                 int *d_vertexNeighbors,
                 int *d_vertexEdgeFlips,
@@ -236,6 +287,18 @@ bool gpu_vm_test_edges_for_T1(dVec *d_vertexPositions,
                 int      *d_grow,
                 Index2D  &cellNeighborIndex)
     {
+    unsigned int blockSize = 512;
+    int nV3 = Nvertices*3;
+    if (nV3 < 512) blockSize = 32;
+    unsigned int nBlocks = nV3/blockSize + 1;
+
+    vm_simple_T1_test_kernel<<<nBlocks,blockSize>>>(d_vertexPositions,d_vertexNeighbors,
+                                                      d_vertexEdgeFlips,d_vertexCellNeighbors,
+                                                      d_cellVertexNum,
+                                                      Box,T1THRESHOLD,
+                                                      nV3,vertexMax,d_grow,cellNeighborIndex);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
     };
 
 bool gpu_vm_parse_multiple_flips(

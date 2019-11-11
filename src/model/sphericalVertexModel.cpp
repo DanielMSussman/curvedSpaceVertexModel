@@ -388,14 +388,12 @@ void sphericalVertexModel::computeForceCPU()
 
 void sphericalVertexModel::enforceTopology()
     {
-        //see if vertex motion leads to T1 transitions
-        /*
+    //see if vertex motion leads to T1 transitions
     if(useGPU)
         {
         testAndPerformT1TransitionsGPU();
         }
     else
-        */
         {
         testAndPerformT1TransitionsCPU();
         };
