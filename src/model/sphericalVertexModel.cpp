@@ -23,6 +23,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     //vertexSetAroundCell.resize(cnnArraySize);
     lastVertexAroundCell.resize(cnnArraySize);
     nextVertexAroundCell.resize(cnnArraySize);
+    cellSets.resize(cnnArraySize);
     int nVertices = positions.getNumElements();
     maxVNeighs = cnnArraySize / nVertices;
 
@@ -724,21 +725,15 @@ void sphericalVertexModel::growCellVerticesList(int newVertexMax)
     cellNeighbors.swap(newCellNeighbors);
     }
 
+/*!
+Out of convenience, we break this into two phases. The first simple applies some test on every edge to detect potential T1 transitions.
+The second actually performs such flips in parallel
+*/
 void sphericalVertexModel::testAndPerformT1TransitionsGPU()
     {
     testEdgesForT1GPU();
     flipEdgesGPU();
-    /*
-        GPUArray<int> growCellVertexListAssist;
-
-        GPUArray<int> finishedFlippingEdges;
-
-        //! data structure per cell for not simulataneously flipping nearby edges
-        GPUArray<int> cellEdgeFlips;
-        //! data structure per cell for not simulataneously flipping nearby edges
-        GPUArray<int4> cellSets;
-        */
-    }
+    };
 
 /*!
  Initialize the auxilliary edge flip data structures to zero
