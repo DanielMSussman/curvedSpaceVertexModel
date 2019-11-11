@@ -245,9 +245,11 @@ void sphericalDomain::gradientGeodesicDistance(dVec &p, dVec &other, dVec &deriv
     {
     pt1 = p;
     pt2 = other;
-    scalar r1,t1,ph1,r2,t2,ph2;
-    getAngularCoordinates(pt1 ,r1,t1,ph1);
-    getAngularCoordinates(pt2 ,r2,t2,ph2);
+    scalar r1,ph1,r2,ph2;
+    r1 = sqrt(dot(pt1,pt1));
+    r2 = sqrt(dot(pt2,pt2));
+    ph1 = atan2(pt1[1],pt1[0]);
+    ph2 = atan2(pt2[1],pt2[0]);
 
     scalar cosT1 = pt1[2]/r1;
     scalar cosT2 = pt2[2]/r2;
@@ -359,21 +361,28 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     pt1 = v1;
     pt2 = v2;
     pt3 = v3;
-    scalar r1,r2,r3,t1,t2,t3,p1,p2,p3;
-    getAngularCoordinates(pt1 ,r1,t1,p1);
-    getAngularCoordinates(pt2 ,r2,t2,p2);
-    getAngularCoordinates(pt3 ,r3,t3,p3);
+    //scalar r1,r2,r3,t1,t2,t3,p1,p2,p3;
+    //getAngularCoordinates(pt1 ,r1,t1,p1);
+    //getAngularCoordinates(pt2 ,r2,t2,p2);
+    //getAngularCoordinates(pt3 ,r3,t3,p3);
+    scalar r1,p1,r2,p2,r3,p3;
+    r1 = sqrt(dot(pt1,pt1));
+    r2 = sqrt(dot(pt2,pt2));
+    r3 = sqrt(dot(pt3,pt3));
+    p1 = atan2(pt1[1],pt1[0]);
+    p2 = atan2(pt2[1],pt2[0]);
+    p3 = atan2(pt3[1],pt3[0]);
 
     scalar cosT1 = pt1[2]/r1;
     scalar cosT2 = pt2[2]/r2;
     scalar cosT3 = pt3[2]/r3;
-    scalar sinT1 = sqrt(1-pt1[2]*pt1[2]/(r1*r1));
-    scalar sinT2 = sqrt(1-pt2[2]*pt2[2]/(r1*r1));
-    scalar sinT3 = sqrt(1-pt3[2]*pt3[2]/(r1*r1));
+    scalar sinT1 = sqrt(1-cosT1*cosT1);
+    scalar sinT2 = sqrt(1-cosT2*cosT2);
+    scalar sinT3 = sqrt(1-cosT3*cosT3);
     scalar yOverX1 = pt1[1]/pt1[0];
     scalar yOverX2 = pt2[1]/pt2[0];
     scalar yOverX3 = pt3[1]/pt3[0];
-    //scalar cosP1MinusP2 = (1.+yOverX1*yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
+    //scalar cosP1MinusP2Test = (1.+yOverX1*yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
     //scalar cosP1MinusP3 = (1.+yOverX1*yOverX3)/sqrt((1+yOverX1*yOverX1)*(1+yOverX3*yOverX3));
     //scalar cosP2MinusP3 = (1.+yOverX2*yOverX3)/sqrt((1+yOverX2*yOverX2)*(1+yOverX3*yOverX3));
     scalar sinP1MinusP2 = (yOverX1-yOverX2)/sqrt((1+yOverX1*yOverX1)*(1+yOverX2*yOverX2));
@@ -383,6 +392,7 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
     scalar cosP1MinusP2 = cos(p1-p2);
     scalar cosP1MinusP3 = cos(p1-p3);
     scalar cosP2MinusP3 = cos(p2-p3);
+    //printf("diff %g\n", cosP1MinusP2Test- cosP1MinusP2);
 
     double s12,s13,s23,d12,d13,d23,denom1,denom2,denom3;
     //double tempNum;
@@ -401,10 +411,10 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
                       -(d12*(s13*s13-1.)*(s13-s12*s23)+d13*(s12*s12-1.0)*(s12-s13*s23))/denom3;
     gradTheta *= radius;
 
-    scalar gradPhi =((s12*s13 - s23)*sinP1MinusP2*sin(t2) - (-1 + pow(s12,2))*sinP1MinusP3*sin(t3))/(denom1)
-                     - ((-1 + pow(s13,2))*sinP1MinusP2*sin(t2) + (-(s12*s13) + s23)*sinP1MinusP3*sin(t3))/(denom2) 
-                    +((-1 + pow(s13,2))*(s13 - s12*s23)*sinP1MinusP2*sin(t2) + (-1 + pow(s12,2))*(s12 - s13*s23)*
-                    sinP1MinusP3*sin(t3))/(denom3);
+    scalar gradPhi =((s12*s13 - s23)*sinP1MinusP2*sinT2 - (-1 + pow(s12,2))*sinP1MinusP3*sinT3)/(denom1)
+                     - ((-1 + pow(s13,2))*sinP1MinusP2*sinT2 + (-(s12*s13) + s23)*sinP1MinusP3*sinT3)/(denom2) 
+                    +((-1 + pow(s13,2))*(s13 - s12*s23)*sinP1MinusP2*sinT2 + (-1 + pow(s12,2))*(s12 - s13*s23)*
+                    sinP1MinusP3*sinT3)/(denom3);
     gradPhi *=radius;
 
     scalar determinant = pt1[0]*(pt2[1]*pt3[2]-pt2[2]*pt3[1])
