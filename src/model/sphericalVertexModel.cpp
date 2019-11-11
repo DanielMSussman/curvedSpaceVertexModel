@@ -399,30 +399,15 @@ void sphericalVertexModel::computeForceCPU()
             sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar,thetaHat,phiHat);
             fSet -= 2.0*areaDifference*tempVar;
 
-    /*
-            sphere->gradientIncludedAngleSet(vCur,angleSet,tempVar);
-            f -= 2.0*areaDifference*tempVar;
-    */
-//if(isnan(tempVar[0])) {printf("area last nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vLast[0],vLast[1],vLast[2],cPos[0],cPos[1],cPos[2]);}
-
-            //sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar);
-            //f -= 2.0*areaDifference*tempVar;
-//if(isnan(tempVar[0])) {printf("area next nan %f\t (%f,%f,%f), (%f,%f,%f), (%f,%f,%f) \n",areaDifference, vCur[0],vCur[1],vCur[2],vNext[0],vNext[1],vNext[2],cPos[0],cPos[1],cPos[2]);}
             if(!isnan(fSet[0]))
                 f += fSet;
             else
                 printf("forceNan on vidx %i\n",vertexIndex);
             };
-        //printf("%f,%f,%f\n",f[0],f[1],f[2]);
         force.data[vertexIndex] = f;
-        meanForce = meanForce + f;
         forceNorm += dot(f,f);
-        //printf("vertex %i, force (%f,%f,%f)\n",vertexIndex, f[0],f[1],f[2]);
         };
 
-//    printf("total force norm =  %g, mean force = (%f,%f,%f)\n",forceNorm/N,meanForce[0]/N,meanForce[1]/N,meanForce[2]/N);
-//    getMeanForce(meanForce);
-//    printf("projected mean force = (%f,%f,%f)\n",meanForce[0],meanForce[1],meanForce[2]);
     forceProf.end();
     }
 

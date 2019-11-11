@@ -173,14 +173,19 @@ __global__ void  gpu_quadratic_spherical_cellular_force_kernel(dVec *cellPos,
         scalar areaDifference = areaPerimeter[cellIndex].x - areaPerimeterPreference[cellIndex].x;
         scalar perimeterDifference = areaPerimeter[cellIndex].y - areaPerimeterPreference[cellIndex].y;
             
-        sphere.gradientGeodesicDistance(vCur,vLast,tempVar);
+        dVec thetaHat, phiHat;
+        scalar r0, t0, p0;
+        sphere.getAngularCoordinates(vCur,r0,t0,p0);
+        sphere.cartesianSphericalBasisChange(t0,p0,thetaHat,phiHat);
+
+        sphere.gradientGeodesicDistance(vCur,vLast,tempVar,thetaHat,phiHat);
         fSet -= 2.0*Kr*perimeterDifference*tempVar;
-        sphere.gradientGeodesicDistance(vCur,vNext,tempVar);
+        sphere.gradientGeodesicDistance(vCur,vNext,tempVar,thetaHat,phiHat);
         fSet -= 2.0*Kr*perimeterDifference*tempVar;
 
-        sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar);
+        sphere.gradientTriangleArea(vCur,vLast,cPos,tempVar,thetaHat,phiHat);
         fSet -= 2.0*areaDifference*tempVar;
-        sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar);
+        sphere.gradientTriangleArea(vCur,cPos,vNext,tempVar,thetaHat,phiHat);
         fSet -= 2.0*areaDifference*tempVar;
             
         if(!isnan(fSet[0]))
