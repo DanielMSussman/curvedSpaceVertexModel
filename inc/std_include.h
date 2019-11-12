@@ -43,7 +43,8 @@ using namespace std;
 #include "vector_functions.h"
 #include "nvToolsExt.h"
 
-#define PI 3.14159265358979323846
+//double precision value of pi
+#define PI 3.141592653589793115997963468544185161590576171875
 
 //decide whether to compute everything in floating point or double precision
 #ifndef SCALARFLOAT
