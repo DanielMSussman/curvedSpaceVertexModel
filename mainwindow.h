@@ -87,6 +87,8 @@ public:
     vector<scalar3> spherePositions;
     vector<scalar> sphereRadii;
 
+    vector<QString> computationalNames;
+
     noiseSource noise;
 
     shared_ptr<simpleModel> Configuration;

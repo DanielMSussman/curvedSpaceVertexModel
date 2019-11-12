@@ -22,6 +22,20 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
 
+    vector<string> deviceNames;
+    int nDev;
+    cudaGetDeviceCount(&nDev);
+    if(nDev >0)
+        getAvailableGPUs(deviceNames);
+    deviceNames.push_back("CPU");
+    computationalNames.resize(deviceNames.size());
+    for(unsigned int ii = 0; ii < computationalNames.size(); ++ii)
+        {
+        computationalNames[ii] = QString::fromStdString(deviceNames[ii]);
+        ui->detectedGPUBox->insertItem(ii,computationalNames[ii]);
+        }
+
+
     hideControls();
     QString printable = QStringLiteral("Welcome!");
     ui->testingBox->setText(printable);
@@ -58,9 +72,18 @@ void MainWindow::on_initializeButton_released()
         ui->reprodicbleRNGBox->setChecked(false);
         }
 
+    int compDevice = ui->detectedGPUBox->currentIndex();
+    if(compDevice==computationalNames.size()-1)//CPU branch
+        {
+        GPU = false;
+        }
+    else//gpu branch
+        {
+        GPU = chooseGPU(compDevice);
+        }
     simulationInitialize();
 
-    sim->setCPUOperation(true);
+    sim->setCPUOperation(!GPU);
     ui->progressBar->setValue(50);
 
 
@@ -143,7 +166,7 @@ void MainWindow::simulationInitialize()
     sim->addUpdater(BD,Configuration);
     sim->setIntegrationTimestep(dt);
     sim->setCPUOperation(true);
-    
+
     scalar3 zero; zero.x = zero.y= zero.z=0;
     int3 one; one.x = one.y=one.z=1;
     scalar rad = 1.0;
@@ -155,7 +178,7 @@ void MainWindow::on_resetSystemButton_released()
 {
     on_initializeButton_released();
     //Configuration->setParticlePositionsRandomly(noise);
-    //int nC = ui->boxNTotalSize->text().toInt();  
+    //int nC = ui->boxNTotalSize->text().toInt();
     //Configuration->initialize(nC);
     //Configuration->getNeighbors();
     //on_drawStuffButton_released();
@@ -265,7 +288,7 @@ void MainWindow::on_drawStuffButton_released()
             {
             for (int jj = 0; jj < nNeighs.data[ii]; ++jj)
                 {
-                int neighbor = neighs.data[Configuration->neighborIndex(jj,ii)]; 
+                int neighbor = neighs.data[Configuration->neighborIndex(jj,ii)];
                 if(neighbor > ii)
                     {
                     scalar3 start,end;

@@ -166,7 +166,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>0.005</string>
+      <string>0.01</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_27">
@@ -574,7 +574,7 @@ color: black
    <widget class="QLineEdit" name="directorScaleBox">
     <property name="geometry">
      <rect>
-      <x>1040</x>
+      <x>1070</x>
       <y>340</y>
       <width>43</width>
       <height>21</height>
@@ -587,14 +587,14 @@ color: black
    <widget class="QLabel" name="label_39">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>340</y>
-      <width>60</width>
+      <x>990</x>
+      <y>335</y>
+      <width>81</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>director scale</string>
+     <string>force scale</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -603,14 +603,14 @@ color: black
    <widget class="QLabel" name="label_40">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>340</y>
-      <width>60</width>
+      <x>710</x>
+      <y>335</y>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>lattice skip</string>
+     <string>unused setting</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
