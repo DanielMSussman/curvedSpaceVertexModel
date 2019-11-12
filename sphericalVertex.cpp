@@ -105,7 +105,7 @@ int main(int argc, char*argv[])
     Configuration->setPreferredParameters(1.0,1.0);
     profiler stabProf("stabilization");
     cout << "stabilization..." << endl;
-    for (int ii = 0; ii < 100*stepsPerTau; ++ii)
+    for (int ii = 0; ii < maximumIterations; ++ii)
         {
         stabProf.start();
         sim->performTimestep();
@@ -115,54 +115,13 @@ int main(int argc, char*argv[])
     Configuration->setPreferredParameters(a0,p0);
     cout << "initialization..." << endl;
     profiler initProf("initialization ");
-    for (int ii = 0; ii < min(maximumIterations,1000*stepsPerTau); ++ii)
+    for (int ii = 0; ii < maximumIterations; ++ii)
         {
         initProf.start();
         sim->performTimestep();
         initProf.end();
         }
-    if(fIdx >= 0)
-    {
-    dynamicalFeatures dynFeat(Configuration->cellPositions,Configuration->sphere);
-    logSpacedIntegers lsi(0,0.05);
-    lsi.update();
 
-    char fname[256];
-    sprintf(fname,"cellPositions_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
-    string outFile(fname);
-    sprintf(fname,"msd_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
-    string outFile2(fname);
-    sprintf(fname,"overlap_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
-    string outFile3(fname);
-
-    vectorValueNetCDF vvdat(outFile,N*3,NcFile::Replace);
-    vectorValueNetCDF msddat(outFile2,2,NcFile::Replace);
-    vectorValueNetCDF overlapdat(outFile3,2,NcFile::Replace);
-    vector<scalar> outputVec(2);
-    vector<scalar> cellPositions(3*N);
-    for (int ii = 0; ii <maximumIterations; ++ii)
-        {
-        if(ii == lsi.nextSave)
-            {
-            lsi.update();
-            scalar e = sim->computeEnergy();
-            ArrayHandle<dVec> cp(Configuration->cellPositions);
-            for(int cc = 0; cc < N; ++cc)
-                for (int dd=0;dd<3;++dd)
-                    cellPositions[3*cc+dd] = cp.data[cc][dd];
-            vvdat.writeState(cellPositions,e);
-            scalar msd = dynFeat.computeMSD(Configuration->cellPositions);
-            scalar overlap = dynFeat.computeOverlapFunction(Configuration->cellPositions);
-            outputVec[0] = ii*dt;
-            outputVec[1] = msd;
-            msddat.writeState(outputVec,ii);
-            outputVec[1] = overlap;
-            overlapdat.writeState(outputVec,ii);
-            cout << "wrote state at timestep " << ii << endl;
-            }
-        sim->performTimestep();
-        }
-    };
     stabProf.print();
     Configuration->geoProf.setName("geometry");
     Configuration->forceProf.setName("force");

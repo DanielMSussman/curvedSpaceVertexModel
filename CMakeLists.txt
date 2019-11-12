@@ -79,7 +79,7 @@ set(HEADERS
     )
 
 # list the names of cpp files corresponding to linked executables you'd like...NON-GUI
-foreach(ARG sphericalVertex)
+foreach(ARG sphericalVertex runTrajectory)
 add_executable("${ARG}.out" "${ARG}.cpp" )
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${NETCDF_LIBRARIES} ${NETCDF_LIBRARIES_CXX} ${NETCDF_LIBRARIES_C}
     CGAL::CGAL
