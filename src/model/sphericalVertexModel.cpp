@@ -17,7 +17,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
         convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
         };
     maximumVerticesPerCell = cellNeighborIndex.getW();
-    
+
     int cnnArraySize = vertexCellNeighbors.getNumElements();
     currentVertexAroundCell.resize(cnnArraySize);
     //vertexSetAroundCell.resize(cnnArraySize);
@@ -58,9 +58,6 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
 
     areaPerimeter.resize(nCells);
     areaPerimeterPreference.resize(nCells);
-    cellEdgeFlips.resize(nCells);
-    vector<int> ncz(nCells,0);
-    fillGPUArrayWithVector(ncz,cellEdgeFlips);
 
     printf("(a0,p0)=%f\t%f\n",_area,_perimeter);
     setPreferredParameters(_area,_perimeter);
@@ -104,6 +101,7 @@ void sphericalVertexModel::moveParticlesCPU(GPUArray<dVec> &displacements, scala
 
 void sphericalVertexModel::moveParticlesGPU(GPUArray<dVec> &displacements, scalar scale)
     {
+    moveProf.start();
         {//arrayhandle scope
         ArrayHandle<dVec> p(positions,access_location::device,access_mode::readwrite);
         ArrayHandle<dVec> disp(displacements,access_location::device,access_mode::read);
@@ -111,6 +109,7 @@ void sphericalVertexModel::moveParticlesGPU(GPUArray<dVec> &displacements, scala
         }
     if(!restrictedMotion)
         enforceTopology();
+    moveProf.end();
     };
 
 scalar sphericalVertexModel::computeEnergy()
@@ -299,6 +298,7 @@ void sphericalVertexModel::computeGeometryGPU()
 void sphericalVertexModel::computeForceGPU()
     {
     computeGeometry();
+        forceProf.start();
         {//arrayHandle
         ArrayHandle<dVec> cp(cellPositions,access_location::device,access_mode::read);
         ArrayHandle<dVec> p(positions,access_location::device,access_mode::read);
@@ -311,21 +311,20 @@ void sphericalVertexModel::computeForceGPU()
         ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors,access_location::device,access_mode::read);
         ArrayHandle<scalar2> ap(areaPerimeter,access_location::device,access_mode::read);
         ArrayHandle<scalar2> app(areaPerimeterPreference,access_location::device,access_mode::read);
-        forceProf.start();
 
         gpu_quadratic_spherical_cellular_force(cp.data,p.data,force.data,vcn.data,vcnn.data,curVert.data,
                                             lastVert.data,nextVert.data,cnn.data,ap.data,app.data,neighborIndex,Kr,*(sphere),N);
-        forceProf.end();
         }
+        forceProf.end();
     }
 
 void sphericalVertexModel::computeForceCPU()
     {
     //printf("computing forces\n");
     computeGeometry();
-    
+
     forceProf.start();
-    
+
     ArrayHandle<dVec> cp(cellPositions);
     ArrayHandle<dVec> p(positions);
     ArrayHandle<dVec> force(forces);
@@ -338,7 +337,7 @@ void sphericalVertexModel::computeForceCPU()
     ArrayHandle<unsigned int> cnn(cellNumberOfNeighbors);
     ArrayHandle<scalar2> ap(areaPerimeter);
     ArrayHandle<scalar2> app(areaPerimeterPreference);
-    
+
     scalar forceNorm = 0.0;
     dVec vLast,vCur,vNext,cPos,tempVar;
     quadAngularPosition angleSet;
@@ -466,8 +465,8 @@ void sphericalVertexModel::testAndPerformT1TransitionsCPU()
                     sphere->putInBoxVirtual(midpoint);
                     //chose the angle of rotation based on whether the edges are currently crossed...
                     dVec vC = h_v.data[vertexSet.z];
-    
-    scalar determinant = vC[0]*(v1[1]*v2[2]-v1[2]*v2[1])
+
+                    scalar determinant = vC[0]*(v1[1]*v2[2]-v1[2]*v2[1])
                         +vC[1]*(v1[2]*v2[0]-v1[0]*v2[2])
                         +vC[2]*(v1[0]*v2[1]-v1[1]*v2[0]);
                     determinant = determinant > 0 ? 1. : -1. ;
@@ -740,6 +739,10 @@ void sphericalVertexModel::testAndPerformT1TransitionsGPU()
  */
 void sphericalVertexModel::initializeEdgeFlipLists()
     {
+    cellEdgeFlips.resize(nCells);
+    vector<int> ncz(nCells,0);
+    fillGPUArrayWithVector(ncz,cellEdgeFlips);
+
     vertexEdgeFlips.resize(3*N);
     vertexEdgeFlipsCurrent.resize(3*N);
     ArrayHandle<int> h_vflip(vertexEdgeFlips,access_location::host,access_mode::overwrite);

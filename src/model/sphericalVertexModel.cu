@@ -60,14 +60,14 @@ __global__ void gpu_spherical_vertex_model_geometry_kernel(dVec *vertexPos,
         cPos = cPos + vertexPos[cellNeighbors[cellNeighborIndex(nn,idx)]];
     sphere.putInBoxReal(cPos);
     cellPos[idx] = cPos;
-        
+
     int lastVertexIdx = cellNeighbors[cellNeighborIndex(neighs-2,idx)];
     int curVertexIdx = cellNeighbors[cellNeighborIndex(neighs-1,idx)];
     int nextVertexIdx;
     dVec lastVertexPos = vertexPos[lastVertexIdx];
     dVec curVertexPos = vertexPos[curVertexIdx];
     dVec nextVertexPos;
-    scalar perimeter = 0.; 
+    scalar perimeter = 0.;
     scalar area = 0.;
     scalar tempVal;
     for (int nn = 0; nn < neighs; ++nn)
@@ -93,7 +93,7 @@ __global__ void gpu_spherical_vertex_model_geometry_kernel(dVec *vertexPos,
         lastVertexAroundCell[forceSetIdx] = lastVertexPos;
         currentVertexAroundCell[forceSetIdx] = curVertexPos;
         nextVertexAroundCell[forceSetIdx] = nextVertexPos;
-        
+
         lastVertexPos = curVertexPos;
         curVertexIdx = nextVertexIdx;
         curVertexPos = nextVertexPos;
@@ -234,7 +234,7 @@ __global__ void vm_simple_T1_test_kernel(dVec *d_vertexPositions,
                 int      NvTimes3,
                 int      vertexMax,
                 int      *d_grow,
-                Index2D  &cellNeighborIndex)
+                Index2D  cellNeighborIndex)
     {
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= NvTimes3)
@@ -441,8 +441,8 @@ __global__ void vm_flip_edges_kernel(int *d_vertexEdgeFlipsCurrent,
                     int      *d_cellVertices,
                     int      *d_cellEdgeFlips,
                     int4     *d_cellSets,
-                    sphericalDomain   &sphere,
-                    Index2D  &cellNeighborIndex,
+                    sphericalDomain   sphere,
+                    Index2D  cellNeighborIndex,
                     int      NvTimes3
                     )
     {
@@ -472,11 +472,6 @@ __global__ void vm_flip_edges_kernel(int *d_vertexEdgeFlipsCurrent,
 
     //classify cell1
     cneigh = d_cellVertexNum[cell1];
-    if(threadIdx.x == 80 || blockIdx.x ==1)
-        {
-        printf("cneigh, cell1 %i %i \n",cneigh, cell1);
-        printf("cni %i\n",cellNeighborIndex(cneigh-2,cell1));
-        }
     vlast = d_cellVertices[ cellNeighborIndex(cneigh-2,cell1) ];
     vcur = d_cellVertices[ cellNeighborIndex(cneigh-1,cell1) ];
     for (int cn = 0; cn < cneigh; ++cn)

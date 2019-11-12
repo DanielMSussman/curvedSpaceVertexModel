@@ -153,7 +153,7 @@ void MainWindow::simulationInitialize()
     ui->p0Box_2->setText( ui->p0Box->text());
 
 
-    Configuration = make_shared<sphericalVertexModel>(N,noise,preferredA,preferredP,false,true);
+    Configuration = make_shared<sphericalVertexModel>(N,noise,preferredA,preferredP,GPU,!GPU);
     Configuration->setScalarModelParameter(Kr);
     on_forbidNeighborExchanges_released();
     scalar temperature = initialT;

@@ -122,14 +122,14 @@ int main(int argc, char*argv[])
         initProf.end();
         }
 
-    stabProf.print();
     Configuration->geoProf.setName("geometry");
     Configuration->forceProf.setName("force");
     Configuration->moveProf.setName("movement and topology");
     Configuration->geoProf.print();
     Configuration->forceProf.print();
     Configuration->moveProf.print();
-
+    BD->updateProfiler.print();
+    stabProf.print();
     initProf.print();
 //
 //The end of the tclap try

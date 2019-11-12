@@ -4,6 +4,7 @@
 #include "std_include.h"
 #include "simpleModel.h"
 #include "basicSimulation.h"
+#include "profiler.h"
 
 /*! \file baseUpdater.h */
 //!A base class for implementing simple updaters
@@ -19,8 +20,8 @@ class updater
     {
     public:
         //! by default, updaters are called every timestep with no offset
-        updater(){Period = -1;Phase = 0;reproducible = true; useGPU=false;};
-        updater(int _p){Period = _p; Phase = 0;};
+        updater(){Period = -1;Phase = 0;reproducible = true; useGPU=false;updateProfiler.setName("generic updater");};
+        updater(int _p){Period = _p; Phase = 0;updateProfiler.setName("generic updater");};
         //! The fundamental function that a controlling Simulation can call
         virtual void Update(int timestep)
             {
@@ -70,6 +71,8 @@ class updater
 
         //!allow for setting multiple threads
         virtual void setNThreads(int n){nThreads = n;};
+        //!A profiler that EXCLUDES any calls to the sim... just profile internal functions
+        profiler updateProfiler;
     protected:
         //!number of threads to use
         int nThreads=1;

@@ -8,11 +8,13 @@ brownianDynamics::brownianDynamics(bool _reproducible)
     deltaT = 0.01;
     mu = 1.0;
     reproducible = _reproducible;
+    updateProfiler.setName("brownian dynamics profiler");
     };
 
 void brownianDynamics::integrateEOMGPU()
     {
     sim->computeForces();
+    updateProfiler.start();
     {
     ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
     ArrayHandle<dVec> d_disp(displacement,access_location::device,access_mode::overwrite);
@@ -20,6 +22,7 @@ void brownianDynamics::integrateEOMGPU()
     gpu_brownian_eom_integration(d_f.data,d_disp.data,d_RNG.data,
                                Ndof,deltaT,mu,temperature);
     }
+    updateProfiler.end();
     sim->moveParticles(displacement);
     };
 
@@ -28,6 +31,7 @@ void brownianDynamics::integrateEOMCPU()
     //compute the forces
     sim->computeForces();
 
+    updateProfiler.start();
     {//scope for array handles
     scalar forcePrefactor = deltaT*mu;
     scalar noisePrefactor = sqrt(2.0*forcePrefactor*temperature);
@@ -39,7 +43,7 @@ void brownianDynamics::integrateEOMCPU()
             disp.data[ii][dd] = noise.getRealNormal()*noisePrefactor + f.data[ii][dd]*forcePrefactor;
         }
     };//end array handle scope
-
+    updateProfiler.end();
     sim->moveParticles(displacement);
     }
 
