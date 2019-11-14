@@ -105,12 +105,13 @@ int main(int argc, char*argv[])
     Configuration->setPreferredParameters(1.0,1.0);
     profiler stabProf("stabilization");
     cout << "stabilization..." << endl;
-    for (int ii = 0; ii < 100*stepsPerTau; ++ii)
+    for (int ii = 0; ii < 10*stepsPerTau; ++ii)
         {
         stabProf.start();
         sim->performTimestep();
         stabProf.end();
         }
+    cout << "setting temperature to " << Temperature << endl;
     BD->setT(Temperature);
     Configuration->setPreferredParameters(a0,p0);
     cout << "initialization..." << endl;
@@ -158,7 +159,7 @@ int main(int argc, char*argv[])
             msddat.writeState(outputVec,ii);
             outputVec[1] = overlap;
             overlapdat.writeState(outputVec,ii);
-            cout << "wrote state at timestep " << ii << endl;
+            cout << "wrote state at timestep " << ii << "  " <<msd << "  " << overlap <<  endl;
             }
         sim->performTimestep();
         }

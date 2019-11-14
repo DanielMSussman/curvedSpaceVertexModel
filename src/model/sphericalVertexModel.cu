@@ -60,7 +60,8 @@ __global__ void gpu_spherical_vertex_model_geometry_kernel(dVec *vertexPos,
         cPos = cPos + vertexPos[cellNeighbors[cellNeighborIndex(nn,idx)]];
     sphere.putInBoxReal(cPos);
     cellPos[idx] = cPos;
-
+//if(idx ==0)
+//    printf("%f %f %f\n", cellPos[idx][0],cellPos[idx][1],cellPos[idx][2]);
     int lastVertexIdx = cellNeighbors[cellNeighborIndex(neighs-2,idx)];
     int curVertexIdx = cellNeighbors[cellNeighborIndex(neighs-1,idx)];
     int nextVertexIdx;

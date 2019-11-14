@@ -279,7 +279,7 @@ void sphericalVertexModel::computeGeometryGPU()
     {
         {//arrayHandle scope
         ArrayHandle<dVec> p(positions,access_location::device,access_mode::read);
-        ArrayHandle<dVec> cp(cellPositions,access_location::device,access_mode::read);
+        ArrayHandle<dVec> cp(cellPositions,access_location::device,access_mode::readwrite);
         ArrayHandle<int> cvn(cellNeighbors,access_location::device,access_mode::read);
         ArrayHandle<int> vcn(vertexCellNeighbors,access_location::device,access_mode::read);
         ArrayHandle<unsigned int> vcnn(numberOfNeighbors,access_location::device,access_mode::read);

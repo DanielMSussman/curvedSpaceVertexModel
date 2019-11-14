@@ -7,11 +7,11 @@
 dynamicalFeatures::dynamicalFeatures(GPUArray<dVec> &initialPos, shared_ptr<sphericalDomain> _sphere, scalar fractionAnalyzed)
     {
     sphere = _sphere;
-    cout << "dynamical analysis package pointing at sphere of radius " << sphere->radius << endl; cout.flush();
     copyGPUArrayData(initialPos,iPos);
     N = iPos.size();
     if(fractionAnalyzed < 1)
         N = floor(N*fractionAnalyzed);
+    cout << "dynamical analysis package pointing at sphere of radius " << sphere->radius << " and with " << N << "points to analyze" << endl; cout.flush();
     };
 
 scalar dynamicalFeatures::computeMSD(GPUArray<dVec> &currentPos)
@@ -25,7 +25,10 @@ scalar dynamicalFeatures::computeMSD(GPUArray<dVec> &currentPos)
         cur = fPos.data[ii];
         init = iPos[ii];
         sphere->geodesicDistance(init,cur,disp);
-        msd += disp*disp;
+        if(!isnan(disp))
+            msd += disp*disp;
+        else
+            printf("%i %g %g %g\n",ii ,init[0]-cur[0],init[1]-cur[1],init[2]-cur[2]);
         };
     msd = msd / N;
     return msd;

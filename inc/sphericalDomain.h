@@ -33,6 +33,8 @@ class sphericalDomain
         HOSTDEVICE void cartesianSphericalBasisChange(dVec &cartesianPosition, dVec &thetaHat, dVec &phiHat); 
 
         HOSTDEVICE void geodesicDistance(dVec &p1, dVec &p2, scalar &dist);
+        //!version well-conditioned for all angles
+        HOSTDEVICE void geodesicDistanceTan(dVec &p1, dVec &p2, scalar &dist);
         
         //!take the gradient in spherical coordinates, even though p1 and p3 are 3-vectors, then project back. Grad is definitionally in the tangent plane
         HOSTDEVICE void gradientGeodesicDistance(dVec &p, dVec &other, dVec &derivative);
@@ -64,16 +66,49 @@ scalar sphericalDomain::normCross(dVec &p1, dVec &p2)
     return sqrt(term1*term1+term2*term2+term3*term3);
     }
 
+void sphericalDomain::geodesicDistanceTan(dVec &p1, dVec &p2, scalar &dist)
+    {
+    //pt1 = p1;
+    //pt2 = p2;
+    if(p1==p2)
+        {
+        dist = 0.;
+        return;
+        }
+    putInBoxVirtual(pt1);
+    putInBoxVirtual(pt2);
+    //acos formulation
+    //dist = radius*acos(dot(pt1,pt2));
+    //scalar numerator = p1[0]*p2[0]+p1[1]*p2[1]+p1[2]*p2[2];
+    //scalar denominator = sqrt(p1[0]*p1[0]+p1[1]*p1[1]+p1[2]*p1[2])*sqrt(p2[0]*p2[0]+p2[1]*p2[1]+p2[2]*p2[2]);
+    //dist = radius*acos(numerator/denominator);
+    //
+    //asin formulation
+    dVec crossP = cross(pt1,pt2);
+    //dist = radius*asin(norm(crossP));
+
+    //atan formulation... best conditioned for all angles
+    dist = radius*atan2(norm(crossP),dot(pt1,pt2));
+    }
+
 void sphericalDomain::geodesicDistance(dVec &p1, dVec &p2, scalar &dist)
     {
     //pt1 = p1;
     //pt2 = p2;
     //putInBoxVirtual(pt1);
     //putInBoxVirtual(pt2);
+    //acos formulation
     //dist = radius*acos(dot(pt1,pt2));
     scalar numerator = p1[0]*p2[0]+p1[1]*p2[1]+p1[2]*p2[2];
     scalar denominator = sqrt(p1[0]*p1[0]+p1[1]*p1[1]+p1[2]*p1[2])*sqrt(p2[0]*p2[0]+p2[1]*p2[1]+p2[2]*p2[2]);
     dist = radius*acos(numerator/denominator);
+    //
+    //asin formulation
+    //dVec crossP = cross(p1,p2);
+    //dist = asin(norm(crossP));
+
+    //atan formulation... best conditioned for all angles
+    //dist = atan2(norm(crossP),dot(p1,p2));
     }
 
 void sphericalDomain::includedAngle(dVec &p1, dVec &p2, dVec &p3, scalar &angle)
