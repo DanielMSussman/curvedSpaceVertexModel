@@ -395,10 +395,19 @@ void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &d
                         +v1[1]*(v2[2]*v3[0]-v2[0]*v3[2])
                         +v1[2]*(v2[0]*v3[1]-v2[1]*v3[0]);
 
-    if(determinant > 0)
-        derivative = -1.*derivative;
     derivative = gradTheta*thetaHat + gradPhi*phiHat;
-    }
+
+    if(determinant < 0)
+        derivative = -1.*derivative;
+/*
+    if(isnan(derivative[0]))
+        {
+        printf("%f %f %f\t %f %f %f\t %f %f %f\n",v1[0],v1[1],v1[2],v2[0],v2[1],v2[2],v3[0],v3[1],v3[2]);
+        printf("%f %f %f\n",denom1, denom2, denom3);
+        printf("%.8g %.8g %.8g\n",s12,s13,s23);
+        }
+*/
+  }
 
 void sphericalDomain::gradientTriangleArea(dVec &v1, dVec &v2, dVec &v3, dVec &derivative)
     {
