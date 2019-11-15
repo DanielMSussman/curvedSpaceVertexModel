@@ -40,7 +40,7 @@ void brownianDynamics::integrateEOMCPU()
     for(int ii = 0; ii < Ndof; ++ii)
         {
         for(int dd = 0; dd < DIMENSION; ++dd)
-            disp.data[ii][dd] = noise.getRealNormal()*noisePrefactor + f.data[ii][dd]*forcePrefactor;
+            disp.data[ii][dd] = noise.getRealNormalStandardized()*noisePrefactor + f.data[ii][dd]*forcePrefactor;
         }
     };//end array handle scope
     updateProfiler.end();

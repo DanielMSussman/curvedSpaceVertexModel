@@ -35,6 +35,8 @@ class noiseSource
         int getInt(int minimum, int maximum);
         //!Get a real from uniform distribution
         scalar getRealUniform(scalar minimum =0., scalar maximum =1.);
+        //!Get a real from normal distribution with zero mean and unit var
+        scalar getRealNormalStandardized();
         //!Get a real from normal distribution
         scalar getRealNormal(scalar mean =0., scalar std =1.);
 
@@ -68,6 +70,9 @@ class noiseSource
 
         //!An array random-number-generators for use on the GPU branch of the code
         GPUArray<curandState> RNGs;
+
+        //!a normal_distribution with mean zero and unit variance
+        normal_distribution<> unitNormal;
     };
 
 #endif

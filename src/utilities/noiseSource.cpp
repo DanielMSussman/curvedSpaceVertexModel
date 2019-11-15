@@ -26,6 +26,16 @@ scalar noiseSource::getRealUniform(scalar minimum, scalar maximum)
     return answer;
     };
 
+scalar noiseSource::getRealNormalStandardized()
+    {
+    scalar answer;
+    if (Reproducible)
+        answer = unitNormal(gen);
+    else
+        answer = unitNormal(genrd);
+    return answer;
+    };
+
 scalar noiseSource::getRealNormal(scalar mean, scalar std)
     {
     scalar answer;
