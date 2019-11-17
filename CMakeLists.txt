@@ -9,8 +9,8 @@ set(CMAKE_AUTOMOC ON)
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -g -frounding-math")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -frounding-math -O3 -std=c++11")
+set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         -arch=sm_30
                                         -gencode=arch=compute_30,code=sm_30

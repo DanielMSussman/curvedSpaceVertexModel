@@ -14,3 +14,4 @@ cuda_add_library(modelGPU
     simpleModel.cu
     sphericalVertexModel.cu
     )
+#target_compile_options(model PRIVATE -frounding-math)

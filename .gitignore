@@ -17,6 +17,7 @@ cmake_install.cmake
 **/Makefile
 **/cmake_install.cmake
 build/*
+release/*
 debug/*
 data/*
 doc/doxygenOutput
