@@ -179,21 +179,24 @@ void energyMinimizerFIRE::fireStepCPU()
  */
 void energyMinimizerFIRE::minimize()
     {
-    cout << "attempting a minimization" << endl;
+//    cout << "attempting a minimization" << endl;
     if (Ndof != model->getNumberOfParticles())
         initializeFromModel();
     //initialize the forces?
     sim->computeForces();
     forceMax = 110.0;
+    bool anyIterationsDone = false;
     while( (iterations < maxIterations) && (forceMax > forceCutoff) )
         {
+        anyIterationsDone = true;
         iterations +=1;
         integrateEquationOfMotion();
         fireStep();
         if(iterations%1000 == 999)
             printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);
         };
-        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);
+        if(anyIterationsDone)
+            printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);
     };
 
 

@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::hideControls()
 {
     ui->evolutionParametersWidget->hide();
+    ui->fireParametersWidget->hide();
 }
 void MainWindow::showControls()
 {
@@ -123,6 +124,40 @@ void MainWindow::on_boxNTotalSize_textChanged(const QString &arg1)
     ui->boxRadius->setText(valueAsString);
 }
 
+void MainWindow::on_setFIREButton_released()
+{
+    scalar preferredP = ui->fire_p0Box->text().toDouble();
+    scalar preferredA = ui->fire_a0Box->text().toDouble();
+    scalar Kr = ui->fire_KrBox->text().toDouble();
+    Configuration->setPreferredParameters(preferredA,preferredP);
+    Configuration->setScalarModelParameter(Kr);
+    sim->clearUpdaters();
+    fire = make_shared<energyMinimizerFIRE>(Configuration);
+    sim->addUpdater(fire,Configuration);
+    sim->setCPUOperation(!GPU);
+
+
+    ui->fireParametersWidget->hide();
+
+    dt = ui->dtBox->text().toDouble();
+    scalar alphaStart= ui->alphaStartBox->text().toDouble();
+    scalar deltaTMax=ui->dtMaxBox->text().toDouble();
+    scalar deltaTInc=ui->dtIncBox->text().toDouble();
+    scalar deltaTDec=ui->dtDecBox->text().toDouble();
+    scalar alphaDec=ui->alphaDecBox->text().toDouble();
+    int nMin=ui->nMinBox->text().toInt();
+    scalar forceCutoff=ui->forceCutoffBox->text().toDouble();
+    scalar alphaMin = ui->alphaMinBox->text().toDouble();
+    maximumIterations = ui->maxIterationsBox->text().toInt();
+
+    fire->setCurrentIterations(0);
+    fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+    fire->setMaximumIterations(maximumIterations);
+    QString printable = QStringLiteral("Minimization parameters set, force cutoff of %1 dt between %2 and %3 chosen").arg(forceCutoff).arg(dt).arg(deltaTMax);
+    ui->testingBox->setText(printable);
+    ui->progressBar->setValue(100);
+}
+
 void MainWindow::on_setParametersButton_released()
 {
     scalar preferredP = ui->p0Box_2->text().toDouble();
@@ -131,9 +166,15 @@ void MainWindow::on_setParametersButton_released()
     Configuration->setPreferredParameters(preferredA,preferredP);
     Configuration->setScalarModelParameter(Kr);
     dt =ui->initialDtSet->text().toDouble();
-    sim->setIntegrationTimestep(dt);
+
+    sim->clearUpdaters();
     scalar initialT = ui->initialTSet->text().toDouble();
+    BD = make_shared<brownianDynamics>();
     BD->setT(initialT);
+    sim->addUpdater(BD,Configuration);
+
+    sim->setIntegrationTimestep(dt);
+    sim->setCPUOperation(!GPU);
 
     ui->evolutionParametersWidget->hide();
     ui->initialDt->setText(ui->initialDtSet->text());
@@ -190,25 +231,49 @@ void MainWindow::on_addIterationsButton_released()
     ui->progressBar->setValue(0);
 
     int additionalIterations = ui->addIterationsBox->text().toInt();
+    maximumIterations = additionalIterations;
 
     int stepsPerSubdivision = 1/dt;
     int subdivisions = additionalIterations/stepsPerSubdivision;
     if (subdivisions == 0)
         {
-        stepsPerSubdivision = 50;
-        subdivisions = additionalIterations / 10;
+        if(additionalIterations > 10)
+            {
+            subdivisions = 10;
+            stepsPerSubdivision = additionalIterations/subdivisions;
+            }
+        else
+            {
+            stepsPerSubdivision = 50;
+            subdivisions = additionalIterations / 10;
+            }
+
         }
 
     profiler prof1("drawing");
     profiler prof2("evolving");
     for (int ii = 0; ii < subdivisions; ++ii)
         {
-        for (int jj = 0; jj < stepsPerSubdivision; ++jj)
+        if(ui->FIRECheckBox->isChecked())
             {
+            {
+            auto upd = sim->updaters[0].lock();
+            int curIterations = upd->getCurrentIterations();
+            upd->setMaximumIterations(curIterations+stepsPerSubdivision);
+            }
             prof2.start();
             sim->performTimestep();
             prof2.end();
             }
+        else
+            {
+            for (int jj = 0; jj < stepsPerSubdivision; ++jj)
+                {
+                prof2.start();
+                sim->performTimestep();
+                prof2.end();
+                }
+            };
         if(graphicalProgress)
             {
             prof1.start();
@@ -390,7 +455,10 @@ void MainWindow::on_computeEnergyButton_released()
 
 void MainWindow::on_computeEnergyButton_2_released()
 {
-    ui->evolutionParametersWidget->show();
+    if(ui->FIRECheckBox->isChecked())
+        ui->fireParametersWidget->show();
+    if(ui->BDCheckBox->isChecked())
+        ui->evolutionParametersWidget->show();
 }
 
 void MainWindow::on_cancelEvolutionParametersButton_pressed()
@@ -404,3 +472,28 @@ void MainWindow::on_forbidNeighborExchanges_released()
     bool stopTopologyChanges = ui->forbidNeighborExchanges->isChecked();
     Configuration->restrictedMotion = stopTopologyChanges;
 }
+
+void MainWindow::on_BDCheckBox_released()
+{
+    ui->FIRECheckBox->setChecked(!ui->BDCheckBox->isChecked());
+}
+
+void MainWindow::on_FIRECheckBox_clicked()
+{
+    ui->BDCheckBox->setChecked(!ui->FIRECheckBox->isChecked());
+}
+
+void MainWindow::on_cancelFIREButton_released()
+{
+    ui->fireParametersWidget->hide();
+}
+
+void MainWindow::on_switchUpdaterButton_released()
+{
+    if(ui->FIRECheckBox->isChecked())
+        ui->fireParametersWidget->show();
+    if(ui->BDCheckBox->isChecked())
+        ui->evolutionParametersWidget->show();
+}
+
+

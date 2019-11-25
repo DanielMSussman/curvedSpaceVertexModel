@@ -26,7 +26,9 @@ class updater
         virtual void Update(int timestep)
             {
             if(Period <= 0 || (Period >0 && (timestep+Phase) % Period == 0))
+                {
                 performUpdate();
+                }
             };
         //! The function which performs the update
         virtual void performUpdate();
@@ -72,8 +74,15 @@ class updater
         //!allow for setting multiple threads
         virtual void setNThreads(int n){nThreads = n;};
         //!A profiler that EXCLUDES any calls to the sim... just profile internal functions
+        //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
+        virtual void setMaximumIterations(int maxIt){maxIterations = maxIt;};
+        virtual int getCurrentIterations(){return iterations;};
         profiler updateProfiler;
     protected:
+        //!The number of iterations performed
+        int iterations=0;
+        //!The maximum number of iterations allowed
+        int maxIterations;
         //!number of threads to use
         int nThreads=1;
         //!The period of the updater... the updater will work every Period timesteps

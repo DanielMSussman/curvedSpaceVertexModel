@@ -67,6 +67,16 @@ private slots:
 
     void on_forbidNeighborExchanges_released();
 
+    void on_BDCheckBox_released();
+
+    void on_FIRECheckBox_clicked();
+
+    void on_cancelFIREButton_released();
+
+    void on_switchUpdaterButton_released();
+
+    void on_setFIREButton_released();
+
 private:
     Ui::MainWindow *ui;
 
