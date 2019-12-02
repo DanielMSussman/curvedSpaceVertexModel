@@ -10,7 +10,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     cout << "extracting vertex positions from convex huller" << endl;
     nCells = n;
     setRadius(sqrt(nCells/(4.0*PI)));
-    t1Threshold = 0.1;
+    t1Threshold = 0.05;
     cellPositions = positions;
         {
         ArrayHandle<dVec> cellPos(cellPositions);

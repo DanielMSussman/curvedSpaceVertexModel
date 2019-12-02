@@ -52,7 +52,7 @@ int main(int argc, char*argv[])
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100000,"int",cmd);
     ValueArg<int> fileIdxSwitch("f","file","file Index",false,-1,"int",cmd);
-    ValueArg<scalar> forceToleranceSwitchArg("t","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
+    ValueArg<scalar> forceToleranceSwitchArg("t","fTarget","target minimization threshold for norm of residual forces",false,0.000000000000001,"scalar",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
