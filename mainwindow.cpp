@@ -213,6 +213,9 @@ void MainWindow::simulationInitialize()
     scalar rad = 1.0;
     ui->displayZone->addSphere(zero,rad);
     ui->displayZone->setSpheres(one);
+
+    if(ui->FIRECheckBox->isChecked())
+        ui->fireParametersWidget->show();
 }
 
 void MainWindow::on_resetSystemButton_released()
@@ -296,6 +299,9 @@ void MainWindow::on_addIterationsButton_released()
     prof2.print();
     prof1.print();
 
+    dVec mF;
+    Configuration->getMeanForce(mF);
+    printf("mean projected force %g\ncurrent Energy %g\n",sqrt(mF[0]*mF[0]+mF[1]*mF[1]),Configuration->computeEnergy());
     QString printable3 = QStringLiteral("system evolved...");
     ui->testingBox->setText(printable3);
 }
