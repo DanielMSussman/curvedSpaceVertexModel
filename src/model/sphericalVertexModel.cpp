@@ -10,7 +10,7 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     cout << "extracting vertex positions from convex huller" << endl;
     nCells = n;
     setRadius(sqrt(nCells/(4.0*PI)));
-    t1Threshold = 0.05;
+    t1Threshold = 0.1;
     cellPositions = positions;
         {
         ArrayHandle<dVec> cellPos(cellPositions);
@@ -119,7 +119,7 @@ scalar sphericalVertexModel::computeEnergy()
     energy = 0.0;
     for (int i = 0; i < nCells; ++i)
         {
-        energy += (ap.data[i].x-app.data[i].x)*(ap.data[i].x-app.data[i].x) + Kr*(ap.data[i].y-app.data[i].y)*(ap.data[i].y-app.data[i].y);
+        energy += Kr*(ap.data[i].x-app.data[i].x)*(ap.data[i].x-app.data[i].x) + (ap.data[i].y-app.data[i].y)*(ap.data[i].y-app.data[i].y);
         }
     return energy;
     }
@@ -363,14 +363,14 @@ void sphericalVertexModel::computeForceCPU()
             sphere->cartesianSphericalBasisChange(vCur,thetaHat,phiHat);
 
             sphere->gradientGeodesicDistance(vCur,vLast,tempVar,thetaHat,phiHat);
-            fSet -= 2.0*Kr*perimeterDifference*tempVar;
+            fSet -= 2.0*perimeterDifference*tempVar;
             sphere->gradientGeodesicDistance(vCur,vNext,tempVar,thetaHat,phiHat);
-            fSet -= 2.0*Kr*perimeterDifference*tempVar;
+            fSet -= 2.0*perimeterDifference*tempVar;
 
             sphere->gradientTriangleArea(vCur,vLast,cPos,tempVar,thetaHat,phiHat);
-            fSet -= 2.0*areaDifference*tempVar;
+            fSet -= 2.0*Kr*areaDifference*tempVar;
             sphere->gradientTriangleArea(vCur,cPos,vNext,tempVar,thetaHat,phiHat);
-            fSet -= 2.0*areaDifference*tempVar;
+            fSet -= 2.0*Kr*areaDifference*tempVar;
 
             if(!isnan(fSet[0]))
                 f += fSet;

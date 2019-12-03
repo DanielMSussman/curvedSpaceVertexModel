@@ -217,6 +217,7 @@ void sphericalDomain::getAngularCoordinates(dVec &pos, scalar &radius, scalar &t
 
 void sphericalDomain::cartesianSphericalBasisChange(dVec &cartesianPosition, dVec &thetaHat, dVec &phiHat)
     {
+    scalar radius = sqrt(cartesianPosition[0]*cartesianPosition[0]+cartesianPosition[1]*cartesianPosition[1]+cartesianPosition[2]*cartesianPosition[2]);
     scalar cosT = cartesianPosition[2]/radius;
     scalar sinT = sqrt(1.-cosT*cosT);
     scalar denom = sqrt(cartesianPosition[0]*cartesianPosition[0] + cartesianPosition[1]*cartesianPosition[1]);
@@ -263,10 +264,10 @@ void sphericalDomain::gradientGeodesicDistance(dVec &v1, dVec &v2, dVec &derivat
     scalar cosP1MinusP2 = cosP1*cosP2+sinP1*sinP2;
 
     scalar denomPart = cosT1*cosT2 + cosP1MinusP2*sinT1*sinT2;
-    scalar denom = sqrt(1-denomPart*denomPart);
+    scalar denomInverse = 1./sqrt(1-denomPart*denomPart);
 
-    scalar gradTheta = -1.0*(-cosT2*sinT1+cosT1*cosP1MinusP2*sinT2)/denom;
-    scalar gradPhi = sinT2*sinP1MinusP2 / denom;
+    scalar gradTheta = 1.0*(cosT2*sinT1-cosT1*cosP1MinusP2*sinT2)*denomInverse;
+    scalar gradPhi = sinT2*sinP1MinusP2 * denomInverse;
 
     derivative = gradTheta*thetaHat + gradPhi*phiHat;
     }

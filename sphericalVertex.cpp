@@ -122,6 +122,9 @@ int main(int argc, char*argv[])
         initProf.end();
         }
 
+    dVec meanForce;
+    Configuration->getMeanForce(meanForce);
+    printf("mean force: %g %g %g\n",meanForce[0],meanForce[1],meanForce[2]);
     Configuration->geoProf.setName("geometry");
     Configuration->forceProf.setName("force");
     Configuration->moveProf.setName("movement and topology");

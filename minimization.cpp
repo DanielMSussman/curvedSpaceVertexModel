@@ -54,6 +54,7 @@ int main(int argc, char*argv[])
     ValueArg<int> fileIdxSwitch("f","file","file Index",false,-1,"int",cmd);
     ValueArg<scalar> forceToleranceSwitchArg("t","fTarget","target minimization threshold for norm of residual forces",false,0.000000000000001,"scalar",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
+    ValueArg<scalar> krSwitchArg("k","springRatio","kA divided by kP",false,1.0,"double",cmd);
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
     ValueArg<scalar> p0SwitchArg("p","p0","preferred perimeter",false,3.78,"double",cmd);
@@ -74,6 +75,7 @@ int main(int argc, char*argv[])
     scalar v0 = v0SwitchArg.getValue();
     scalar p0 = p0SwitchArg.getValue();
     scalar a0 = a0SwitchArg.getValue();
+    scalar kr = krSwitchArg.getValue();
     scalar forceCutoff = forceToleranceSwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
@@ -87,14 +89,18 @@ int main(int argc, char*argv[])
 
     vector<scalar> outputVec(3);
     char fname[256];
-    sprintf(fname,"data/minimizationResults_N%i_p%.4f.nc",N,p0);
+    sprintf(fname,"data/minimizationResults_N%i_p%.4f_kr%.3f.nc",N,p0,kr);
     string outFile(fname);
     vectorValueNetCDF vvdat(outFile,3,NcFile::Replace);
 
+    int numAtZero = 0;
+    int minimizedStates = 0;
     for (int ff = 0; ff < fIdx; ++ff)
         {
+        noise.setReproducibleSeed(ff+1137);
 
         shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
+        Configuration->setScalarModelParameter(kr);
         printf("sphere size  = %f\n",Configuration->sphere->radius);
 
         shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
@@ -119,7 +125,12 @@ int main(int argc, char*argv[])
         outputVec[1] = meanForce;
         outputVec[2] = iters;
         vvdat.writeState(outputVec,ff);
+        if(energy < 1e-10)
+            numAtZero +=1;
+        if(meanForce < forceCutoff)
+            minimizedStates +=1;
         }
+        printf("fraction of mechanically unstable states: %f\n",(scalar)numAtZero/(scalar)minimizedStates);
 
 //
 //The end of the tclap try

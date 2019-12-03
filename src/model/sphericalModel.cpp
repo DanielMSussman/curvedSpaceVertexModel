@@ -117,9 +117,10 @@ void sphericalModel::getMeanForce(dVec &meanForce)
     for(int ii = 0; ii < N; ++ii)
         {
         currentForce = f.data[ii];
+        sphere->projectToTangentPlane(currentForce,p.data[ii]);
         sphere->cartesianSphericalBasisChange(p.data[ii],tHat,pHat);
-        meanForce[1] += dot(currentForce,tHat);
-        meanForce[2] += dot(currentForce,pHat);
+        meanForce[0] += dot(currentForce,tHat);
+        meanForce[1] += dot(currentForce,pHat);
         }
     meanForce = (1.0/N)*meanForce;
     }
