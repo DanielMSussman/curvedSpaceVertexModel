@@ -53,6 +53,7 @@ int main(int argc, char*argv[])
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,0,"int",cmd);
     ValueArg<int> fileIdxSwitch("f","file","file Index",false,-1,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
+    ValueArg<scalar> krSwitchArg("k","springRatio","kA divided by kP",false,1.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
@@ -75,6 +76,7 @@ int main(int argc, char*argv[])
     scalar v0 = v0SwitchArg.getValue();
     scalar p0 = p0SwitchArg.getValue();
     scalar a0 = a0SwitchArg.getValue();
+    scalar kr = krSwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
@@ -85,7 +87,7 @@ int main(int argc, char*argv[])
     bool reproducible = fIdx <=0 ? true : false;
     noiseSource noise(reproducible);
     shared_ptr<sphericalVertexModel> Configuration = make_shared<sphericalVertexModel>(N,noise,a0,p0,GPU,!GPU);
-    printf("sphere size  = %f\n",Configuration->sphere->radius);
+    Configuration->setScalarModelParameter(kr);
 
     shared_ptr<brownianDynamics> BD = make_shared<brownianDynamics>(reproducible);
     shared_ptr<Simulation> sim = make_shared<Simulation>();
@@ -129,11 +131,11 @@ int main(int argc, char*argv[])
     lsi.update();
 
     char fname[256];
-    sprintf(fname,"data/cellPositions_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
+    sprintf(fname,"data/cellPositions_N%i_p%.4f_T%.5f_kr%.3f_fidx%i.nc",N,p0,Temperature,kr,fIdx);
     string outFile(fname);
-    sprintf(fname,"data/msd_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
+    sprintf(fname,"data/msd_N%i_p%.4f_T%.5f_kr%.3f_fidx%i.nc",N,p0,Temperature,kr,fIdx);
     string outFile2(fname);
-    sprintf(fname,"data/overlap_N%i_p%.4f_T%.5f_fidx%i.nc",N,p0,Temperature,fIdx);
+    sprintf(fname,"data/overlap_N%i_p%.4f_T%.5f_kr%.3f_fidx%i.nc",N,p0,Temperature,kr,fIdx);
     string outFile3(fname);
 
     vectorValueNetCDF vvdat(outFile,N*3,NcFile::Replace);
