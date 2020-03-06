@@ -101,6 +101,7 @@ int main(int argc, char*argv[])
         };
     sim->setReproducible(reproducible);
 
+    sim->setIntegrationTimestep(0.01*dt);
     int stepsPerTau = floor(1./dt);
     //initialize
     BD->setT(0);
@@ -113,6 +114,7 @@ int main(int argc, char*argv[])
         sim->performTimestep();
         stabProf.end();
         }
+    sim->setIntegrationTimestep(dt);
     cout << "setting temperature to " << Temperature << endl;
     BD->setT(Temperature);
     Configuration->setPreferredParameters(a0,p0);
