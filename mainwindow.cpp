@@ -45,6 +45,7 @@ void MainWindow::hideControls()
 {
     ui->evolutionParametersWidget->hide();
     ui->fireParametersWidget->hide();
+    ui->sppParametersWidget->hide();
 }
 void MainWindow::showControls()
 {
@@ -180,6 +181,38 @@ void MainWindow::on_setParametersButton_released()
     ui->initialDt->setText(ui->initialDtSet->text());
 }
 
+void MainWindow::on_setSppParametersButton_clicked()
+{
+    scalar preferredP = ui->p0Box_3->text().toDouble();
+    scalar preferredA = ui->a0Box_3->text().toDouble();
+    scalar Kr = ui->KrBox_3->text().toDouble();
+    Configuration->setPreferredParameters(preferredA,preferredP);
+    Configuration->setScalarModelParameter(Kr);
+    dt =ui->initialDtSet->text().toDouble();
+
+    sim->clearUpdaters();
+    scalar deltaT = ui->initialDtSppSet->text().toDouble();
+    scalar mu = ui->initialMuSppSet->text().toDouble();
+    scalar v0 = ui->initialV0Set->text().toDouble();
+    scalar Dr = ui->initialDrSet->text().toDouble();
+    spp= make_shared<sphericalSelfPropelledParticle>();
+
+    spp->setDeltaT(deltaT);
+    spp->setMu(mu);
+    spp->setV0(v0);
+    spp->setTau(1.0/Dr);
+
+    sim->addUpdater(spp,Configuration);
+
+    sim->setIntegrationTimestep(deltaT);
+    sim->setCPUOperation(!GPU);
+
+    ui->sppParametersWidget->hide();
+    ui->initialDt->setText(ui->initialDtSppSet->text());
+    ui->initialDtSppSet->setText(ui->initialDtSppSet->text());
+}
+
+
 void MainWindow::simulationInitialize()
 {
     scalar preferredP = ui->p0Box->text().toDouble();
@@ -310,6 +343,7 @@ void MainWindow::on_drawStuffButton_released()
 {
     ArrayHandle<dVec> p(Configuration->returnPositions(),access_location::host,access_mode::read);
     ArrayHandle<dVec> v(Configuration->returnForces(),access_location::host,access_mode::read);
+    ArrayHandle<dVec> nHat(Configuration->directors,access_location::host,access_mode::read);
     scalar scale = ui->directorScaleBox->text().toDouble();
     vector<scalar3> lineSegments;
     vector<scalar3> defects;
@@ -328,12 +362,22 @@ void MainWindow::on_drawStuffButton_released()
 #if DIMENSION == 3
             pos.z = p.data[ii].x[2]/radius;
             director.z=v.data[ii].x[2];
+            if(ui->SPPCheckBox->isChecked())
+                {
+                director.z=nHat.data[ii].x[2];
+                }
+
 #else
             pos.z = 0.;
             director.z=0.;
 #endif
             director.x=v.data[ii].x[0];
             director.y=v.data[ii].x[1];
+            if(ui->SPPCheckBox->isChecked())
+                {
+                director.x=nHat.data[ii].x[0];
+                director.y=nHat.data[ii].x[1];
+                }
 
             scalar3 lineSegment1;
             scalar3 lineSegment2;
@@ -482,11 +526,19 @@ void MainWindow::on_forbidNeighborExchanges_released()
 void MainWindow::on_BDCheckBox_released()
 {
     ui->FIRECheckBox->setChecked(!ui->BDCheckBox->isChecked());
+    ui->SPPCheckBox->setChecked(!ui->BDCheckBox->isChecked());
 }
 
 void MainWindow::on_FIRECheckBox_clicked()
 {
     ui->BDCheckBox->setChecked(!ui->FIRECheckBox->isChecked());
+    ui->SPPCheckBox->setChecked(!ui->FIRECheckBox->isChecked());
+}
+
+void MainWindow::on_SPPCheckBox_clicked()
+{
+    ui->FIRECheckBox->setChecked(!ui->SPPCheckBox->isChecked());
+    ui->BDCheckBox->setChecked(!ui->SPPCheckBox->isChecked());
 }
 
 void MainWindow::on_cancelFIREButton_released()
@@ -500,6 +552,12 @@ void MainWindow::on_switchUpdaterButton_released()
         ui->fireParametersWidget->show();
     if(ui->BDCheckBox->isChecked())
         ui->evolutionParametersWidget->show();
+    if(ui->SPPCheckBox->isChecked())
+        ui->sppParametersWidget->show();
 }
 
 
+void MainWindow::on_cancelSppParametersButton_clicked()
+{
+    ui->sppParametersWidget->hide();
+}

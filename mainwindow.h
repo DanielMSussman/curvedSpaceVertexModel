@@ -7,6 +7,7 @@
 #include "sphericalVoronoi.h"
 #include "sphericalVertexModel.h"
 #include "sphericalVectorialVicsek.h"
+#include "sphericalSelfPropelledParticle.h"
 #include "noseHooverNVT.h"
 #include "energyMinimizerFIRE.h"
 #include "brownianDynamics.h"
@@ -77,6 +78,12 @@ private slots:
 
     void on_setFIREButton_released();
 
+    void on_SPPCheckBox_clicked();
+
+    void on_setSppParametersButton_clicked();
+
+    void on_cancelSppParametersButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -101,12 +108,13 @@ public:
 
     noiseSource noise;
 
-    shared_ptr<simpleModel> Configuration;
+    shared_ptr<sphericalModel> Configuration;
     shared_ptr<Simulation> sim;
     shared_ptr<noseHooverNVT> NVT;
     shared_ptr<brownianDynamics> BD;
     shared_ptr<vectorialVicsek> vicsek;
     shared_ptr<energyMinimizerFIRE> fire;
+    shared_ptr<sphericalSelfPropelledParticle> spp;
 
 };
 

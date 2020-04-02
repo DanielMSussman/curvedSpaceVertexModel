@@ -39,11 +39,12 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
 
     //here is the set of data structures to be resized
     velocities.resize(nVertices);
-    directors.resize(nVertices);
     forces.resize(nVertices);
     masses.resize(nVertices);
     radii.resize(nVertices);
     types.resize(nVertices);
+    directors.resize(nVertices);
+
     vector<dVec> zeroes(nVertices,make_dVec(0.0));
     vector<dVec> dirs(nVertices,make_dVec(0.577));
     vector<scalar> ones(nVertices,1.0);
@@ -53,8 +54,23 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     fillGPUArrayWithVector(zeroes,velocities);
     fillGPUArrayWithVector(zeroes,forces);
     fillGPUArrayWithVector(ones,masses);
-    fillGPUArrayWithVector(zeroes,directors);
     //fillGPUArrayWithVector(halves,radii);
+    {//set director list to the right size, fill it randomly
+    ArrayHandle<dVec> p(positions);
+    ArrayHandle<dVec> n(directors);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        scalar u2 = noise.getRealUniform();
+        scalar v2 = noise.getRealUniform();
+        scalar phi = 2.0*PI*u2;
+        scalar theta = acos(2.0*v2-1);
+        n.data[ii].x[0] = 1.0*sin(theta)*cos(phi);
+        n.data[ii].x[1] = 1.0*sin(theta)*sin(phi);
+        n.data[ii].x[2] = 1.0*cos(theta);
+        //project the velocity onto the tangent plane
+        sphere->projectToTangentPlaneAndNormalize(n.data[ii],p.data[ii]);
+        }
+    }
 
     areaPerimeter.resize(nCells);
     areaPerimeterPreference.resize(nCells);

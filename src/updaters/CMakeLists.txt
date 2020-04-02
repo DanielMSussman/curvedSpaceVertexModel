@@ -8,6 +8,7 @@ add_library(updater
     velocityVerlet.cpp
     vectorialVicsek.cpp
     sphericalVectorialVicsek.cpp
+    sphericalSelfPropelledParticle.cpp
     noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
     energyMinimizerAdam.cpp
