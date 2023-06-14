@@ -21,6 +21,18 @@ void sphericalModel::setRadius(scalar _r)
     metricNeighbors.setBasics(1.0,sphere->radius+2.5);
     };
 
+void sphericalModel::setParticlePositions(GPUArray<dVec> &newPositions)
+    {
+    ArrayHandle<dVec> p(positions);
+    ArrayHandle<dVec> np(newPositions);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        p.data[ii].x[0] = np.data[ii].x[0];
+        p.data[ii].x[1] = np.data[ii].x[1];
+        p.data[ii].x[2] = np.data[ii].x[2];
+        sphere->putInBoxReal(p.data[ii]);
+        }
+    }
 
 void sphericalModel::setParticlePositionsRandomly(noiseSource &noise)
     {

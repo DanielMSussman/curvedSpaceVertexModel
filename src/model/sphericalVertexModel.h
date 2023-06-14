@@ -13,6 +13,7 @@ class sphericalVertexModel : public sphericalModel
         sphericalVertexModel(int n, noiseSource &_noise, scalar _area = 1.0, scalar _perimeter = 3.8, bool _useGPU=false, bool _neverGPU = true);
 
         virtual void getNeighbors(){};
+        virtual void setParticlePositions(GPUArray<dVec> &newPositions);
 
         virtual void computeGeometry()
             {

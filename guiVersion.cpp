@@ -18,16 +18,15 @@ int main(int argc, char*argv[])
 
     QSplashScreen *splash = new QSplashScreen;
 
-    splash->setPixmap(QPixmap("../examples/splashWithText.jpeg"));
+    QRect screenGeometry = QApplication::desktop()->screenGeometry();
 
+
+    splash->setPixmap(QPixmap("../examples/splashWithText.jpeg"));
+    splash->move(0,0*screenGeometry.height() / 2);
     splash->show();
 
     MainWindow w;
-
-    QRect screenGeometry = QApplication::desktop()->screenGeometry();
-
-    int x = (screenGeometry.width()-w.width())/2;
-
+    int x = 0*(screenGeometry.width()-w.width())/2;
     int y = (screenGeometry.height()-w.height())/2;
 
     w.move(x,y);

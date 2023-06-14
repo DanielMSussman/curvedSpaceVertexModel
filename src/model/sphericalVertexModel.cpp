@@ -81,6 +81,25 @@ sphericalVertexModel::sphericalVertexModel(int n, noiseSource &_noise, scalar _a
     computeGeometry();
     };
 
+void sphericalVertexModel::setParticlePositions(GPUArray<dVec> &newPositions)
+    {
+    cellPositions = newPositions;
+        {
+        ArrayHandle<dVec> cellPos(cellPositions);
+        convexHuller.sphericalConvexHullForVertexModel(cellPos.data,N,cellNeighbors,cellNumberOfNeighbors,cellNeighborIndex,positions,neighbors,vertexCellNeighbors,numberOfNeighbors,neighborIndex);
+        };
+    maximumVerticesPerCell = cellNeighborIndex.getW();
+
+    int cnnArraySize = vertexCellNeighbors.getNumElements();
+    currentVertexAroundCell.resize(cnnArraySize);
+    //vertexSetAroundCell.resize(cnnArraySize);
+    lastVertexAroundCell.resize(cnnArraySize);
+    nextVertexAroundCell.resize(cnnArraySize);
+    cellSets.resize(cnnArraySize);
+    int nVertices = positions.getNumElements();
+    maxVNeighs = cnnArraySize / nVertices;
+    };
+
 void sphericalVertexModel::setPreferredParameters(scalar _a0, scalar _p0)
     {
     ArrayHandle<scalar2> app(areaPerimeterPreference,access_location::host, access_mode::overwrite);
